@@ -56,29 +56,41 @@
 
         <TextBlock Grid.Row="3" Name="StatusText" Text="Ваш ход!" Foreground="#FFAA00" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-        <WrapPanel Grid.Row="4" Name="ActionPanel" HorizontalAlignment="Center" Orientation="Horizontal">
-            <Button Name="AttackBtn" Content="⚔️ Удар" Margin="5" Click="AttackBtn_Click"/>
-            <Button Name="DefendBtn" Content="🛡 Защита" Margin="5" Click="DefendBtn_Click"/>
-            <Button Name="MagicBtn" Content="✨ Руна Огня (10 MP)" Margin="5" Click="MagicBtn_Click"/>
-            <Button Name="PotionHpBtn" Content="🧪 Зелье HP" Margin="5" Click="PotionHpBtn_Click"/>
-            <Button Name="PotionMpBtn" Content="💧 Зелье MP" Margin="5" Click="PotionMpBtn_Click"/>
-            <Button Name="NewGameBtn" Content="🔄 В меню" Margin="5" Click="NewGameBtn_Click" Visibility="Collapsed" Background="#551111"/>
-        </WrapPanel>
+        <StackPanel Grid.Row="4" Orientation="Vertical">
+            <WrapPanel Name="ActionPanel" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,10">
+                <Button Name="AttackBtn" Content="⚔️ Удар" Margin="5" Click="AttackBtn_Click" Width="120" Height="40"/>
+                <Button Name="DefendBtn" Content="🛡 Защита" Margin="5" Click="DefendBtn_Click" Width="120" Height="40"/>
+                <Button Name="PotionHpBtn" Content="🧪 Зелье HP" Margin="5" Click="PotionHpBtn_Click" Width="120" Height="40"/>
+                <Button Name="PotionMpBtn" Content="💧 Зелье MP" Margin="5" Click="PotionMpBtn_Click" Width="120" Height="40"/>
+                <Button Name="NewGameBtn" Content="🔄 В меню" Margin="5" Click="NewGameBtn_Click" Visibility="Collapsed" Background="#551111" Width="120" Height="40"/>
+            </WrapPanel>
+
+            <WrapPanel Name="ActionBarPanel" HorizontalAlignment="Center" Orientation="Horizontal">
+                <!-- Сюда будут динамически добавляться навыки -->
+            </WrapPanel>
+        </StackPanel>
 
         <!-- Upgrade Overlay -->
         <Border Name="UpgradeOverlay" Grid.Row="0" Grid.RowSpan="5" Background="#CC000000" Visibility="Collapsed" Panel.ZIndex="50">
             <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#222222" Width="600" Padding="20">
                 <StackPanel>
-                    <TextBlock Name="WinTitleText" Text="УРОВЕНЬ ПРОЙДЕН!" Foreground="#FFAA00" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Name="WinSubTitleText" Text="Выберите награду:" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                    <TextBlock Name="WinTitleText" Text="ПОБЕДА!" Foreground="#FFAA00" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <TextBlock Name="WinSubTitleText" Text="Выберите награду и прокачайтесь:" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                    <UniformGrid Columns="3" Rows="1" Height="200" Name="UpgradeGrid">
+                    <UniformGrid Columns="3" Rows="1" Height="150" Name="UpgradeGrid">
                         <Button Name="Upgrade1Btn" Content="Урон" Margin="10" Click="UpgradeBtn_Click"/>
                         <Button Name="Upgrade2Btn" Content="Здоровье" Margin="10" Click="UpgradeBtn_Click"/>
                         <Button Name="Upgrade3Btn" Content="Зелья" Margin="10" Click="UpgradeBtn_Click"/>
                     </UniformGrid>
 
-                    <Button Name="ContinueStoryBtn" Content="Продолжить историю" Margin="0,20,0,0" Height="50" FontSize="18" Visibility="Collapsed" Click="ContinueStoryBtn_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                        <TextBlock Text="Получено очков характеристик: 1" Foreground="LightGreen" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Получено очков навыков: 1" Foreground="LightBlue" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Button Name="OpenSkillTreeBtn" Content="Открыть Дерево Навыков" Margin="0,20,0,0" Height="50" FontSize="18" Background="#444" Click="OpenSkillTreeBtn_Click"/>
+                    <Button Name="ContinueStoryBtn" Content="Продолжить" Margin="0,10,0,0" Height="50" FontSize="18" Visibility="Collapsed" Click="ContinueStoryBtn_Click"/>
+                    <Button Name="NextBattleBtn" Content="Следующий бой" Margin="0,10,0,0" Height="50" FontSize="18" Visibility="Collapsed" Click="NextBattleBtn_Click" Background="#28a745"/>
                 </StackPanel>
             </Border>
         </Border>

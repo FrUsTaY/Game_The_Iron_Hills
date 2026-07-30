@@ -29,7 +29,7 @@ namespace EpicBattle.Models
                 {
                     Id = "Start",
                     SpeakerName = "Автор",
-                    Text = "Разрушенная деревня Пепельный Ручей. Идет мелкий дождь, над сгоревшими домами поднимается дым. Элрик выходит на центральную площадь и видит Углука — орочьего надзирателя.",
+                    Text = "Разрушенная деревня Пепельный Ручей. Идет мелкий дождь, над сгоревшими домами поднимается дым. Герой выходит на центральную площадь и видит Углука — орочьего надзирателя.",
                     Choices = new List<DialogueChoice>
                     {
                         new DialogueChoice { Text = "Подойти к орку", NextNodeId = "Scene1_Ugluk" }
@@ -41,9 +41,24 @@ namespace EpicBattle.Models
                 {
                     Id = "Scene1_Ugluk",
                     SpeakerName = "Орк Углук",
-                    Text = "Р-р-рах! Ещё один человечишка вернулся на гарь! Твой дом теперь принадлежит Орде Громгара. Сложи оружие, и, может быть, я убью тебя быстро!",
+                    Text = "Р-р-рах! Ещё один человечишка вернулся на гарь! Эта земля теперь принадлежит Орде Громгара. Сложи оружие, и, может быть, я убью тебя быстро!",
                     Choices = new List<DialogueChoice>
                     {
+                        new DialogueChoice {
+                            Text = "[Ветеран] Ты пожалеешь об этих словах, орк. Мой клинок видел сотни таких как ты.",
+                            NextNodeId = "Scene1_Aggressive",
+                            RequiredFlag = "Class_Ветеран"
+                        },
+                        new DialogueChoice {
+                            Text = "[Изгой-маг] (Сгустить ману в ладони) Глупец. Твой топор не спасет тебя от тайного огня.",
+                            NextNodeId = "Scene1_Pragmatic",
+                            RequiredFlag = "Class_Изгой-маг"
+                        },
+                        new DialogueChoice {
+                            Text = "[Наемник] Сколько Громгар тебе платит? Я убью тебя бесплатно.",
+                            NextNodeId = "Scene1_Aggressive",
+                            RequiredFlag = "Class_Наемник"
+                        },
                         new DialogueChoice {
                             Text = "[Прагматик] Зачем вы жжёте деревни? Что вам нужно?",
                             NextNodeId = "Scene1_Pragmatic"

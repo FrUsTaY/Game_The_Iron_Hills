@@ -39,6 +39,14 @@ namespace EpicBattle.Views
                     {
                         filteredChoices.Add(choice);
                     }
+                    else if (choice.RequiredFlag.StartsWith("Class_"))
+                    {
+                        string requiredClass = choice.RequiredFlag.Substring(6); // Убираем "Class_"
+                        if (SaveManager.CurrentState.PlayerClass == requiredClass)
+                        {
+                            filteredChoices.Add(choice);
+                        }
+                    }
                 }
 
                 ChoicesControl.ItemsSource = filteredChoices;
