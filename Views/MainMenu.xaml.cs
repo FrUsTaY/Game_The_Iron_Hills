@@ -13,13 +13,12 @@ namespace EpicBattle.Views
 
         private void StoryBtn_Click(object sender, RoutedEventArgs e)
         {
-            SaveManager.CurrentState = new Models.GameState { IsStoryMode = true };
-            NavigationManager.NavigateTo(new DialogueView());
+            NavigationManager.NavigateTo(new CharacterCreationView(isArcade: false));
         }
 
         private void ArcadeBtn_Click(object sender, RoutedEventArgs e)
         {
-            NavigationManager.NavigateTo(new BattleView(isArcade: true));
+            NavigationManager.NavigateTo(new CharacterCreationView(isArcade: true));
         }
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)

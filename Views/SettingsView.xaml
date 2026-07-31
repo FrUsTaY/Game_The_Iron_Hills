@@ -2,9 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#1a1a1a">
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
-            <TextBlock Text="НАСТРОЙКИ" Foreground="#FFAA00" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+                <TextBlock Text="НАСТРОЙКИ" Foreground="#FFAA00" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
 
             <TextBlock Text="Громкость музыки" Foreground="White" FontSize="16" Margin="0,10,0,5"/>
             <Slider Name="MusicSlider" Minimum="0" Maximum="1" TickFrequency="0.1" IsSnapToTickEnabled="True" ValueChanged="MusicSlider_ValueChanged"/>
@@ -13,6 +14,7 @@
             <Slider Name="SfxSlider" Minimum="0" Maximum="1" TickFrequency="0.1" IsSnapToTickEnabled="True" ValueChanged="SfxSlider_ValueChanged"/>
 
             <Button Content="Назад в меню" Margin="0,40,0,0" Height="40" FontSize="18" Click="BackBtn_Click"/>
-        </StackPanel>
-    </Grid>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

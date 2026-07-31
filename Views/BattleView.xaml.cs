@@ -46,6 +46,11 @@ namespace EpicBattle.Views
 
         private Random random = new Random();
 
+        // Эффекты навыков
+        private int _enemyBleedTurns = 0;
+        private int _enemyBurnTurns = 0;
+        private int _manaShieldTurns = 0;
+
         // Аудио
         private MediaPlayer bgmPlayer = new MediaPlayer();
         private List<MediaPlayer> sfxPlayers = new List<MediaPlayer>();
@@ -213,11 +218,32 @@ namespace EpicBattle.Views
             LogScrollViewer.ScrollToEnd();
         }
 
+        private void ApplyClassPassivesPerTurn(Models.GameState state)
+        {
+            if (state.PlayerClass == "Изгой-маг")
+            {
+                if (state.PlayerMp < state.PlayerMaxMp)
+                {
+                    state.PlayerMp = Math.Min(state.PlayerMaxMp, state.PlayerMp + 2);
+                    // Не будем спамить в лог каждый ход, просто восстанавливаем ману
+                }
+            }
+
+            // M3_ArcaneFocus (Концентрация) - восстанавливает +5 MP каждый ход
+            if (state.UnlockedSkills.Contains("M3_ArcaneFocus"))
+            {
+                if (state.PlayerMp < state.PlayerMaxMp)
+                {
+                    state.PlayerMp = Math.Min(state.PlayerMaxMp, state.PlayerMp + 5);
+                }
+            }
+        }
+
         private void UpdateUI()
         {
             var state = SaveManager.CurrentState;
 
-            PlayerLevelText.Text = $"⚔️ {state.PlayerName} (Уровень {state.PlayerLevel})";
+            PlayerLevelText.Text = $"⚔️ {state.PlayerName} - {state.PlayerClass} (Уровень {state.PlayerLevel})";
             PlayerHpText.Text = $"HP: {state.PlayerHp} / {state.PlayerMaxHp}";
             PlayerHpBar.Value = state.PlayerHp;
             PlayerHpBar.Maximum = state.PlayerMaxHp;
@@ -233,7 +259,87 @@ namespace EpicBattle.Views
             HpPotionText.Text = $"🧪 Зелья HP: {state.HpPotions}";
             MpPotionText.Text = $"💧 Зелья MP: {state.MpPotions}";
 
+            UpdateActionBar();
             SetButtonsEnabled(true); // Обновит доступность
+        }
+
+        private void UpdateActionBar()
+        {
+            ActionBarPanel.Children.Clear();
+            var state = SaveManager.CurrentState;
+            var allSkills = EpicBattle.Models.RPG.SkillsDatabase.AllSkills;
+
+            foreach (var skillId in state.UnlockedSkills)
+            {
+                var skill = allSkills.Find(s => s.Id == skillId);
+                if (skill != null && skill.Type == EpicBattle.Models.RPG.SkillType.Active)
+                {
+                    var btn = new Button
+                    {
+                        Content = $"{skill.Name} ({skill.ManaCost} MP)",
+                        MinWidth = 120,
+                        Padding = new Thickness(10, 5, 10, 5),
+                        Height = 40,
+                        Margin = new Thickness(5),
+                        Tag = skill
+                    };
+                    btn.Click += SkillBtn_Click;
+                    ActionBarPanel.Children.Add(btn);
+                }
+            }
+        }
+
+        private async void SkillBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is EpicBattle.Models.RPG.Skill skill)
+            {
+                var state = SaveManager.CurrentState;
+                if (state.PlayerMp >= skill.ManaCost)
+                {
+                    state.PlayerMp -= skill.ManaCost;
+
+                    // Упрощенная реализация эффектов скиллов для примера
+                    if (skill.Id == "S1_PowerStrike")
+                    {
+                        int dmg = (int)(state.PlayerBaseDamage * 1.5);
+                        enemyHp -= dmg;
+                        Log($"⚔️ Вы используете '{skill.Name}' и наносите {dmg} урона!");
+                    }
+                    else if (skill.Id == "S2_Cleave")
+                    {
+                        int dmg = state.PlayerBaseDamage;
+                        enemyHp -= dmg;
+                        _enemyBleedTurns = 3;
+                        Log($"⚔️ Вы используете '{skill.Name}'! Враг получает {dmg} урона и будет истекать кровью.");
+                    }
+                    else if (skill.Id == "M1_Fireball")
+                    {
+                        int dmg = (int)(state.PlayerBaseMagicDamage * 1.5);
+                        enemyHp -= dmg;
+                        _enemyBurnTurns = 2;
+                        Log($"🔥 Вы используете '{skill.Name}'! Враг получает {dmg} урона и горит.");
+                    }
+                    else if (skill.Id == "M2_ManaShield")
+                    {
+                        _manaShieldTurns = 3;
+                        Log($"🛡️ Вы используете '{skill.Name}'! Часть урона будет поглощаться маной.");
+                    }
+                    else if (skill.Id == "V1_FirstAid")
+                    {
+                        int heal = 30;
+                        state.PlayerHp = Math.Min(state.PlayerMaxHp, state.PlayerHp + heal);
+                        Log($"🩹 Вы используете '{skill.Name}'. Восстановлено {heal} HP.");
+                    }
+
+                    UpdateUI();
+                    if (enemyHp <= 0) { enemyHp = 0; await EnemyTurnAsync(); return; }
+                    await EnemyTurnAsync();
+                }
+                else
+                {
+                    Log("Недостаточно маны!");
+                }
+            }
         }
 
         private void SetButtonsEnabled(bool enabled)
@@ -241,9 +347,16 @@ namespace EpicBattle.Views
             var state = SaveManager.CurrentState;
             AttackBtn.IsEnabled = enabled;
             DefendBtn.IsEnabled = enabled;
-            MagicBtn.IsEnabled = enabled && state.PlayerMp >= 10;
             PotionHpBtn.IsEnabled = enabled && state.HpPotions > 0;
             PotionMpBtn.IsEnabled = enabled && state.MpPotions > 0;
+
+            foreach (var child in ActionBarPanel.Children)
+            {
+                if (child is Button btn && btn.Tag is EpicBattle.Models.RPG.Skill skill)
+                {
+                    btn.IsEnabled = enabled && state.PlayerMp >= skill.ManaCost;
+                }
+            }
 
             if (state.PlayerHp <= 0)
             {
@@ -280,6 +393,51 @@ namespace EpicBattle.Views
             SetButtonsEnabled(false);
             StatusText.Text = "Враг атакует...";
             _totalTurnsPassed++;
+            var state = SaveManager.CurrentState;
+
+            // Применение классовых пассивок, действующих каждый ход
+            ApplyClassPassivesPerTurn(state);
+
+            // Применение эффектов на врага перед его ходом
+            if (_enemyBleedTurns > 0)
+            {
+                int bleedDmg = state.PlayerBaseDamage / 2;
+                enemyHp -= bleedDmg;
+                Log($"🩸 Враг истекает кровью на {bleedDmg} урона!");
+                _enemyBleedTurns--;
+            }
+
+            if (_enemyBurnTurns > 0)
+            {
+                int burnDmg = 10;
+                enemyHp -= burnDmg;
+                Log($"🔥 Враг горит на {burnDmg} урона!");
+                _enemyBurnTurns--;
+            }
+
+            UpdateUI();
+
+            if (enemyHp <= 0)
+            {
+                enemyHp = 0;
+                UpdateUI();
+                await Task.Delay(1000);
+                if (_currentWave < _maxWaves)
+                {
+                    _currentWave++;
+                    Log($"\nВраг повержен! Наступает следующий противник.");
+                    GenerateEnemy();
+                    UpdateUI();
+                    StatusText.Text = "Ваш ход!";
+                    SetButtonsEnabled(true);
+                    return;
+                }
+                else
+                {
+                    WinLevel();
+                    return;
+                }
+            }
 
             await Task.Delay(1500);
 
@@ -360,22 +518,53 @@ namespace EpicBattle.Views
                         }
                     }
 
-                    if (isDefending)
+                    // Расчет уклонения
+                    if (random.NextDouble() * 100 < state.DodgeChance)
                     {
-                        damage /= 2;
-                        if (_bloodlustMultiplier > 1.0) damage = (int)(damage * 1.15);
-                        Log($"🛡 Вы защищаетесь! Урон снижен. Враг наносит {damage} урона.");
-                        isDefending = false;
+                        Log($"💨 Вы уклонились от атаки врага!");
+                        damage = 0;
                     }
                     else
                     {
-                        Log($"👹 Враг наносит вам {damage} урона.");
-                        AnimateScreenShake();
-                        AnimateColorFlash(new SolidColorBrush(Colors.DarkRed));
-                        PlaySound("hit.wav");
-                    }
+                        // Учет брони/защиты
+                        int currentDefense = state.Defense;
+                        // V2_ThickSkin (Толстая Кожа) - пассивно увеличивает защиту на 5
+                        if (state.UnlockedSkills.Contains("V2_ThickSkin"))
+                        {
+                            currentDefense += 5;
+                        }
+                        damage = Math.Max(1, damage - currentDefense);
 
-                    SaveManager.CurrentState.PlayerHp -= damage;
+                        if (isDefending)
+                        {
+                            damage /= 2;
+                            if (_bloodlustMultiplier > 1.0) damage = (int)(damage * 1.15);
+                            Log($"🛡 Вы защищаетесь! Урон снижен. Враг наносит {damage} урона.");
+                            isDefending = false;
+                        }
+                        else
+                        {
+                            // Учет Щита Маны
+                            if (_manaShieldTurns > 0)
+                            {
+                                int manaDamage = damage / 2;
+                                if (state.PlayerMp >= manaDamage)
+                                {
+                                    state.PlayerMp -= manaDamage;
+                                    damage -= manaDamage;
+                                    Log($"🛡️ Щит Маны поглотил {manaDamage} урона.");
+                                }
+                                _manaShieldTurns--;
+                            }
+
+                            Log($"👹 Враг наносит вам {damage} урона.");
+                            AnimateScreenShake();
+                            AnimateColorFlash(new SolidColorBrush(Colors.DarkRed));
+                            PlaySound("hit.wav");
+                        }
+
+                        SaveManager.CurrentState.PlayerHp -= damage;
+                    }
                 }
             }
 
@@ -402,6 +591,12 @@ namespace EpicBattle.Views
             SetButtonsEnabled(false);
             PlaySound("victory.wav");
 
+            // Начисление опыта и очков за уровень
+            var state = SaveManager.CurrentState;
+            state.PlayerLevel++;
+            state.StatPoints += 2;
+            state.SkillPoints += 1;
+
             if (_isArcade)
             {
                 ShowUpgradeScreen();
@@ -409,7 +604,7 @@ namespace EpicBattle.Views
             else
             {
                 // Логика победы для Сюжета
-                UpgradeOverlay.Visibility = Visibility.Visible;
+                ShowUpgradeScreen();
                 UpgradeGrid.Visibility = Visibility.Collapsed;
 
                 string lootMsg = "Сюжетный бой завершен.";
@@ -444,6 +639,8 @@ namespace EpicBattle.Views
         {
             UpgradeOverlay.Visibility = Visibility.Visible;
 
+            var state = SaveManager.CurrentState;
+
             string[] allUpgrades = { "Урон (+5)", "Здоровье (+20 HP)", "Магия (+10 Рун. Урон)", "Зелья (+1 HP, +1 MP)", "Мана (+20 MP)" };
             var selectedUpgrades = new List<string>();
 
@@ -456,6 +653,17 @@ namespace EpicBattle.Views
             Upgrade1Btn.Content = selectedUpgrades[0];
             Upgrade2Btn.Content = selectedUpgrades[1];
             Upgrade3Btn.Content = selectedUpgrades[2];
+
+            if (_isArcade)
+            {
+                NextBattleBtn.Visibility = Visibility.Visible;
+                ContinueStoryBtn.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                NextBattleBtn.Visibility = Visibility.Collapsed;
+                // ContinueStoryBtn.Visibility уже управляется логикой в EnemyDie
+            }
         }
 
         private void UpgradeBtn_Click(object sender, RoutedEventArgs e)
@@ -464,23 +672,54 @@ namespace EpicBattle.Views
             string upgrade = btn.Content.ToString() ?? "";
             var state = SaveManager.CurrentState;
 
-            if (upgrade.Contains("Урон")) state.PlayerBaseDamage += 5;
-            else if (upgrade.Contains("Здоровье")) state.PlayerMaxHp += 20;
-            else if (upgrade.Contains("Магия")) state.PlayerBaseMagicDamage += 10;
+            // Оставляем гибридную систему (и карточка, и очки)
+            if (upgrade.Contains("Урон")) state.Strength += 2;
+            else if (upgrade.Contains("Здоровье")) state.Endurance += 2;
+            else if (upgrade.Contains("Магия")) state.Intelligence += 2;
             else if (upgrade.Contains("Зелья")) { state.HpPotions++; state.MpPotions++; }
-            else if (upgrade.Contains("Мана")) state.PlayerMaxMp += 20;
+            else if (upgrade.Contains("Мана")) state.Intelligence += 2;
 
+            state.RecalculateDerivedStats();
             Log($"🌟 Вы выбрали улучшение: {upgrade}");
-            UpgradeOverlay.Visibility = Visibility.Collapsed;
 
+            // Дисейблим кнопки выбора, чтобы не накликали дважды
+            Upgrade1Btn.IsEnabled = false;
+            Upgrade2Btn.IsEnabled = false;
+            Upgrade3Btn.IsEnabled = false;
+        }
+
+        private void OpenSkillTreeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SkillTreeView skillTreeView = null;
+            // Открываем дерево навыков поверх всего (через новый View)
+            skillTreeView = new SkillTreeView(() =>
+            {
+                // Колбэк при закрытии дерева навыков
+                if (skillTreeView != null)
+                {
+                    MainGrid.Children.Remove(skillTreeView);
+                }
+                UpdateUI(); // Обновляем Action Bar, если выучили скилл
+            });
+
+            // Добавляем его в MainGrid
+            Grid.SetRowSpan(skillTreeView, 5);
+            Panel.SetZIndex(skillTreeView, 200);
+            MainGrid.Children.Add(skillTreeView);
+        }
+
+        private void NextBattleBtn_Click(object sender, RoutedEventArgs e)
+        {
+            UpgradeOverlay.Visibility = Visibility.Collapsed;
+            Upgrade1Btn.IsEnabled = true;
+            Upgrade2Btn.IsEnabled = true;
+            Upgrade3Btn.IsEnabled = true;
             StartNewLevel();
         }
 
         private void StartNewLevel()
         {
             var state = SaveManager.CurrentState;
-            state.PlayerLevel++;
-
             GenerateEnemy();
 
             state.PlayerHp = state.PlayerMaxHp;
@@ -596,6 +835,20 @@ namespace EpicBattle.Views
             var state = SaveManager.CurrentState;
             int damage = random.Next(state.PlayerBaseDamage, state.PlayerBaseDamage + 10);
 
+            // S3_SwordMastery (Мастерство Меча) - увеличивает физический урон на 10%
+            if (state.UnlockedSkills.Contains("S3_SwordMastery"))
+            {
+                damage = (int)(damage * 1.1);
+            }
+
+            // Проверка на крит
+            bool isCrit = random.NextDouble() * 100 < state.CritChance;
+            if (isCrit)
+            {
+                damage = (int)(damage * 1.5); // Крит х1.5
+                Log("💥 КРИТИЧЕСКИЙ УДАР!");
+            }
+
             if (_playerDamageBuffTurns > 0)
             {
                 damage = (int)(damage * 1.5);
@@ -608,6 +861,15 @@ namespace EpicBattle.Views
 
             enemyHp -= damage;
             Log($"⚔️ Вы бьете мечом и наносите {damage} урона!");
+
+            // Вампиризм (Выживание 3)
+            if (state.UnlockedSkills.Contains("V3_Vampirism"))
+            {
+                int heal = (int)(damage * 0.2);
+                state.PlayerHp = Math.Min(state.PlayerMaxHp, state.PlayerHp + heal);
+                if(heal > 0) Log($"🦇 Вампиризм восстановил вам {heal} HP.");
+            }
+
             AnimateColorFlash(new SolidColorBrush(Colors.LightGray));
             PlaySound("attack.wav");
             UpdateUI();
