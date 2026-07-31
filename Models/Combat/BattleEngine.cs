@@ -250,15 +250,18 @@ namespace EpicBattle.Models.Combat
 
             // Защита и Броня
             if (target.IsDefending) damage /= 2;
-            damage -= target.Armor;
+
+            int effectiveArmor = target.Armor;
 
             // Штраф к броне от Ярости (если цель в ярости)
             if (target.ActiveEffects.Any(e => e.Id == "Rage"))
             {
-                damage += (int)(target.Armor * 0.15f); // Игнорируем часть брони
+                effectiveArmor = (int)(effectiveArmor * 0.85f);
             }
 
-            if (damage < 1) damage = 1; // Минимальный урон 1, если попали
+            // Мягкая формула поглощения броней (максимум 75%)
+            int damageReduction = Math.Min((int)(damage * 0.75f), effectiveArmor);
+            damage = Math.Max(3, damage - damageReduction);
 
             // Щит Маны
             if (target.ActiveEffects.Any(e => e.Id == "ManaShield"))

@@ -89,8 +89,7 @@ namespace EpicBattle.ViewModels
 
         public bool CanLearn => !IsLearned &&
                                 _gameState.SkillPoints > 0 &&
-                                _gameState.PlayerLevel >= _skill.RequiredLevel &&
-                                (string.IsNullOrEmpty(_skill.RequiredSkillId) || _gameState.UnlockedSkills.Contains(_skill.RequiredSkillId));
+                                _gameState.PlayerLevel >= _skill.RequiredLevel;
 
         public ICommand LearnCommand => new Command(_ => LearnSkill(), _ => CanLearn);
 
