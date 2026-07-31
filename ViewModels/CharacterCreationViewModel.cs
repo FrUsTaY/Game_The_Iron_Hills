@@ -102,12 +102,12 @@ namespace EpicBattle.ViewModels
         }
 
         // --- Производные статы ---
-        public int HP => 50 + (Endurance * 10);
+        public int HP => SelectedClass == "Ветеран" ? 60 + (Endurance * 10) : 50 + (Endurance * 10);
         public int MP => 20 + (Intelligence * 6);
         public int Damage => 5 + (Strength * 2);
         public int MagicDamage => 5 + (Intelligence * 2);
-        public double DodgeChance => Math.Min(50, Dexterity * 1.5);
-        public double CritChance => Math.Min(50, Dexterity * 1.5);
+        public double DodgeChance => SelectedClass == "Наемник" ? Math.Min(50, Dexterity * 1.5 + 5.0) : Math.Min(50, Dexterity * 1.5);
+        public double CritChance => SelectedClass == "Наемник" ? Math.Min(50, Dexterity * 1.5 + 5.0) : Math.Min(50, Dexterity * 1.5);
 
         private void UpdateDerivedStats()
         {
@@ -136,15 +136,15 @@ namespace EpicBattle.ViewModels
             switch (className)
             {
                 case "Ветеран":
-                    ClassDescription = "Сбалансированный боец. Упор на физический урон и выносливость.\nСтартовый навык: Мощный Удар (Путь Меча).";
+                    ClassDescription = "Сбалансированный боец. Упор на физический урон и выносливость.\nПассивно: «Закалка в боях» (+10 к Макс. HP, снижает получаемый урон).";
                     Strength = 6; Dexterity = 5; Intelligence = 3; Endurance = 6;
                     break;
                 case "Изгой-маг":
-                    ClassDescription = "Использует тайные искусства. Слабое здоровье, но высокий магический урон.\nСтартовый навык: Огненный Шар (Тайные Искусства).";
+                    ClassDescription = "Использует тайные искусства. Слабое здоровье, но высокий магический урон.\nПассивно: «Тайный источник» (Регенерирует ману в бою).";
                     Strength = 3; Dexterity = 4; Intelligence = 8; Endurance = 3;
                     break;
                 case "Наемник":
-                    ClassDescription = "Ловкий и смертоносный. Высокий шанс крита и уклонения.\nСтартовый навык: Первая Помощь (Выживание).";
+                    ClassDescription = "Ловкий и смертоносный. Высокий шанс крита и уклонения.\nПассивно: «Инстинкт убийцы» (Повышает шанс крита и уклонения на 5%).";
                     Strength = 4; Dexterity = 8; Intelligence = 3; Endurance = 5;
                     break;
             }
@@ -226,19 +226,8 @@ namespace EpicBattle.ViewModels
             state.PlayerHp = state.PlayerMaxHp;
             state.PlayerMp = state.PlayerMaxMp;
 
-            // Добавляем стартовый навык
-            if (state.PlayerClass == "Ветеран")
-            {
-                state.UnlockedSkills.Add("S1_PowerStrike");
-            }
-            else if (state.PlayerClass == "Изгой-маг")
-            {
-                state.UnlockedSkills.Add("M1_Fireball");
-            }
-            else if (state.PlayerClass == "Наемник")
-            {
-                state.UnlockedSkills.Add("V1_FirstAid");
-            }
+            // Стартовые навыки убраны. Вместо них работают пассивки классов
+            // Дерево навыков в начале игры полностью пустое.
 
             SaveManager.CurrentState = state;
 

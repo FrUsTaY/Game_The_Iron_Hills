@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#1a1a1a">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <TextBlock Text="ЖЕЛЕЗНЫЙ КРЯЖ" Foreground="#FFAA00" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,50"/>

@@ -18,80 +18,74 @@
             <TextBlock Text="{Binding SkillPoints, StringFormat='Очки навыков: {0}'}" FontSize="18" Foreground="LightGreen" HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <WrapPanel HorizontalAlignment="Center">
+                <!-- Путь Меча -->
+                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="300" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="Путь Меча" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding SwordPathSkills}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}" BorderThickness="2" Margin="0,5" Padding="5" Background="#222">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}"/>
+                                            <TextBlock Text="{Binding Type}" FontSize="12" Foreground="LightGray"/>
+                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="14" Margin="0,5"/>
+                                            <TextBlock Text="{Binding Requirements}" FontSize="12" Foreground="DarkGray" Margin="0,0,0,5"/>
+                                            <Button Content="Изучить" Command="{Binding LearnCommand}" IsEnabled="{Binding CanLearn}" Padding="5"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
 
-            <!-- Путь Меча -->
-            <Border Grid.Column="0" BorderBrush="#555" BorderThickness="1" Margin="5" Padding="10">
-                <StackPanel>
-                    <TextBlock Text="Путь Меча" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <ItemsControl ItemsSource="{Binding SwordPathSkills}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}" BorderThickness="2" Margin="0,5" Padding="5" Background="#222">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}"/>
-                                        <TextBlock Text="{Binding Type}" FontSize="12" Foreground="LightGray"/>
-                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="14" Margin="0,5"/>
-                                        <TextBlock Text="{Binding Requirements}" FontSize="12" Foreground="DarkGray" Margin="0,0,0,5"/>
-                                        <Button Content="Изучить" Command="{Binding LearnCommand}" IsEnabled="{Binding CanLearn}" Padding="5"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+                <!-- Тайные Искусства -->
+                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="300" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="Тайные Искусства" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding ArcaneArtsSkills}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}" BorderThickness="2" Margin="0,5" Padding="5" Background="#222">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}"/>
+                                            <TextBlock Text="{Binding Type}" FontSize="12" Foreground="LightGray"/>
+                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="14" Margin="0,5"/>
+                                            <TextBlock Text="{Binding Requirements}" FontSize="12" Foreground="DarkGray" Margin="0,0,0,5"/>
+                                            <Button Content="Изучить" Command="{Binding LearnCommand}" IsEnabled="{Binding CanLearn}" Padding="5"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
 
-            <!-- Тайные Искусства -->
-            <Border Grid.Column="1" BorderBrush="#555" BorderThickness="1" Margin="5" Padding="10">
-                <StackPanel>
-                    <TextBlock Text="Тайные Искусства" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <ItemsControl ItemsSource="{Binding ArcaneArtsSkills}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}" BorderThickness="2" Margin="0,5" Padding="5" Background="#222">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}"/>
-                                        <TextBlock Text="{Binding Type}" FontSize="12" Foreground="LightGray"/>
-                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="14" Margin="0,5"/>
-                                        <TextBlock Text="{Binding Requirements}" FontSize="12" Foreground="DarkGray" Margin="0,0,0,5"/>
-                                        <Button Content="Изучить" Command="{Binding LearnCommand}" IsEnabled="{Binding CanLearn}" Padding="5"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
-
-            <!-- Выживание -->
-            <Border Grid.Column="2" BorderBrush="#555" BorderThickness="1" Margin="5" Padding="10">
-                <StackPanel>
-                    <TextBlock Text="Выживание" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <ItemsControl ItemsSource="{Binding SurvivalSkills}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}" BorderThickness="2" Margin="0,5" Padding="5" Background="#222">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}"/>
-                                        <TextBlock Text="{Binding Type}" FontSize="12" Foreground="LightGray"/>
-                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="14" Margin="0,5"/>
-                                        <TextBlock Text="{Binding Requirements}" FontSize="12" Foreground="DarkGray" Margin="0,0,0,5"/>
-                                        <Button Content="Изучить" Command="{Binding LearnCommand}" IsEnabled="{Binding CanLearn}" Padding="5"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
-            </Grid>
+                <!-- Выживание -->
+                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="300" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="Выживание" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding SurvivalSkills}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}" BorderThickness="2" Margin="0,5" Padding="5" Background="#222">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Foreground="{Binding IsLearned, Converter={StaticResource BoolToColorConverter}}"/>
+                                            <TextBlock Text="{Binding Type}" FontSize="12" Foreground="LightGray"/>
+                                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="14" Margin="0,5"/>
+                                            <TextBlock Text="{Binding Requirements}" FontSize="12" Foreground="DarkGray" Margin="0,0,0,5"/>
+                                            <Button Content="Изучить" Command="{Binding LearnCommand}" IsEnabled="{Binding CanLearn}" Padding="5"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
         </ScrollViewer>
 
         <Button Grid.Row="2" Content="Закрыть" Command="{Binding CloseCommand}" Width="150" Height="40" FontSize="16" Margin="0,20,0,0"/>

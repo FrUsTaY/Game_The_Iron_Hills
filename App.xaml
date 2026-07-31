@@ -3,6 +3,52 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <!-- RPG ScrollBar Style -->
+        <SolidColorBrush x:Key="ScrollBarBackground" Color="#111111"/>
+        <SolidColorBrush x:Key="ScrollBarThumb" Color="#555555"/>
+        <SolidColorBrush x:Key="ScrollBarThumbHover" Color="#FFAA00"/>
+
+        <Style x:Key="RPGScrollThumb" TargetType="{x:Type Thumb}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4" Margin="2,0,2,0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Background" Value="{StaticResource ScrollBarBackground}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid x:Name="Bg" Background="{TemplateBinding Background}">
+                            <!-- Убираем кнопки вверх/вниз, оставляем только трек -->
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource RPGScrollThumb}" Background="{StaticResource ScrollBarThumb}"/>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="PART_Track" Property="Thumb.Background" Value="{StaticResource ScrollBarThumbHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Базовые стили для кнопок, чтобы они выглядели красиво на темном фоне -->
         <Style TargetType="Button">
             <Setter Property="Background" Value="#333333"/>

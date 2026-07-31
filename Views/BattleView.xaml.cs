@@ -218,6 +218,18 @@ namespace EpicBattle.Views
             LogScrollViewer.ScrollToEnd();
         }
 
+        private void ApplyClassPassivesPerTurn(Models.GameState state)
+        {
+            if (state.PlayerClass == "Изгой-маг")
+            {
+                if (state.PlayerMp < state.PlayerMaxMp)
+                {
+                    state.PlayerMp = Math.Min(state.PlayerMaxMp, state.PlayerMp + 2);
+                    // Не будем спамить в лог каждый ход, просто восстанавливаем ману
+                }
+            }
+        }
+
         private void UpdateUI()
         {
             var state = SaveManager.CurrentState;
@@ -373,6 +385,9 @@ namespace EpicBattle.Views
             StatusText.Text = "Враг атакует...";
             _totalTurnsPassed++;
             var state = SaveManager.CurrentState;
+
+            // Применение классовых пассивок, действующих каждый ход
+            ApplyClassPassivesPerTurn(state);
 
             // Применение эффектов на врага перед его ходом
             if (_enemyBleedTurns > 0)
@@ -561,6 +576,12 @@ namespace EpicBattle.Views
             SetButtonsEnabled(false);
             PlaySound("victory.wav");
 
+            // Начисление опыта и очков за уровень
+            var state = SaveManager.CurrentState;
+            state.PlayerLevel++;
+            state.StatPoints += 2;
+            state.SkillPoints += 1;
+
             if (_isArcade)
             {
                 ShowUpgradeScreen();
@@ -568,7 +589,7 @@ namespace EpicBattle.Views
             else
             {
                 // Логика победы для Сюжета
-                UpgradeOverlay.Visibility = Visibility.Visible;
+                ShowUpgradeScreen();
                 UpgradeGrid.Visibility = Visibility.Collapsed;
 
                 string lootMsg = "Сюжетный бой завершен.";
@@ -603,11 +624,7 @@ namespace EpicBattle.Views
         {
             UpgradeOverlay.Visibility = Visibility.Visible;
 
-            // Теперь при LevelUp даем очки характеристик и очки навыков
             var state = SaveManager.CurrentState;
-            state.PlayerLevel++;
-            state.StatPoints += 2; // Например, 2 очка статов
-            state.SkillPoints += 1; // 1 очко навыков
 
             string[] allUpgrades = { "Урон (+5)", "Здоровье (+20 HP)", "Магия (+10 Рун. Урон)", "Зелья (+1 HP, +1 MP)", "Мана (+20 MP)" };
             var selectedUpgrades = new List<string>();

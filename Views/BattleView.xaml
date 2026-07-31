@@ -4,7 +4,7 @@
              Background="#1E1E1E" KeyDown="UserControl_KeyDown" Focusable="True">
     <!-- Обратите внимание, что мы добавляем внешний ScrollViewer, но у нас есть ScrollViewer для логов.
          Чтобы они не конфликтовали, внешний скролл будет работать только если контент реально не влезает в окно. -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid Margin="20" Name="MainGrid">
             <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

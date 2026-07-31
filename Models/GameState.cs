@@ -37,13 +37,13 @@ namespace EpicBattle.Models
         public int PlayerMaxMp { get; set; } = 50;
         public int PlayerBaseDamage { get; set; } = 15;
         public int PlayerBaseMagicDamage { get; set; } = 15;
-        public double DodgeChance => Math.Min(50, Dexterity * 1.5); // Max 50%
-        public double CritChance => Math.Min(50, Dexterity * 1.5); // Max 50%
-        public int Defense => Endurance; // Снижение входящего урона
+        public double DodgeChance => PlayerClass == "Наемник" ? Math.Min(50, Dexterity * 1.5 + 5.0) : Math.Min(50, Dexterity * 1.5); // Max 50%
+        public double CritChance => PlayerClass == "Наемник" ? Math.Min(50, Dexterity * 1.5 + 5.0) : Math.Min(50, Dexterity * 1.5); // Max 50%
+        public int Defense => PlayerClass == "Ветеран" ? Endurance + 2 : Endurance; // Снижение входящего урона
 
         public void RecalculateDerivedStats()
         {
-            PlayerMaxHp = 50 + (Endurance * 10);
+            PlayerMaxHp = PlayerClass == "Ветеран" ? 60 + (Endurance * 10) : 50 + (Endurance * 10);
             PlayerMaxMp = 20 + (Intelligence * 6);
             PlayerBaseDamage = 5 + (Strength * 2);
             PlayerBaseMagicDamage = 5 + (Intelligence * 2);
