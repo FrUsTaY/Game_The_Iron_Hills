@@ -228,6 +228,15 @@ namespace EpicBattle.Views
                     // Не будем спамить в лог каждый ход, просто восстанавливаем ману
                 }
             }
+
+            // M3_ArcaneFocus (Концентрация) - восстанавливает +5 MP каждый ход
+            if (state.UnlockedSkills.Contains("M3_ArcaneFocus"))
+            {
+                if (state.PlayerMp < state.PlayerMaxMp)
+                {
+                    state.PlayerMp = Math.Min(state.PlayerMaxMp, state.PlayerMp + 5);
+                }
+            }
         }
 
         private void UpdateUI()
@@ -518,7 +527,13 @@ namespace EpicBattle.Views
                     else
                     {
                         // Учет брони/защиты
-                        damage = Math.Max(1, damage - state.Defense);
+                        int currentDefense = state.Defense;
+                        // V2_ThickSkin (Толстая Кожа) - пассивно увеличивает защиту на 5
+                        if (state.UnlockedSkills.Contains("V2_ThickSkin"))
+                        {
+                            currentDefense += 5;
+                        }
+                        damage = Math.Max(1, damage - currentDefense);
 
                         if (isDefending)
                         {
@@ -819,6 +834,12 @@ namespace EpicBattle.Views
         {
             var state = SaveManager.CurrentState;
             int damage = random.Next(state.PlayerBaseDamage, state.PlayerBaseDamage + 10);
+
+            // S3_SwordMastery (Мастерство Меча) - увеличивает физический урон на 10%
+            if (state.UnlockedSkills.Contains("S3_SwordMastery"))
+            {
+                damage = (int)(damage * 1.1);
+            }
 
             // Проверка на крит
             bool isCrit = random.NextDouble() * 100 < state.CritChance;
