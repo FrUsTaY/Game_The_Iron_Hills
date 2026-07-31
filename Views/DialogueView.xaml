@@ -3,11 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#111111" KeyDown="UserControl_KeyDown" Focusable="True">
 
-    <Grid>
-        <!-- Background Image Placeholder (Could be added later) -->
-        <Image Name="BgImage" Stretch="UniformToFill" Opacity="0.3"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid>
+            <!-- Background Image Placeholder (Could be added later) -->
+            <Image Name="BgImage" Stretch="UniformToFill" Opacity="0.3"/>
 
-        <Grid Margin="40">
+            <Grid Margin="40">
             <Grid.RowDefinitions>
                 <!-- Верхняя панель: Подсказки/Кнопки -->
                 <RowDefinition Height="Auto"/>
@@ -50,14 +51,15 @@
             </Border>
         </Grid>
 
-        <!-- Pause Menu Overlay -->
-        <Border Name="PauseOverlay" Background="#CC000000" Visibility="Collapsed" Panel.ZIndex="100">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
-                <TextBlock Text="ПАУЗА" Foreground="White" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
-                <Button Content="Продолжить" Margin="0,10" Height="40" FontSize="18" Click="ResumeBtn_Click"/>
-                <Button Content="Сохранить игру" Margin="0,10" Height="40" FontSize="18" Click="SaveBtn_Click"/>
-                <Button Content="Главное меню" Margin="0,10" Height="40" FontSize="18" Click="MainMenuBtn_Click"/>
-            </StackPanel>
-        </Border>
-    </Grid>
+            <!-- Pause Menu Overlay -->
+            <Border Name="PauseOverlay" Background="#CC000000" Visibility="Collapsed" Panel.ZIndex="100">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+                    <TextBlock Text="ПАУЗА" Foreground="White" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                    <Button Content="Продолжить" Margin="0,10" Height="40" FontSize="18" Click="ResumeBtn_Click"/>
+                    <Button Content="Сохранить игру" Margin="0,10" Height="40" FontSize="18" Click="SaveBtn_Click"/>
+                    <Button Content="Главное меню" Margin="0,10" Height="40" FontSize="18" Click="MainMenuBtn_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

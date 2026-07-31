@@ -7,8 +7,9 @@
     <UserControl.Resources>
         <local:ClassToColorConverter x:Key="ClassToColorConverter"/>
     </UserControl.Resources>
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -114,5 +115,6 @@
             <Button Content="Назад" Command="{Binding BackCommand}" Width="150" Height="40" FontSize="16" Margin="0,0,20,0"/>
             <Button Content="Начать Игру" Command="{Binding StartGameCommand}" Width="150" Height="40" FontSize="16" Background="#28a745" Foreground="White"/>
         </StackPanel>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>
