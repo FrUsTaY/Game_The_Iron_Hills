@@ -73,9 +73,9 @@ namespace EpicBattle.ViewModels
             _battleModifier = battleModifier;
             _gameState = SaveManager.CurrentState;
 
-            if (_isArcade && returnNodeId == null)
+            if (_isArcade && returnNodeId == null && _arcadeLevel == 1)
             {
-                // Сброс статов при начале нового аркадного рана (как было в старом коде)
+                // Сброс статов при начале нового аркадного рана
                 _gameState.PlayerHp = _gameState.PlayerMaxHp;
                 _gameState.PlayerMp = _gameState.PlayerMaxMp;
             }
@@ -94,6 +94,7 @@ namespace EpicBattle.ViewModels
             {
                 _gameState.PlayerHp = _gameState.PlayerMaxHp;
                 _gameState.PlayerMp = _gameState.PlayerMaxMp;
+                Log("HP и MP полностью восстановлены.");
             }
 
             var player = new BattlePlayer(_gameState);
@@ -185,12 +186,19 @@ namespace EpicBattle.ViewModels
         }
 
         public ICommand AttackCommand => new Command(_ => Attack(), _ => CanAttack());
-        public ICommand UpgradeCommand => new Command(UpgradeStat);
+        public ICommand UpgradeCommand => new Command(UpgradeStat, _ => CanUpgrade);
         public ICommand NextBattleCommand => new Command(_ => NextBattle());
         public ICommand ContinueStoryCommand => new Command(_ => ContinueStory());
         public ICommand OpenSkillTreeCommand => new Command(_ => OpenSkillTree());
 
         private bool _isUpgraded;
+        private string _selectedUpgrade;
+        public string SelectedUpgrade
+        {
+            get => _selectedUpgrade;
+            set { _selectedUpgrade = value; OnPropertyChanged(); }
+        }
+
         private void UpgradeStat(object param)
         {
             if (_isUpgraded) return;
@@ -208,12 +216,15 @@ namespace EpicBattle.ViewModels
             }
             else if (stat == "Potions")
             {
-                _gameState.HpPotions = 3;
-                _gameState.MpPotions = 2;
+                _gameState.PlayerHp = _gameState.PlayerMaxHp;
+                _gameState.PlayerMp = _gameState.PlayerMaxMp;
+                Log("HP и MP полностью восстановлены.");
             }
 
             _isUpgraded = true;
+            SelectedUpgrade = stat;
             OnPropertyChanged(nameof(CanUpgrade));
+            (UpgradeCommand as Command)?.RaiseCanExecuteChanged();
         }
 
         public bool CanUpgrade => !_isUpgraded;
