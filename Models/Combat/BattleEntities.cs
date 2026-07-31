@@ -59,7 +59,8 @@ namespace EpicBattle.Models.Combat
             else if (Role == EnemyRole.Defender)
             {
                 bool lowAlly = activeEnemies.Any(e => e.Hp > 0 && (float)e.Hp / e.MaxHp < 0.5f);
-                if (lowAlly || (float)Hp / MaxHp < 0.5f)
+                // Если уже защищается, то не уходит в бесконечный цикл защиты, а переходит в контратаку
+                if ((lowAlly || (float)Hp / MaxHp < 0.5f) && !IsDefending)
                 {
                     CurrentIntent = new EnemyIntent { Type = IntentType.Defend, IconPath = "🛡️", Description = "Защита" };
                 }

@@ -20,6 +20,7 @@ namespace EpicBattle.Views
                     if (skillTreeView != null)
                     {
                         MainGrid.Children.Remove(skillTreeView);
+                        vm.UpdateSkillPointsDisplay();
                     }
                 });
 

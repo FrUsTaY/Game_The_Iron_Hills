@@ -171,6 +171,12 @@ namespace EpicBattle.Models.Combat
         {
             OnLogEvent($"Ходит {enemy.Name}.");
 
+            // Сбрасываем защиту в начале хода врага, если он не планирует защищаться
+            if (enemy.CurrentIntent.Type != IntentType.Defend)
+            {
+                 enemy.IsDefending = false;
+            }
+
             // Применяем намерение
             if (enemy.CurrentIntent.Type == IntentType.Attack)
             {
@@ -400,12 +406,27 @@ namespace EpicBattle.Models.Combat
             bool died = false;
             foreach(var enemy in Enemies.ToList())
             {
-                // Проверяем, не умер ли враг только что
-                if (enemy.Hp <= 0 && TurnQueue.Contains(enemy))
+                if (enemy.Hp <= 0)
                 {
-                    OnLogEvent($"💀 {enemy.Name} повержен!");
-                    TurnQueue.Remove(enemy);
-                    died = true;
+                    // Проверяем, был ли он уже мертв (убран из очереди или нет)
+                    // Но теперь мы удаляем его из Enemies полностью во ViewModel, так что здесь можно просто логировать
+                    // Добавим свойство IsDead если нужно, но проще ориентироваться на Hp.
+                    // Если он еще в очереди, значит умер только что
+                    if (TurnQueue.Contains(enemy))
+                    {
+                        OnLogEvent($"💀 {enemy.Name} повержен!");
+                        TurnQueue.Remove(enemy);
+                        died = true;
+                    }
+                    else if (!died)
+                    {
+                        // Подстраховка: если он не в очереди, но HP = 0, возможно он умер от ДоТы до своего хода.
+                        // Гарантируем, что он убран из очереди.
+                        TurnQueue.Remove(enemy);
+                        // Чтобы не спамить лог, мы полагаемся на то, что это обработано.
+                        // Но если метод вызвали, значит кто-то мог умереть.
+                        died = true;
+                    }
                 }
             }
             if (died)

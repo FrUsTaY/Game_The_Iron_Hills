@@ -1,23 +1,51 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace EpicBattle.Models.Combat
 {
-    public abstract class CombatEntity
+    public abstract class CombatEntity : INotifyPropertyChanged
     {
         public string Name { get; set; } = string.Empty;
 
-        // Здоровье
-        public int Hp { get; set; }
-        public int MaxHp { get; set; }
+        private int _hp;
+        public int Hp
+        {
+            get => _hp;
+            set { _hp = Math.Max(0, Math.Min(MaxHp, value)); OnPropertyChanged(); }
+        }
 
-        // Мана
-        public int Mp { get; set; }
-        public int MaxMp { get; set; }
+        private int _maxHp;
+        public int MaxHp
+        {
+            get => _maxHp;
+            set { _maxHp = value; OnPropertyChanged(); }
+        }
 
-        // Action Points
-        public int CurrentAP { get; set; }
+        private int _mp;
+        public int Mp
+        {
+            get => _mp;
+            set { _mp = Math.Max(0, Math.Min(MaxMp, value)); OnPropertyChanged(); }
+        }
+
+        private int _maxMp;
+        public int MaxMp
+        {
+            get => _maxMp;
+            set { _maxMp = value; OnPropertyChanged(); }
+        }
+
+        private int _currentAP;
+        public int CurrentAP
+        {
+            get => _currentAP;
+            set { _currentAP = value; OnPropertyChanged(); }
+        }
+
         public int MaxAP { get; set; } = 4;
 
         // Характеристики
@@ -26,11 +54,15 @@ namespace EpicBattle.Models.Combat
         public int BaseMagicDamage { get; set; }
         public int Armor { get; set; }
 
-        // Флаги состояний
-        public bool IsDefending { get; set; }
+        private bool _isDefending;
+        public bool IsDefending
+        {
+            get => _isDefending;
+            set { _isDefending = value; OnPropertyChanged(); }
+        }
 
         // Эффекты
-        public List<StatusEffect> ActiveEffects { get; set; } = new List<StatusEffect>();
+        public ObservableCollection<StatusEffect> ActiveEffects { get; set; } = new ObservableCollection<StatusEffect>();
 
         public void ApplyEffect(StatusEffect effect)
         {
@@ -40,6 +72,10 @@ namespace EpicBattle.Models.Combat
                 // По правилу: Длительность обновляется до максимальной, Value берется максимальный
                 existing.Duration = Math.Max(existing.Duration, effect.Duration);
                 existing.Value = Math.Max(existing.Value, effect.Value);
+                // Триггерим обновление UI для эффектов (можно через передобавление, но пока сойдет, главное что кол-во эффектов обновляется)
+                var index = ActiveEffects.IndexOf(existing);
+                ActiveEffects.RemoveAt(index);
+                ActiveEffects.Insert(index, existing);
             }
             else
             {
@@ -54,6 +90,12 @@ namespace EpicBattle.Models.Combat
                     IconPath = effect.IconPath
                 });
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

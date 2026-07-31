@@ -93,7 +93,7 @@
                             </Border.InputBindings>
                             <StackPanel HorizontalAlignment="Right" Width="250">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock Text="{Binding CurrentIntent.IconPath}" Foreground="White" FontSize="16" Margin="0,0,5,0" ToolTip="{Binding CurrentIntent.Description}"/>
+                                    <TextBlock Text="{Binding CurrentIntent.IconPath}" FontFamily="Segoe UI Emoji, Segoe UI Symbol" Foreground="White" FontSize="16" Margin="0,0,5,0" ToolTip="{Binding CurrentIntent.Description}"/>
                                     <TextBlock Text="{Binding Name}" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,0,0,5" HorizontalAlignment="Right"/>
                                 </StackPanel>
 
@@ -103,7 +103,7 @@
                                     <TextBlock Text=" / " Foreground="#FF5555" FontWeight="Bold"/>
                                     <TextBlock Text="{Binding MaxHp}" Foreground="#FF5555" FontWeight="Bold"/>
                                 </StackPanel>
-                                <ProgressBar Value="{Binding Hp}" Maximum="{Binding MaxHp}" Height="15" Foreground="#FF5555" Background="#333333" BorderThickness="0" Margin="0,0,0,5">
+                                <ProgressBar Value="{Binding Hp}" Maximum="{Binding MaxHp}" Height="15" HorizontalAlignment="Stretch" Foreground="#FF5555" Background="#333333" BorderThickness="0" Margin="0,0,0,5">
                                     <ProgressBar.LayoutTransform>
                                         <ScaleTransform ScaleX="-1"/>
                                     </ProgressBar.LayoutTransform>
@@ -158,27 +158,7 @@
 
         <!-- Панель действий -->
         <StackPanel Grid.Row="4" Orientation="Vertical">
-            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,10">
-                <Button Content="⚔️ Удар (2 AP)" Margin="5" Command="{Binding AttackCommand}" Width="120" Height="40"/>
-                <Button Content="🛡 Защита (2 AP)" Margin="5" Command="{Binding DefendCommand}" Width="120" Height="40"/>
-                <Button Content="🧪 Зелье HP (1 AP)" Margin="5" Command="{Binding UsePotionHpCommand}" Width="130" Height="40"/>
-                <Button Content="💧 Зелье MP (1 AP)" Margin="5" Command="{Binding UsePotionMpCommand}" Width="130" Height="40"/>
-                <Button Content="⏳ Завершить ход" Margin="5" Command="{Binding EndTurnCommand}" Width="130" Height="40" Background="#553333"/>
-                <Button Content="🔄 В меню" Margin="5" Command="{Binding ReturnToMenuCommand}" Background="#551111" Width="120" Height="40">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsPlayerDead}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </WrapPanel>
-
-            <ItemsControl ItemsSource="{Binding PlayerSkills}" HorizontalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding PlayerSkills}" HorizontalAlignment="Center" Margin="0,0,0,5">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal"/>
@@ -202,6 +182,26 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
+            <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,10">
+                <Button Content="⚔️ Удар (2 AP)" Margin="5" Command="{Binding AttackCommand}" Width="120" Height="40"/>
+                <Button Content="🛡 Защита (2 AP)" Margin="5" Command="{Binding DefendCommand}" Width="120" Height="40"/>
+                <Button Content="🧪 Зелье HP (1 AP)" Margin="5" Command="{Binding UsePotionHpCommand}" Width="130" Height="40"/>
+                <Button Content="💧 Зелье MP (1 AP)" Margin="5" Command="{Binding UsePotionMpCommand}" Width="130" Height="40"/>
+                <Button Content="⏳ Завершить ход" Margin="5" Command="{Binding EndTurnCommand}" Width="130" Height="40" Background="#553333"/>
+                <Button Content="🔄 В меню" Margin="5" Command="{Binding ReturnToMenuCommand}" Background="#551111" Width="120" Height="40">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsPlayerDead}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </WrapPanel>
         </StackPanel>
 
         <!-- Upgrade Overlay -->
@@ -222,14 +222,31 @@
                     <TextBlock Text="Выберите награду и прокачайтесь:" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
                     <UniformGrid Columns="3" Rows="1" Height="150" Name="UpgradeGrid">
-                        <Button Content="Урон" Margin="10" Command="{Binding UpgradeCommand}" CommandParameter="Damage"/>
-                        <Button Content="Здоровье" Margin="10" Command="{Binding UpgradeCommand}" CommandParameter="Health"/>
-                        <Button Content="Зелья" Margin="10" Command="{Binding UpgradeCommand}" CommandParameter="Potions"/>
+                        <Button Margin="10" Command="{Binding UpgradeCommand}" CommandParameter="Damage">
+                            <StackPanel>
+                                <TextBlock Text="Урон" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center"/>
+                                <TextBlock Text="+5 к Урону" Foreground="LightGray" FontSize="14" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Margin="10" Command="{Binding UpgradeCommand}" CommandParameter="Health">
+                            <StackPanel>
+                                <TextBlock Text="Здоровье" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center"/>
+                                <TextBlock Text="+20 к HP" Foreground="LightGray" FontSize="14" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Margin="10" Command="{Binding UpgradeCommand}" CommandParameter="Potions">
+                            <StackPanel>
+                                <TextBlock Text="Зелья" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Восстановить все" Foreground="LightGray" FontSize="14" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Button>
                     </UniformGrid>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                        <TextBlock Text="Получено очков характеристик: 1" Foreground="LightGreen" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Получено очков навыков: 1" Foreground="LightBlue" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Очки характеристик (осталось): " Foreground="LightGreen" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding StatPoints}" Foreground="LightGreen" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Очки навыков: " Foreground="LightBlue" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding SkillPoints}" Foreground="LightBlue" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <Button Content="Открыть Дерево Навыков" Margin="0,20,0,0" Height="50" FontSize="18" Background="#444" Command="{Binding OpenSkillTreeCommand}"/>

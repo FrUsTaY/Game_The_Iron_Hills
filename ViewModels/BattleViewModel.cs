@@ -89,6 +89,13 @@ namespace EpicBattle.ViewModels
             Enemies.Clear();
             PlayerSkills.Clear();
 
+            // Если сюжетный режим, полностью исцеляем игрока перед началом боя
+            if (!_isArcade)
+            {
+                _gameState.PlayerHp = _gameState.PlayerMaxHp;
+                _gameState.PlayerMp = _gameState.PlayerMaxMp;
+            }
+
             var player = new BattlePlayer(_gameState);
             foreach(var s in player.UnlockedSkills)
             {
@@ -132,10 +139,13 @@ namespace EpicBattle.ViewModels
                     OnPropertyChanged(nameof(IsPlayerTurn));
                     UpdateCommandStates();
 
-                    // Обновляем UI коллекции врагов, чтобы триггерить биндинги
-                    var temp = Enemies.ToList();
-                    Enemies.Clear();
-                    foreach(var e in temp) Enemies.Add(e);
+                    // Удаляем мертвых врагов из интерфейса
+                    var deadEnemies = Enemies.Where(e => e.Hp <= 0).ToList();
+                    foreach(var dead in deadEnemies)
+                    {
+                        Enemies.Remove(dead);
+                        _engine.Enemies.Remove(dead);
+                    }
 
                     if (TargetedEnemy != null && TargetedEnemy.Hp <= 0)
                         TargetedEnemy = Enemies.FirstOrDefault(e => e.Hp > 0);
@@ -180,8 +190,11 @@ namespace EpicBattle.ViewModels
         public ICommand ContinueStoryCommand => new Command(_ => ContinueStory());
         public ICommand OpenSkillTreeCommand => new Command(_ => OpenSkillTree());
 
+        private bool _isUpgraded;
         private void UpgradeStat(object param)
         {
+            if (_isUpgraded) return;
+
             string stat = param?.ToString();
             if (stat == "Damage")
             {
@@ -199,10 +212,11 @@ namespace EpicBattle.ViewModels
                 _gameState.MpPotions = 2;
             }
 
-            // Кнопки блокируются в UI (или скрываем окно)
-            // Но мы оставляем окно открытым, чтобы игрок нажал "Следующий бой"
-            // Чтобы предотвратить повторный клик, можно было бы сделать IsUpgraded флаг
+            _isUpgraded = true;
+            OnPropertyChanged(nameof(CanUpgrade));
         }
+
+        public bool CanUpgrade => !_isUpgraded;
 
         private void NextBattle()
         {
@@ -225,6 +239,15 @@ namespace EpicBattle.ViewModels
         {
             RequestOpenSkillTree?.Invoke();
         }
+
+        public void UpdateSkillPointsDisplay()
+        {
+            OnPropertyChanged(nameof(SkillPoints));
+            OnPropertyChanged(nameof(StatPoints));
+        }
+
+        public int SkillPoints => _gameState.SkillPoints;
+        public int StatPoints => _gameState.StatPoints;
 
         public Action RequestOpenSkillTree { get; set; }
         public ICommand DefendCommand => new Command(_ => Defend(), _ => CanDefend());
