@@ -43,6 +43,8 @@
                 <TextBlock Text="{Binding MP, StringFormat='Мана (MP): {0}'}" FontSize="14" Margin="0,2"/>
                 <TextBlock Text="{Binding Damage, StringFormat='Базовый урон: {0}'}" FontSize="14" Margin="0,2"/>
                 <TextBlock Text="{Binding MagicDamage, StringFormat='Магический урон: {0}'}" FontSize="14" Margin="0,2"/>
+                <TextBlock Text="{Binding DodgeChance, StringFormat='Шанс уклонения: {0}%'}" FontSize="14" Margin="0,2"/>
+                <TextBlock Text="{Binding CritChance, StringFormat='Шанс крит. удара: {0}%'}" FontSize="14" Margin="0,2"/>
             </StackPanel>
 
             <!-- Правая колонка: Статы -->
@@ -53,12 +55,12 @@
                 <!-- Strength -->
                 <Grid Margin="0,5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="110"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Сила (STR):" VerticalAlignment="Center" FontSize="16"/>
+                    <TextBlock Text="Сила:" VerticalAlignment="Center" FontSize="16"/>
                     <Button Grid.Column="1" Content="-" Width="30" Command="{Binding DecreaseStatCommand}" CommandParameter="STR"/>
                     <TextBlock Grid.Column="2" Text="{Binding Strength}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold"/>
                     <Button Grid.Column="3" Content="+" Width="30" Command="{Binding IncreaseStatCommand}" CommandParameter="STR"/>
@@ -67,12 +69,12 @@
                 <!-- Dexterity -->
                 <Grid Margin="0,5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="110"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Ловкость (DEX):" VerticalAlignment="Center" FontSize="16"/>
+                    <TextBlock Text="Ловкость:" VerticalAlignment="Center" FontSize="16"/>
                     <Button Grid.Column="1" Content="-" Width="30" Command="{Binding DecreaseStatCommand}" CommandParameter="DEX"/>
                     <TextBlock Grid.Column="2" Text="{Binding Dexterity}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold"/>
                     <Button Grid.Column="3" Content="+" Width="30" Command="{Binding IncreaseStatCommand}" CommandParameter="DEX"/>
@@ -81,12 +83,12 @@
                 <!-- Intelligence -->
                 <Grid Margin="0,5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="110"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Интеллект (INT):" VerticalAlignment="Center" FontSize="16"/>
+                    <TextBlock Text="Интеллект:" VerticalAlignment="Center" FontSize="16"/>
                     <Button Grid.Column="1" Content="-" Width="30" Command="{Binding DecreaseStatCommand}" CommandParameter="INT"/>
                     <TextBlock Grid.Column="2" Text="{Binding Intelligence}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold"/>
                     <Button Grid.Column="3" Content="+" Width="30" Command="{Binding IncreaseStatCommand}" CommandParameter="INT"/>
@@ -95,7 +97,7 @@
                 <!-- Endurance -->
                 <Grid Margin="0,5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="110"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="Auto"/>

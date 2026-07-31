@@ -13,15 +13,18 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="ДЕРЕВО НАВЫКОВ" FontSize="28" FontWeight="Bold" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-        <TextBlock Text="{Binding SkillPoints, StringFormat='Очки навыков: {0}'}" FontSize="18" Foreground="LightGreen" HorizontalAlignment="Center" Margin="0,0,0,20" Grid.Row="0" VerticalAlignment="Bottom"/>
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,20">
+            <TextBlock Text="ДЕРЕВО НАВЫКОВ" FontSize="28" FontWeight="Bold" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+            <TextBlock Text="{Binding SkillPoints, StringFormat='Очки навыков: {0}'}" FontSize="18" Foreground="LightGreen" HorizontalAlignment="Center"/>
+        </StackPanel>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
 
             <!-- Путь Меча -->
             <Border Grid.Column="0" BorderBrush="#555" BorderThickness="1" Margin="5" Padding="10">
@@ -88,7 +91,8 @@
                     </ItemsControl>
                 </StackPanel>
             </Border>
-        </Grid>
+            </Grid>
+        </ScrollViewer>
 
         <Button Grid.Row="2" Content="Закрыть" Command="{Binding CloseCommand}" Width="150" Height="40" FontSize="16" Margin="0,20,0,0"/>
     </Grid>

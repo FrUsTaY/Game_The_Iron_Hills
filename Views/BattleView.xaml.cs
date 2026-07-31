@@ -256,7 +256,8 @@ namespace EpicBattle.Views
                     var btn = new Button
                     {
                         Content = $"{skill.Name} ({skill.ManaCost} MP)",
-                        Width = 150,
+                        MinWidth = 120,
+                        Padding = new Thickness(10, 5, 10, 5),
                         Height = 40,
                         Margin = new Thickness(5),
                         Tag = skill

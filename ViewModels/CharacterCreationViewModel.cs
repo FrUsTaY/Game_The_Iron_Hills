@@ -106,6 +106,8 @@ namespace EpicBattle.ViewModels
         public int MP => 20 + (Intelligence * 6);
         public int Damage => 5 + (Strength * 2);
         public int MagicDamage => 5 + (Intelligence * 2);
+        public double DodgeChance => Math.Min(50, Dexterity * 1.5);
+        public double CritChance => Math.Min(50, Dexterity * 1.5);
 
         private void UpdateDerivedStats()
         {
@@ -113,6 +115,8 @@ namespace EpicBattle.ViewModels
             OnPropertyChanged(nameof(MP));
             OnPropertyChanged(nameof(Damage));
             OnPropertyChanged(nameof(MagicDamage));
+            OnPropertyChanged(nameof(DodgeChance));
+            OnPropertyChanged(nameof(CritChance));
         }
 
         public ICommand SelectClassCommand => new Command(param => SelectClass(param.ToString()));
@@ -132,15 +136,15 @@ namespace EpicBattle.ViewModels
             switch (className)
             {
                 case "Ветеран":
-                    ClassDescription = "Сбалансированный боец. Упор на физический урон и выносливость.";
+                    ClassDescription = "Сбалансированный боец. Упор на физический урон и выносливость.\nСтартовый навык: Мощный Удар (Путь Меча).";
                     Strength = 6; Dexterity = 5; Intelligence = 3; Endurance = 6;
                     break;
                 case "Изгой-маг":
-                    ClassDescription = "Использует тайные искусства. Слабое здоровье, но высокий магический урон.";
+                    ClassDescription = "Использует тайные искусства. Слабое здоровье, но высокий магический урон.\nСтартовый навык: Огненный Шар (Тайные Искусства).";
                     Strength = 3; Dexterity = 4; Intelligence = 8; Endurance = 3;
                     break;
                 case "Наемник":
-                    ClassDescription = "Ловкий и смертоносный. Высокий шанс крита и уклонения.";
+                    ClassDescription = "Ловкий и смертоносный. Высокий шанс крита и уклонения.\nСтартовый навык: Первая Помощь (Выживание).";
                     Strength = 4; Dexterity = 8; Intelligence = 3; Endurance = 5;
                     break;
             }
@@ -221,6 +225,20 @@ namespace EpicBattle.ViewModels
             // Восстанавливаем HP/MP по максимуму
             state.PlayerHp = state.PlayerMaxHp;
             state.PlayerMp = state.PlayerMaxMp;
+
+            // Добавляем стартовый навык
+            if (state.PlayerClass == "Ветеран")
+            {
+                state.UnlockedSkills.Add("S1_PowerStrike");
+            }
+            else if (state.PlayerClass == "Изгой-маг")
+            {
+                state.UnlockedSkills.Add("M1_Fireball");
+            }
+            else if (state.PlayerClass == "Наемник")
+            {
+                state.UnlockedSkills.Add("V1_FirstAid");
+            }
 
             SaveManager.CurrentState = state;
 
