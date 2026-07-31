@@ -72,7 +72,7 @@ namespace EpicBattle.Views
                     }
                     else
                     {
-                        NavigationManager.NavigateTo(new BattleView(isArcade: true, isLoaded: true));
+                        NavigationManager.NavigateTo(new BattleView(isArcade: true));
                     }
                 }
             }
