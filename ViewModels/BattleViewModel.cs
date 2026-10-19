@@ -255,6 +255,8 @@ namespace EpicBattle.ViewModels
 
             _engine.OnLogEvent += (msg) =>
             {
+                // Этап 3.3: звук синтезируется/подбирается до диспатчера — не блокирует UI-поток.
+                AudioEngine.PlayForLogLine(msg);
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     PushFloating(msg);
@@ -559,6 +561,8 @@ namespace EpicBattle.ViewModels
             var target = TargetedEnemy ?? Enemies.FirstOrDefault(e => e.Hp > 0);
             if (target != null)
             {
+                // Этап 3.3: уникальный звук удара по типу экипированного оружия (клинок/посох/кинжалы/топор).
+                AudioEngine.PlayWeaponHit(_gameState?.EquippedWeapon?.Name);
                 _engine.PlayerAttack(target);
                 UpdateProperties();
             }
