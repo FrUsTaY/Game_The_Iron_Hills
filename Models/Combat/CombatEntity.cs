@@ -66,6 +66,9 @@ namespace EpicBattle.Models.Combat
             set { _isDefending = value; OnPropertyChanged(); }
         }
 
+        // P2-фикс (В8): защита от повторного объявления смерти в CheckEnemyDeaths
+        public bool DeathAnnounced { get; set; } = false;
+
         // Эффекты
         public ObservableCollection<StatusEffect> ActiveEffects { get; set; } = new ObservableCollection<StatusEffect>();
 

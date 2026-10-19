@@ -26,6 +26,8 @@ namespace EpicBattle.Models.Combat
         public double BloodlustMultiplier { get; set; } = 1.0;
         public bool GromgarChaosAttack { get; set; } = false;
         public int PlayerDamageBuffTurns { get; set; } = 0;
+        // P2-фикс (В2): вместо костыля "PlayerDamageBuffTurns = 99" — явный флаг бессрочного баффа
+        public bool PlayerDamageBuffPermanent { get; set; } = false;
 
         // P0-фикс (В4): активные кулдауны навыков игрока (Id навыка -> оставшиеся ходы)
         private readonly Dictionary<string, int> _playerSkillCooldowns = new Dictionary<string, int>();
@@ -50,6 +52,10 @@ namespace EpicBattle.Models.Combat
             BattleModifier = battleModifier ?? string.Empty;
             TurnQueue = new List<CombatEntity>();
 
+            // P2-фикс (В2): каждый новый бой стартует без остатков баффов прошлых боёв
+            PlayerDamageBuffTurns = 0;
+            PlayerDamageBuffPermanent = false;
+
             InitializeBattleModifiers();
             BuildQueue();
             NextTurn();
@@ -62,7 +68,7 @@ namespace EpicBattle.Models.Combat
             // --- Акт 1 Модификаторы ---
             if (BattleModifier == "Surprise")
             {
-                OnLogEvent("⚡ [Внезапный удар] Вы используете Руну Огня! Враги ошеломлены.");
+                OnLogEvent("⚡ [Внезапный удар] Огненная руна вспыхивает в руке! Враги ошеломлены.");
                 var first = Enemies.FirstOrDefault();
                 if (first != null)
                 {
@@ -139,7 +145,9 @@ namespace EpicBattle.Models.Combat
                 else if (BattleModifier == "Gromgar_Ruthless")
                 {
                     BloodlustMultiplier = 1.25;
-                    OnLogEvent("🩸 ЖАЖДА КРОВИ! Вы и Громгар наносите на 25% больше урона, но защита снижена.");
+                    // P2-фикс (В3): текст и логика согласованы — защита НЕ снижается,
+                    // вместо этого входящий урон под блокировкой растёт на +15% (см. CalculateDamage)
+                    OnLogEvent("🩸 ЖАЖДА КРОВИ! Вы и Громгар наносите на 25% больше урона, а блок защищает слабее (+15% урона сквозь защиту)!");
                 }
             }
 
@@ -213,7 +221,9 @@ namespace EpicBattle.Models.Combat
             }
             else if (BattleModifier == "Act2_Purification")
             {
-                PlayerDamageBuffTurns = 99;
+                // P2-фикс (В2): бессрочный бафф через явный флаг вместо магического 99
+                PlayerDamageBuffPermanent = true;
+                PlayerDamageBuffTurns = int.MaxValue;
                 Player.ApplyEffect(new StatusEffect { Id = "Regen", Name = "Регенерация", Type = StatusEffectType.Buff, Duration = 5, Value = 15, IconPath = "✨" });
                 OnLogEvent("🧪 [Эликсир Очищения] Священная аура наполняет вас (+50% к урону на весь бой, Регенерация +15 HP)!");
             }
@@ -365,7 +375,7 @@ namespace EpicBattle.Models.Combat
                     s.CooldownRemaining = _playerSkillCooldowns.TryGetValue(s.Id, out int cd) ? cd : 0;
                 }
 
-                if (PlayerDamageBuffTurns > 0)
+                if (PlayerDamageBuffTurns > 0 && !PlayerDamageBuffPermanent)
                 {
                     PlayerDamageBuffTurns--;
                 }
@@ -633,6 +643,9 @@ namespace EpicBattle.Models.Combat
                     target.Mp = 0;
                     OnLogEvent("🛡️ Щит маны разбит!");
                 }
+                // P2-фикс (В5): повторный кламп — раньше после вычитания щита урон мог уйти в 0/отрицательное
+                // (кламп "damage >= 1" стоял ДО щита)
+                if (damage < 0) damage = 0;
             }
 
             if (isCrit)
@@ -812,22 +825,19 @@ namespace EpicBattle.Models.Combat
 
         public void CheckEnemyDeaths()
         {
+            // P2-фикс (В8): раньше смерть фиксировалась только при наличии врага в TurnQueue,
+            // а «else if (!died)» ложно помечал уже удалённых врагов как новых погибших.
+            // Теперь факт смерти определяется состоянием HP, лог пишется один раз.
             bool died = false;
             foreach (var enemy in Enemies.ToList())
             {
-                if (enemy.Hp <= 0)
+                if (enemy.Hp <= 0 && !enemy.DeathAnnounced)
                 {
+                    enemy.DeathAnnounced = true;
+                    OnLogEvent($"💀 {enemy.Name} повержен!");
                     if (TurnQueue.Contains(enemy))
-                    {
-                        OnLogEvent($"💀 {enemy.Name} повержен!");
                         TurnQueue.Remove(enemy);
-                        died = true;
-                    }
-                    else if (!died)
-                    {
-                        TurnQueue.Remove(enemy);
-                        died = true;
-                    }
+                    died = true;
                 }
             }
 

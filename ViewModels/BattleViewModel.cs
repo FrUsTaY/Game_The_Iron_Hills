@@ -564,6 +564,12 @@ namespace EpicBattle.ViewModels
 
         private void EndTurn()
         {
+            // P2-фикс (В9): если у игрока остались неподготовленные AP, предупреждаем —
+            // они сгорят при завершении хода (раньше терялись молча).
+            if (_engine != null && IsPlayerTurn && _engine.Player.CurrentAP > 0)
+            {
+                Log($"⚠️ Сгорает {_engine.Player.CurrentAP} неподготовленных AP. Совет: тратьте AP на атаки/навыки до конца хода.");
+            }
             _engine.EndPlayerTurn();
         }
 
