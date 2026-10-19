@@ -12,7 +12,8 @@ namespace EpicBattle.Services
     {
         [ThreadStatic] private static Random? _local;
 
-        private static Random Current => _local ??= new Random(Environment.TickCount);
+        /// <summary>Единый доступ к потоку Random (для FX-смещений и т.п.).</summary>
+        public static Random Current => _local ??= new Random(Environment.TickCount);
 
         /// <summary>Текущий seed, использованный при последнем Reseed (0 если авто).</summary>
         public static int CurrentSeed { get; private set; }

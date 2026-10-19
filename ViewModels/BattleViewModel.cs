@@ -11,6 +11,7 @@ using System.Windows.Input;
 using EpicBattle.Managers;
 using EpicBattle.Models;
 using EpicBattle.Models.Combat;
+using EpicBattle.Services;
 using EpicBattle.Models.RPG;
 using EpicBattle.Views;
 
@@ -40,6 +41,58 @@ namespace EpicBattle.ViewModels
         public ObservableCollection<BattleEnemy> Enemies { get; private set; } = new ObservableCollection<BattleEnemy>();
         public ObservableCollection<CombatLogMessage> CombatLog { get; private set; } = new ObservableCollection<CombatLogMessage>();
         public ObservableCollection<Skill> PlayerSkills { get; private set; } = new ObservableCollection<Skill>();
+
+        // Этап 3.3: Floating Combat Text — всплывающие цифры над колонками игрока/врагов.
+        public ObservableCollection<FloatingText> FloatingTexts { get; private set; } = new ObservableCollection<FloatingText>();
+        private bool _lastWasCrit;
+        private const string PlayerFloatKey = "Player";
+
+        // Этап 3.3: вспышка на колонке игрока при получении удара (импульс true→false, перезапускает Storyboard)
+        private bool _playerHitPulse;
+        public bool PlayerHitPulse
+        {
+            get => _playerHitPulse;
+            set { _playerHitPulse = value; OnPropertyChanged(nameof(PlayerHitPulse)); }
+        }
+
+        /// <summary>Этап 3.3: сигнал code-behind подсветить карточку врага (имя цели).</summary>
+        public event Action<string> EnemyHitFlashRequested;
+
+        private void PulsePlayerHit()
+        {
+            if (_playerHitPulse) return;
+            PlayerHitPulse = true;
+            App.Current.Dispatcher.InvokeAsync(() => PlayerHitPulse = false);
+        }
+
+        private void PushFloating(string msg)
+        {
+            try
+            {
+                if (FloatingTextParser.IsCritMarker(msg)) { _lastWasCrit = true; return; }
+                var ft = FloatingTextParser.Parse(msg, PlayerFloatKey);
+                if (ft == null) { _lastWasCrit = false; return; }
+
+                if (_lastWasCrit)
+                {
+                    // пересоздаём как крит: жёлтый, крупный; тряска при тяжёлом ударе по игроку
+                    ft = new FloatingText(ft.Text, FloatingTextKind.Crit, ft.TargetKey, triggersShake: ft.TriggersShake || ft.TargetKey == PlayerFloatKey);
+                }
+                _lastWasCrit = false;
+
+                FloatingTexts.Add(ft);
+                if (FloatingTexts.Count > 24)
+                    FloatingTexts.RemoveAt(0);
+
+                // Этап 3.3: вспышка на колонке игрока при входящем уроне/магии
+                if ((ft.Kind == FloatingTextKind.Damage || ft.Kind == FloatingTextKind.Magic || ft.Kind == FloatingTextKind.Crit))
+                {
+                    if (ft.TargetKey == PlayerFloatKey) PulsePlayerHit();
+                    else EnemyHitFlashRequested?.Invoke(ft.TargetKey);
+                }
+            }
+            catch { /* FX не должны ронять бой */ }
+        }
 
         public string WaveText => _battleModifier == "Elite" 
             ? "💀 ЭЛИТНЫЙ БОЙ" 
@@ -204,6 +257,7 @@ namespace EpicBattle.ViewModels
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
+                    PushFloating(msg);
                     CombatLog.Add(new CombatLogMessage(msg));
                 });
             };
@@ -588,6 +642,7 @@ namespace EpicBattle.ViewModels
         private void Log(string msg)
         {
             CombatLog.Add(new CombatLogMessage(msg));
+            PushFloating(msg); // Этап 3.3: FX из ручных сообщений VM (зелья и т.п.)
         }
 
         private void UpdateProperties()

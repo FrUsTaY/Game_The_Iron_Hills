@@ -30,7 +30,25 @@
             </Grid.ColumnDefinitions>
 
             <!-- Игрок -->
-            <StackPanel Grid.Column="0">
+            <StackPanel Grid.Column="0" Name="PlayerColumnHost">
+                <!-- Этап 3.3: вспышка при получении удара (импульс из VM) -->
+                <Border Background="#44FF3333" CornerRadius="6" Opacity="0" Height="0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PlayerHitPulse}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.9" To="0" Duration="0:0:0.45"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
                 <TextBlock Text="{Binding Player.Name}" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,0,0,5"/>
 
                 <!-- HP -->
@@ -88,7 +106,7 @@
             <TextBlock Grid.Column="1" Text="VS" Foreground="Gray" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
             <!-- Враги (Список) -->
-            <ItemsControl Grid.Column="2" ItemsSource="{Binding Enemies}">
+            <ItemsControl Grid.Column="2" ItemsSource="{Binding Enemies}" Name="EnemiesHost">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border x:Name="EnemyBorder" BorderBrush="#333333" BorderThickness="2" Margin="0,0,0,10" Padding="10" Background="#222" CornerRadius="6">
