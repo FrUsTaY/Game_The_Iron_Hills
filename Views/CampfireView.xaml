@@ -92,9 +92,9 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,15,0">
                             <TextBlock Text="⚔️ Заточить клинки и снаряжение" FontSize="16" FontWeight="Bold" Foreground="#55FF55"/>
-                            <TextBlock Text="Идеально подготовить оружие. Увеличивает базовый физический и магический урон на +2 навсегда." FontSize="12" Foreground="LightGray" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="Идеально подготовить оружие. Увеличивает базовый физический и магический урон на +1 навсегда. Требует 1 Железную Руду Кряжа (⛏️)." FontSize="12" Foreground="LightGray" Margin="0,4,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
-                        <Button Name="SharpenBtn" Grid.Column="1" Content="Заточить" Height="40" FontSize="14" FontWeight="Bold" Background="#2E6B30" Click="SharpenBtn_Click"/>
+                        <Button Name="SharpenBtn" Grid.Column="1" Content="Заточить (⛏️ 1)" Height="40" FontSize="14" FontWeight="Bold" Background="#2E6B30" Click="SharpenBtn_Click" ToolTip="+1 к базовому урону и магии навсегда. Требует 1 Железную Руду Кряжа."/>
                     </Grid>
                 </Border>
 

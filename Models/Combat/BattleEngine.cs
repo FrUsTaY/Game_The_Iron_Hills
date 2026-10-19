@@ -386,6 +386,9 @@ namespace EpicBattle.Models.Combat
             }
             else if (entity is BattleEnemy enemy)
             {
+                // P1-фикс (В4): тик перезарядок вражеских навыков в начале его хода
+                enemy.TickSkillCooldowns();
+
                 // P0-фикс (В1): единая точка включения Ярости Громгара — порог из GromgarRageThreshold,
                 // без дублирующей проверки 35% в DetermineIntent
                 if (IsGromgarEncounter && ReferenceEquals(enemy, GromgarBossRef) && !GromgarEnraged)
@@ -499,6 +502,10 @@ namespace EpicBattle.Models.Combat
                 }
                 else if (enemy.CurrentIntent.Description.Contains("Ослепление"))
                 {
+                    // P1-фикс (В6): ослепление теперь реально стоит ресурсов и имеет перезарядку
+                    enemy.CurrentAP -= 2;
+                    enemy.Mp = Math.Max(0, enemy.Mp - 8);
+                    enemy.StartSkillCooldown("T_Blind", 4);
                     Player.ApplyEffect(new StatusEffect { Id = "Blind", Name = "Слепота", Type = StatusEffectType.Debuff, Duration = 2, Value = 45, IconPath = "👁️" });
                     OnLogEvent($"👁️ {enemy.Name} ослепляет вас на 2 хода!");
                 }
@@ -513,8 +520,16 @@ namespace EpicBattle.Models.Combat
                     if (skill != null) ExecuteSkill(enemy, skill, target: null);
                 }
             }
+            else if (enemy.CurrentIntent.Type == IntentType.Attack && enemy.CurrentIntent.IconPath == "💥")
+            {
+                // P1-фикс (В4): PowerStrike у врагов теперь с перезарядкой 2 хода (как у игрока) —
+                // снижает вин-рейт против «Мощного удара» берсерков/агрессоров
+                enemy.StartSkillCooldown("S1_PowerStrike", 2);
+            }
             else if (enemy.CurrentIntent.Type == IntentType.Heal)
             {
+                // P1-фикс (В4): перезарядка лечения 3 хода — связка «Вампиризм + бессмертный FirstAid» nerf'нута
+                enemy.StartSkillCooldown("V1_FirstAid", 3);
                 var injuredAlly = Enemies
                     .Where(e => e.Hp > 0 && e.Hp < e.MaxHp)
                     .OrderBy(e => (float)e.Hp / e.MaxHp)
@@ -659,6 +674,11 @@ namespace EpicBattle.Models.Combat
             {
                 _playerSkillCooldowns[skill.Id] = skill.Cooldown;
                 skill.CooldownRemaining = skill.Cooldown;
+            }
+            // P1-фикс (В4): перезарядка вражеских навыков из БД (Fireball/Cleave/PowerStrike/FirstAid)
+            else if (caster is BattleEnemy e2 && skill.Cooldown > 0)
+            {
+                e2.StartSkillCooldown(skill.Id, skill.Cooldown);
             }
 
             if (skill.Id == "S1_PowerStrike")

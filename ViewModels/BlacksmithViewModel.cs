@@ -84,7 +84,7 @@ namespace EpicBattle.ViewModels
         public int PlayerGold => _gameState.Gold;
         public int OreStock => _gameState.Ore;
         public int UpgradeCount => _gameState.BlacksmithUpgradesDone;
-        public bool CanReforge => _gameState.Gold >= ReforgeCost;
+        public bool CanReforge => _gameState.Gold >= CurrentReforgeCost; // P1 (Б5): цена растёт за спам
         public bool CanSharpen => _gameState.Gold >= SharpenCost;
         public bool CanBuyOre => _gameState.Gold >= OrePrice;
 
@@ -200,15 +200,22 @@ namespace EpicBattle.ViewModels
             RefreshForgeList();
         }
 
+        private int _reforgeStreak = 0; // P1-фикс (Б5): растущая цена за спам перековкой подряд
+
+        private int CurrentReforgeCost => ReforgeCost * (int)Math.Pow(2, Math.Min(_reforgeStreak, 3)); // 80 → 160 → 320 → 640 (кап ×8)
+
         private void ReforgeStats()
         {
-            if (_gameState.Gold < ReforgeCost)
+            int cost = CurrentReforgeCost;
+            if (_gameState.Gold < cost)
             {
-                StatusMessage = $"❌ Перековка стоит {ReforgeCost} 💰, а у тебя пусто!";
+                StatusMessage = $"❌ Перековка стоит {cost} 💰" + (_reforgeStreak > 0 ? " (цена растёт при частых перековках!)" : "") + "!";
                 return;
             }
 
-            // Случайно перераспределяем очки между характеристиками: -1 одной, +1 другой
+            // P1-фикс (Б5): гарантируем, что понижаемая характеристика > 1 — иначе очко
+            // просто исчезало (золото списано, сумма статов падала). Сумма характеристик
+            // теперь всегда сохраняется: −1 одной (только если она ≥ 2), +1 другой.
             var stats = new Dictionary<string, int>
             {
                 ["Сила"] = _gameState.Strength,
@@ -217,22 +224,34 @@ namespace EpicBattle.ViewModels
                 ["Выносливость"] = _gameState.Endurance
             };
 
-            var keys = stats.Keys.ToList();
-            string dec = keys[rand.Next(keys.Count)];
-            string inc = keys[rand.Next(keys.Count)];
-            if (_gameState.Strength + _gameState.Dexterity + _gameState.Intelligence + _gameState.Endurance <= 4 || dec == inc)
+            var decCandidates = stats.Where(kv => kv.Value > 1).Select(kv => kv.Key).ToList();
+            if (decCandidates.Count == 0)
             {
-                inc = keys[(keys.IndexOf(dec) + 1) % keys.Count];
+                StatusMessage = "⚗️ Все характеристики уже на минимуме — перековать нечего!";
+                return;
             }
 
-            _gameState.Gold -= ReforgeCost;
-            SetStat(dec, Math.Max(1, stats[dec] - 1));
+            string dec = decCandidates[rand.Next(decCandidates.Count)];
+            string inc = keys_excluding(stats.Keys.ToList(), dec)[rand.Next(stats.Count - 1)];
+
+            _gameState.Gold -= cost;
+            _reforgeStreak++;
+            SetStat(dec, stats[dec] - 1);
             SetStat(inc, stats[inc] + 1);
             _gameState.RecalculateDerivedStats();
 
-            StatusMessage = $"⚗️ ПЕРЕКОВКА ХАРАКТЕРИСТИК: характер переплавлен! −1 {dec}, +1 {inc}.";
+            StatusMessage = $"⚗️ ПЕРЕКОВКА ХАРАКТЕРИСТИК (−{cost} 💰): характер переплавлен! −1 {dec}, +1 {inc}." +
+                            (_reforgeStreak >= 2 ? $" Следующая: {CurrentReforgeCost} 💰." : "");
             ReforgePreview = $"Новый облик героя: Сила {_gameState.Strength} • Ловкость {_gameState.Dexterity} • Интеллект {_gameState.Intelligence} • Выносливость {_gameState.Endurance}";
             RefreshForgeList();
+            UpdateDerivedFlags();
+        }
+
+        private static List<string> keys_excluding(List<string> keys, string exclude)
+        {
+            var result = new List<string>(keys);
+            result.Remove(exclude);
+            return result;
         }
 
         private void SetStat(string name, int value)

@@ -100,7 +100,7 @@
 
                             <Button Margin="4" Padding="10,6" Background="#4A3728" Click="SellOre_Click">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⛏️ Продать всю Руду Кряжа" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="⛏️ Продать 1 кусок руды (💰 25)" Foreground="White" FontWeight="Bold"/>
                                     <TextBlock Text=" (💰 25 / шт.)" Foreground="#FFAA00"/>
                                 </StackPanel>
                             </Button>

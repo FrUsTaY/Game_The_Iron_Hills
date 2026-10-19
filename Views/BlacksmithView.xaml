@@ -118,7 +118,7 @@
 
                     <Button Padding="12,10" Margin="0,0,0,8" Background="#5A2E3A" Click="Reforge_Click">
                         <StackPanel>
-                            <TextBlock Text="⚗️ Перековка характеристик (💰 80)" Foreground="White" FontWeight="Bold" FontSize="14"/>
+                            <TextBlock Text="⚗️ Перековка характеристик (💰 80, цена ×2 за каждую подряд!)" Foreground="White" FontWeight="Bold" FontSize="14"/>
                             <TextBlock Text="Риск-дело: −1 к одной характеристике, +1 к другой (случайно)." Foreground="Gray" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Button>

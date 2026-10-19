@@ -212,11 +212,12 @@ namespace EpicBattle.ViewModels
                 return;
             }
 
+            // P1-фикс (Б4): раньше продавалась ВСЯ руда одним кликом без подтверждения —
+            // случайный клик уничтожал ресурсную базу крафта. Теперь продажа порционная (по 1).
             const int orePrice = 25;
-            int sold = _gameState.Ore;
-            _gameState.Ore = 0;
-            _gameState.Gold += sold * orePrice;
-            StatusMessage = $"⛏️ Ростовщик скупил всю твою руду ({sold} шт.) за {sold * orePrice} 💰. Но кузнецу без неё не поможетешь...";
+            _gameState.Ore -= 1;
+            _gameState.Gold += orePrice;
+            StatusMessage = $"⛏️ Ростовщик купил 1 кусок руды за {orePrice} 💰. Осталось ⛏️ {_gameState.Ore}. Помни: кузнецу без руды не поможетешь...";
             RefreshUI();
         }
 
