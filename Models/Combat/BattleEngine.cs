@@ -117,17 +117,17 @@ namespace EpicBattle.Models.Combat
             {
                 IsGromgarEncounter = true;
                 // P0-фикс (В1): фиксируем ссылку на босса — порог Ярости проверяется только в ProcessTurnStart
-                GromgarBossRef = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+                GromgarBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
                 if (BattleModifier == "Gromgar_Honor")
                 {
                     GromgarRageThreshold = 40;
-                    var gromgar = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+                    var gromgar = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
                     if (gromgar != null) gromgar.CritChance = 5;
                     OnLogEvent("🛡️ Слова о чести заставляют Громгара сомневаться (крит снижен, порог Ярости 40%).");
                 }
                 else if (BattleModifier == "Gromgar_Lore")
                 {
-                    var gromgar = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+                    var gromgar = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
                     if (gromgar != null)
                     {
                         int dmg = (int)(gromgar.MaxHp * 0.15);
@@ -252,7 +252,7 @@ namespace EpicBattle.Models.Combat
             // При этом ссылки на новых врагов нужно обновить (в т.ч. GromgarBossRef для фазы Ярости).
             if (IsGromgarEncounter)
             {
-                GromgarBossRef = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+                GromgarBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
             }
 
             BuildQueue();
@@ -351,7 +351,7 @@ namespace EpicBattle.Models.Combat
 
             if (entity is BattlePlayer player)
             {
-                // P0-фикс (В4): отсчёт перезарядок навыков игрока
+                // P0-фикс (В4): отсчёт перезарядок навыков игрока (синхронно с UI-объектами Skill)
                 var readySkills = new List<string>();
                 foreach (var kv in _playerSkillCooldowns)
                 {
@@ -359,6 +359,11 @@ namespace EpicBattle.Models.Combat
                     else readySkills.Add(kv.Key);
                 }
                 foreach (var id in readySkills) _playerSkillCooldowns.Remove(id);
+
+                foreach (var s in player.UnlockedSkills)
+                {
+                    s.CooldownRemaining = _playerSkillCooldowns.TryGetValue(s.Id, out int cd) ? cd : 0;
+                }
 
                 if (PlayerDamageBuffTurns > 0)
                 {
@@ -636,11 +641,14 @@ namespace EpicBattle.Models.Combat
                 return;
             }
 
-            // P0-фикс (В4): реальная проверка кулдауна навыка
-            if (caster is BattlePlayer && _playerSkillCooldowns.TryGetValue(skill.Id, out int remainingCd) && remainingCd > 0)
+            // P0-фикс (В4): реальная проверка кулдауна навыка + синхронизация UI-отображения
+            if (caster is BattlePlayer)
             {
-                OnLogEvent($"⏳ '{skill.Name}' на перезарядке: ещё {remainingCd} ход(ов).");
-                return;
+                if (_playerSkillCooldowns.TryGetValue(skill.Id, out int remainingCd) && remainingCd > 0)
+                {
+                    OnLogEvent($"⏳ '{skill.Name}' на перезарядке: ещё {remainingCd} ход(ов).");
+                    return;
+                }
             }
 
             caster.CurrentAP -= skill.APCost;
@@ -650,6 +658,7 @@ namespace EpicBattle.Models.Combat
             if (caster is BattlePlayer && skill.Cooldown > 0)
             {
                 _playerSkillCooldowns[skill.Id] = skill.Cooldown;
+                skill.CooldownRemaining = skill.Cooldown;
             }
 
             if (skill.Id == "S1_PowerStrike")

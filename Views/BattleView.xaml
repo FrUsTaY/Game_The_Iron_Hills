@@ -380,6 +380,28 @@
             </Border>
         </Border>
 
+        <!-- P0-фикс (Б1): экран поражения. Раньше IsPlayerDead не был привязан ни к одному элементу UI,
+             и после смерти игрока все кнопки блокировались без возможности выхода из боя. -->
+        <Border Grid.Row="0" Grid.RowSpan="5" Background="#E6000000" Panel.ZIndex="200">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPlayerDead}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#2A1515" BorderBrush="#8B0000" BorderThickness="2" CornerRadius="8" Width="360" Padding="24">
+                <StackPanel>
+                    <TextBlock Text="💀 ПОРАЖЕНИЕ" Foreground="#FF4444" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock Text="Ваш герой пал в бою. Прогресс сохранён на последнем контрольном пункте." Foreground="#CCCCCC" FontSize="13" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20"/>
+                    <Button Content="Вернуться в главное меню" Command="{Binding ReturnToMenuCommand}" Height="40" FontSize="14" Cursor="Hand"/>
+                </StackPanel>
+            </Border>
+        </Border>
+
         <!-- Меню Паузы -->
         <Border Name="PauseOverlay" Grid.Row="0" Grid.RowSpan="5" Background="#AA000000" Visibility="Collapsed" Panel.ZIndex="100">
             <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#222222" BorderBrush="#444444" BorderThickness="1" CornerRadius="8" Width="300" Padding="20">

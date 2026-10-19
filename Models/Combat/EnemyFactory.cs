@@ -223,6 +223,7 @@ namespace EpicBattle.Models.Combat
             {
                 var boss = new BattleEnemy
                 {
+                    Id = "boss_gromgar", // P0-фикс (В1): стабильный Id вместо проверки по имени
                     Name = "Вождь Громгар",
                     Role = EnemyRole.Aggressor,
                     MaxHp = 250,
@@ -571,6 +572,7 @@ namespace EpicBattle.Models.Combat
             {
                 var gromgar = new BattleEnemy
                 {
+                    Id = "boss_gromgar", // P0-фикс (В1): стабильный Id — GromgarBossRef находится и в аркадном боссе
                     Name = "Верховный Вождь Громгар",
                     Role = EnemyRole.Aggressor,
                     MaxHp = 280 + (playerLevel * 15),

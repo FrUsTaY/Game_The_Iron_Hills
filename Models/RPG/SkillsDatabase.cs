@@ -22,7 +22,7 @@ namespace EpicBattle.Models.RPG
         AoE           // Все живые враги на экране
     }
 
-    public class Skill
+    public class Skill : System.ComponentModel.INotifyPropertyChanged
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -38,9 +38,28 @@ namespace EpicBattle.Models.RPG
         public int APCost { get; set; } = 0;
         public TargetType TargetType { get; set; } = TargetType.SingleTarget;
         public int ManaCost { get; set; } = 0;
-        public int Cooldown { get; set; } = 0; // В ходах
+        public int Cooldown { get; set; } = 0; // В ходах (длительность перезарядки)
+
+        // P0-фикс (В4): остаток перезарядки навыка игрока, обновляется BattleEngine'ом.
+        // Реализация INotifyPropertyChanged позволяет UI показывать кулдаун и блокировать кнопку.
+        private int _cooldownRemaining;
+        public int CooldownRemaining
+        {
+            get => _cooldownRemaining;
+            set
+            {
+                if (_cooldownRemaining == value) return;
+                _cooldownRemaining = value;
+                PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(CooldownRemaining)));
+                PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsOnCooldown)));
+            }
+        }
+
+        public bool IsOnCooldown => _cooldownRemaining > 0;
 
         public string IconPath { get; set; } = string.Empty;
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
     }
 
     public static class SkillsDatabase

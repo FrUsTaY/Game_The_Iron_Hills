@@ -10,6 +10,7 @@ namespace EpicBattle.Models.Combat
     public abstract class CombatEntity : INotifyPropertyChanged
     {
         public string Name { get; set; } = string.Empty;
+        public string Id { get; set; } = string.Empty; // P0-фикс (В1): стабильный идентификатор врага вместо магических строк в Name
 
         private int _hp;
         public int Hp

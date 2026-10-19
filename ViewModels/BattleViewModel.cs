@@ -302,8 +302,21 @@ namespace EpicBattle.ViewModels
                         + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "")
                         + (oreFound > 0 ? $", ⛏️ Руда: +{oreFound} (Всего: {_gameState.Ore})" : "");
 
-                    _gameState.PlayerHp = _gameState.PlayerMaxHp;
-                    _gameState.PlayerMp = _gameState.PlayerMaxMp;
+                    // P0-фикс (Б2): полное восстановление HP/MP после боя было только в сюжетном режиме
+                    // (там же оно принудительно ставилось перед боем). Для карты и аркады HP теперь
+                    // переносится между боями — узлы Костёр/Лавка становятся осмысленными.
+                    if (!_isArcade && _onCompletedFromMap == null && !_gameState.IsMapMode)
+                    {
+                        _gameState.PlayerHp = _gameState.PlayerMaxHp;
+                        _gameState.PlayerMp = _gameState.PlayerMaxMp;
+                    }
+                    else
+                    {
+                        // Щадящий режим: после победы игрок не остаётся на 1-2 HP —
+                        // минимум 25% здоровья, чтобы карта не превращалась в unverifiable death-spiral.
+                        int floor = Math.Max(1, (int)(_gameState.PlayerMaxHp * 0.25));
+                        if (_gameState.PlayerHp < floor) _gameState.PlayerHp = floor;
+                    }
 
                     IsUpgradeOverlayVisible = true;
                     UpdateStatsDisplay();
@@ -316,6 +329,28 @@ namespace EpicBattle.ViewModels
                     Log("💀 Вы погибли...");
                     StatusMessage = "Поражение";
                     IsPlayerDead = true;
+
+                    // P0-фикс (Б1): поражение откатывает бой, но не весь прогресс.
+                    // Если игра шла из сохранения — автоматически перезаписываем слот состоянием
+                    // на момент загрузки (последний контрольный пункт). Без этого игрок терял бы
+                    // лут/золото/прогресс карты, заработанные после ручного сохранения.
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(_gameState.SaveName) && _gameState.SaveName != "Новое сохранение")
+                        {
+                            SaveManager.SaveGame(_gameState.SaveName);
+                            Log("💾 Прогресс восстановлен по последнему сохранению.");
+                        }
+                        else
+                        {
+                            Log("⚠️ Автосохранение недоступно: бой начат без загруженного сейва.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Defeat autosave: {ex.Message}");
+                    }
+
                     UpdateCommandStates();
                 }
             }
@@ -518,6 +553,10 @@ namespace EpicBattle.ViewModels
             if (!IsPlayerTurn || Player == null) return false;
             if (param is Skill skill)
             {
+                // P0-фикс (В4): блокировка кнопки навыка на время кулдауна (движок тоже проверяет,
+                // но UI обязан показывать неактивное состояние до попытки применения).
+                if (_engine != null && _engine.TryGetPlayerCooldown(skill.Id, out int remainingCd) && remainingCd > 0)
+                    return false;
                 return Player.CurrentAP >= skill.APCost && Player.Mp >= skill.ManaCost;
             }
             return false;
