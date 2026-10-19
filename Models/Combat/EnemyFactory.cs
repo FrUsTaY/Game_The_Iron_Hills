@@ -6,7 +6,7 @@ namespace EpicBattle.Models.Combat
 {
     public static class EnemyFactory
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public static int GetArcadeTotalWaves(int level)
         {
@@ -355,6 +355,7 @@ namespace EpicBattle.Models.Combat
                 {
                     var malkor = new BattleEnemy
                     {
+                        Id = "boss_malkor", // P2: стабильный Id
                         Name = "Архимаг Малкор",
                         Role = EnemyRole.Support,
                         MaxHp = 280,

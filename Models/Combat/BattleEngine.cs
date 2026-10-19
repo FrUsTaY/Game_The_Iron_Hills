@@ -7,7 +7,7 @@ namespace EpicBattle.Models.Combat
 {
     public class BattleEngine
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public BattlePlayer Player { get; private set; }
         public List<BattleEnemy> Enemies { get; private set; }
@@ -193,7 +193,7 @@ namespace EpicBattle.Models.Combat
             }
             else if (BattleModifier == "Act2_Malkor_Weakened")
             {
-                var malkor = Enemies.FirstOrDefault(e => e.Name.Contains("Малкор"));
+                var malkor = Enemies.FirstOrDefault(e => e.Id == "boss_malkor" || e.Name.Contains("Малкор"));
                 if (malkor != null)
                 {
                     int dmg = (int)(malkor.MaxHp * 0.30);
@@ -495,12 +495,12 @@ namespace EpicBattle.Models.Combat
             }
             else if (enemy.CurrentIntent.Type == IntentType.Cast)
             {
-                if (enemy.CurrentIntent.Description.Contains("ярость"))
+                if (enemy.CurrentIntent.Kind == IntentKind.RageCast)
                 {
                     enemy.ApplyEffect(new StatusEffect { Id = "Rage", Name = "Ярость", Type = StatusEffectType.Buff, Duration = 3, Value = 50, IconPath = "😡" });
                     OnLogEvent($"😡 {enemy.Name} впадает в ярость (+50% к урону)!");
                 }
-                else if (enemy.CurrentIntent.Description.Contains("Ослепление"))
+                else if (enemy.CurrentIntent.Kind == IntentKind.BlindCast)
                 {
                     // P1-фикс (В6): ослепление теперь реально стоит ресурсов и имеет перезарядку
                     enemy.CurrentAP -= 2;
@@ -509,18 +509,18 @@ namespace EpicBattle.Models.Combat
                     Player.ApplyEffect(new StatusEffect { Id = "Blind", Name = "Слепота", Type = StatusEffectType.Debuff, Duration = 2, Value = 45, IconPath = "👁️" });
                     OnLogEvent($"👁️ {enemy.Name} ослепляет вас на 2 хода!");
                 }
-                else if (enemy.CurrentIntent.Description.Contains("Рассекающий"))
+                else if (enemy.CurrentIntent.Kind == IntentKind.CleaveCast)
                 {
                     var skill = enemy.AvailableSkills.FirstOrDefault(s => s.Id == "S2_Cleave");
                     if (skill != null) ExecuteSkill(enemy, skill, target: null);
                 }
-                else if (enemy.CurrentIntent.Description.Contains("Огненный шар"))
+                else if (enemy.CurrentIntent.Kind == IntentKind.FireballCast)
                 {
                     var skill = enemy.AvailableSkills.FirstOrDefault(s => s.Id == "M1_Fireball");
                     if (skill != null) ExecuteSkill(enemy, skill, target: null);
                 }
             }
-            else if (enemy.CurrentIntent.Type == IntentType.Attack && enemy.CurrentIntent.IconPath == "💥")
+            else if (enemy.CurrentIntent.Kind == IntentKind.HeavyAttack)
             {
                 // P1-фикс (В4): PowerStrike у врагов теперь с перезарядкой 2 хода (как у игрока) —
                 // снижает вин-рейт против «Мощного удара» берсерков/агрессоров

@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,7 +17,7 @@ namespace EpicBattle.ViewModels
     /// </summary>
     public class ForgeItemCard : INotifyPropertyChanged
     {
-        private static readonly Random Rand = new Random();
+        private static readonly RngProxy Rand = new RngProxy();
 
         public Item Item { get; set; } = new Item();
         public bool IsEquipped { get; set; }
@@ -73,7 +74,7 @@ namespace EpicBattle.ViewModels
     {
         private readonly GameState _gameState;
         private readonly Action _onLeave;
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public ObservableCollection<ForgeItemCard> ForgeableItems { get; set; } = new ObservableCollection<ForgeItemCard>();
 

@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ namespace EpicBattle.Models.Items
 {
     public static class LootGenerator
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         /// <summary>Шанс найти Железную Руду Кряжа после боя (материал для Кузнеца, Этап 3.2).</summary>
         public static int RollOreDrop(bool isEliteOrBoss)

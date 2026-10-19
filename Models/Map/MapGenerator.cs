@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ namespace EpicBattle.Models.Map
 {
     public static class MapGenerator
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public static MapGraph GenerateActMap(int actNumber, int totalFloors = 10)
         {

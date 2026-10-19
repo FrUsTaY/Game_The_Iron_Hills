@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -52,7 +53,7 @@ namespace EpicBattle.ViewModels
     {
         private readonly GameState _gameState;
         private readonly Action _onLeave;
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public ObservableCollection<MerchantOfferItem> ShopItems { get; set; } = new ObservableCollection<MerchantOfferItem>();
         public ObservableCollection<PlayerSellItem> PlayerItems { get; set; } = new ObservableCollection<PlayerSellItem>();

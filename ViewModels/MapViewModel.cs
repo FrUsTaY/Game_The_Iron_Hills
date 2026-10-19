@@ -107,13 +107,20 @@ namespace EpicBattle.ViewModels
         private bool _isVictoryVisible = false;
         public Visibility VictoryOverlayVisibility => _isVictoryVisible ? Visibility.Visible : Visibility.Collapsed;
 
-        public string VictoryDescriptionText => Map?.ActNumber == 1
-            ? "Верховный Вождь Громгар повержен! Перевал через Железный Кряж свободен от орочьих банд. Впереди перед вами вырастают циклопические стены Древней Цитадели..."
-            : "Архимаг Малкор повержен, а культ Первородной Тьмы уничтожен! Вы полностью очистили Железный Кряж от скверны и стали легендой этих земель!";
+        public string VictoryDescriptionText => Map?.ActNumber switch
+        {
+            1 => "Верховный Вождь Громгар повержен! Перевал через Железный Кряж свободен от орочьих банд. Впереди перед вами вырастают циклопические стены Древней Цитадели...",
+            // P2-фикс (П6): учтён Акт 3 «Сердце Титана», чьи карты уже генерируются MapGenerator
+            2 => "Архимаг Малкор повержен, а культ Первородной Тьмы уничтожен! Но земля дрожит — пробуждается что-то древнее в недрах Кряжа...",
+            _ => "Сердце Титана сокрушено! Железный Кряж спасён от пробудившегося древнего зла. Ваше имя высечено на руинах Цитадели — вы легенда этих земель!"
+        };
 
-        public string NextActButtonText => Map?.ActNumber == 1
-            ? "🏰 Перейти к Акту 2 (Тени Цитадели)"
-            : "🏆 Завершить триумфальный поход";
+        public string NextActButtonText => Map?.ActNumber switch
+        {
+            1 => "🏰 Перейти к Акту 2 (Тени Цитадели)",
+            2 => "🌋 Перейти к Акту 3 (Сердце Титана)",
+            _ => "🏆 Завершить триумфальный поход"
+        };
 
         public ObservableCollection<MapFloorGroup> FloorGroups { get; set; } = new ObservableCollection<MapFloorGroup>();
 
@@ -209,6 +216,7 @@ namespace EpicBattle.ViewModels
         private void OnNodeCompleted()
         {
             Map.CompleteCurrentNode();
+            AutoSaveIfNeeded(); // P2-фикс (П5): прогресс карты больше не теряется при закрытии игры
             NavigationManager.NavigateTo(new MapView());
         }
 
@@ -216,20 +224,39 @@ namespace EpicBattle.ViewModels
         {
             Map.CompleteCurrentNode();
             
-            // Награда за победу над боссом
-            _gameState.Gold += 150;
+            // P2-фикс (П7): масштаб наград по акту (было константное +150 вне зависимости от акта)
+            int act = Map.ActNumber;
+            _gameState.Gold += 150 * act;
             _gameState.StatPoints += 2;
             _gameState.SkillPoints += 1;
             _gameState.Ore += 3; // Этап 3.2: жилы руды с босса — подарок кузнецу не нужны
+            if (act > _gameState.CurrentAct) _gameState.CurrentAct = act; // прогрессия кампании
 
             _isVictoryVisible = true;
+            AutoSaveIfNeeded(); // P2-фикс (П5)
             NavigationManager.NavigateTo(new MapView());
+        }
+
+        /// <summary>P2: автосейв в режиме Карты — только если игра уже была начата из сейва.</summary>
+        private void AutoSaveIfNeeded()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(_gameState?.SaveName))
+                    SaveManager.SaveGame(_gameState.SaveName);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AutoSave] пропуск: {ex.Message}");
+            }
         }
 
         public void ProceedToNextAct()
         {
             _isVictoryVisible = false;
-            if (Map.ActNumber < 2)
+            // P2-фикс (П7): раньше переход был только до Акта 2 (условие < 2),
+            // карта Акта 3 не открывалась, несмотря на поддержку в MapGenerator.
+            if (Map.ActNumber < 3)
             {
                 _gameState.StartNewMap(Map.ActNumber + 1);
                 NavigationManager.NavigateTo(new MapView());
