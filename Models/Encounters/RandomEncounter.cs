@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using EpicBattle.Models.Items;
@@ -205,7 +206,7 @@ namespace EpicBattle.Models.Encounters
             }
         };
 
-        private static readonly Random _rnd = new Random();
+        private static readonly RngProxy _rnd = new RngProxy();
 
         public static RandomEncounter GetRandomEncounter()
         {

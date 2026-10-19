@@ -6,7 +6,7 @@ namespace EpicBattle.Models.Combat
 {
     public static class EnemyFactory
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public static int GetArcadeTotalWaves(int level)
         {
@@ -19,6 +19,7 @@ namespace EpicBattle.Models.Combat
         {
             if (returnNodeId == "PostBattle_Scene3") return 3; // Акт 1: 3 волны перед лагерем Варга
             if (returnNodeId == "Act2_Ending_Decisions") return 2; // Акт 2: 2 фазы финального боя с Малкором
+            if (returnNodeId == "Act3_Ending_Decisions") return 2; // Этап 3.4: 2 фазы — Титан + Пробуждённое Сердце
             return 1; // Все остальные боссы и мини-боссы - 1 волна
         }
 
@@ -106,7 +107,7 @@ namespace EpicBattle.Models.Combat
                 {
                     Name = "Орк Углук",
                     Role = EnemyRole.Aggressor,
-                    MaxHp = 100,
+                    MaxHp = 70,
                     Agility = 10,
                     BaseDamage = 16,
                     Armor = 3,
@@ -223,6 +224,7 @@ namespace EpicBattle.Models.Combat
             {
                 var boss = new BattleEnemy
                 {
+                    Id = "boss_gromgar", // P0-фикс (В1): стабильный Id вместо проверки по имени
                     Name = "Вождь Громгар",
                     Role = EnemyRole.Aggressor,
                     MaxHp = 250,
@@ -354,6 +356,7 @@ namespace EpicBattle.Models.Combat
                 {
                     var malkor = new BattleEnemy
                     {
+                        Id = "boss_malkor", // P2: стабильный Id
                         Name = "Архимаг Малкор",
                         Role = EnemyRole.Support,
                         MaxHp = 280,
@@ -438,6 +441,99 @@ namespace EpicBattle.Models.Combat
                     enemies.Add(malkorPhase2);
                 }
             }
+            else if (returnNodeId == "Act3_Ending_Decisions")
+            {
+                // Этап 3.4: Финальный Босс Трилогии — Первородный Титан Кряжа (2 фазы)
+                if (wave == 1)
+                {
+                    var titan = new BattleEnemy
+                    {
+                        Id = "boss_titan", // стабильный Id для фазы «Дробление» и модификаторов
+                        Name = "Первородный Титан Кряжа",
+                        Role = EnemyRole.Defender,
+                        MaxHp = 560,
+                        MaxMp = 180,
+                        Mp = 180,
+                        Agility = 7,
+                        BaseDamage = 30,
+                        BaseMagicDamage = 24,
+                        Armor = 12,
+                        CritChance = 15,
+                        DodgeChance = 0, // колосс не уклоняется
+                        CritMultiplier = 1.7,
+                        MaxAP = 4,
+                        CurrentAP = 4
+                    };
+                    titan.Hp = titan.MaxHp;
+                    titan.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "S1_PowerStrike"));
+                    titan.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "M1_Fireball"));
+                    enemies.Add(titan);
+
+                    var echo1 = new BattleEnemy
+                    {
+                        Name = "Тень Древнего Короля",
+                        Role = EnemyRole.Support,
+                        MaxHp = 70,
+                        MaxMp = 60,
+                        Mp = 60,
+                        Agility = 12,
+                        BaseDamage = 10,
+                        BaseMagicDamage = 18,
+                        Armor = 2,
+                        CritChance = 10,
+                        DodgeChance = 10,
+                        CritMultiplier = 1.4,
+                        MaxAP = 3,
+                        CurrentAP = 3
+                    };
+                    echo1.Hp = echo1.MaxHp;
+                    echo1.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "M1_Fireball"));
+                    enemies.Add(echo1);
+
+                    var echo2 = new BattleEnemy
+                    {
+                        Name = "Осколок Сердца",
+                        Role = EnemyRole.Aggressor,
+                        MaxHp = 90,
+                        Agility = 9,
+                        BaseDamage = 18,
+                        Armor = 5,
+                        CritChance = 15,
+                        DodgeChance = 5,
+                        CritMultiplier = 1.5,
+                        MaxAP = 4,
+                        CurrentAP = 4
+                    };
+                    echo2.Hp = echo2.MaxHp;
+                    enemies.Add(echo2);
+                }
+                else // Волна 2: Пробуждённое Сердце Титана — обнажённая сердцевина после «Дробления»
+                {
+                    var heart = new BattleEnemy
+                    {
+                        Id = "boss_titan", // фаза «Дробление» продолжает отслеживаться
+                        Name = "Сердце Титана: Пробуждённая Суть",
+                        Role = EnemyRole.Aggressor,
+                        MaxHp = 430,
+                        MaxMp = 220,
+                        Mp = 220,
+                        Agility = 11,
+                        BaseDamage = 34,
+                        BaseMagicDamage = 40,
+                        Armor = 6, // панцирь расколот — броня ниже, но урон много выше
+                        CritChance = 22,
+                        DodgeChance = 8,
+                        CritMultiplier = 1.8,
+                        MaxAP = 5,
+                        CurrentAP = 5
+                    };
+                    heart.Hp = heart.MaxHp;
+                    heart.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "M1_Fireball"));
+                    heart.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "S2_Cleave"));
+                    heart.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "V1_FirstAid"));
+                    enemies.Add(heart);
+                }
+            }
             else
             {
                 enemies = GenerateArcadeWave(1, 1, 1);
@@ -459,9 +555,9 @@ namespace EpicBattle.Models.Combat
                     {
                         Name = "Воевода Железного Клыка",
                         Role = EnemyRole.Aggressor,
-                        MaxHp = 160 + (playerLevel * 15),
+                        MaxHp = 160 + (playerLevel * 12),
                         Agility = 10 + playerLevel,
-                        BaseDamage = 20 + (playerLevel * 3),
+                        BaseDamage = 20 + (playerLevel * 2),
                         Armor = 4,
                         CritChance = 20,
                         DodgeChance = 8,
@@ -496,9 +592,9 @@ namespace EpicBattle.Models.Combat
                     {
                         Name = "Пещерный Тролль-Крушитель",
                         Role = EnemyRole.Aggressor,
-                        MaxHp = 220 + (playerLevel * 20),
+                        MaxHp = 220 + (playerLevel * 14),
                         Agility = 5,
-                        BaseDamage = 26 + (playerLevel * 3),
+                        BaseDamage = 26 + (playerLevel * 2),
                         Armor = 7,
                         CritChance = 10,
                         DodgeChance = 0,
@@ -519,12 +615,12 @@ namespace EpicBattle.Models.Combat
                     {
                         Name = "Теневой Инквизитор Цитадели",
                         Role = EnemyRole.Tactician,
-                        MaxHp = 240 + (playerLevel * 18),
+                        MaxHp = 240 + (playerLevel * 12),
                         MaxMp = 100,
                         Mp = 100,
                         Agility = 12 + playerLevel,
-                        BaseDamage = 24 + (playerLevel * 2),
-                        BaseMagicDamage = 26 + (playerLevel * 3),
+                        BaseDamage = 24 + playerLevel,
+                        BaseMagicDamage = 26 + (playerLevel * 2),
                         Armor = 5,
                         CritChance = 25,
                         DodgeChance = 12,
@@ -544,9 +640,9 @@ namespace EpicBattle.Models.Combat
                     {
                         Name = "Древний Рунный Голем",
                         Role = EnemyRole.Defender,
-                        MaxHp = 300 + (playerLevel * 22),
+                        MaxHp = 300 + (playerLevel * 15),
                         Agility = 6,
-                        BaseDamage = 30 + (playerLevel * 3),
+                        BaseDamage = 30 + (playerLevel * 2),
                         Armor = 10,
                         CritChance = 10,
                         DodgeChance = 0,
@@ -571,6 +667,7 @@ namespace EpicBattle.Models.Combat
             {
                 var gromgar = new BattleEnemy
                 {
+                    Id = "boss_gromgar", // P0-фикс (В1): стабильный Id — GromgarBossRef находится и в аркадном боссе
                     Name = "Верховный Вождь Громгар",
                     Role = EnemyRole.Aggressor,
                     MaxHp = 280 + (playerLevel * 15),
@@ -605,7 +702,7 @@ namespace EpicBattle.Models.Combat
                 add1.Hp = add1.MaxHp;
                 enemies.Add(add1);
             }
-            else // Акт 2: Малкор
+            else if (actNumber == 2) // Акт 2: Малкор
             {
                 var malkor = new BattleEnemy
                 {
@@ -649,6 +746,48 @@ namespace EpicBattle.Models.Combat
                 adept.Hp = adept.MaxHp;
                 adept.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "M1_Fireball"));
                 enemies.Add(adept);
+            }
+            else // Этап 3.4: Акт 3 — Первородный Титан Кряжа (карты похода)
+            {
+                var titan = new BattleEnemy
+                {
+                    Id = "boss_titan", // стабильный Id для фазы «Дробление» и модификаторов
+                    Name = "Первородный Титан Кряжа",
+                    Role = EnemyRole.Defender,
+                    MaxHp = 520 + (playerLevel * 25),
+                    MaxMp = 180,
+                    Mp = 180,
+                    Agility = 7,
+                    BaseDamage = 32 + (playerLevel * 2),
+                    BaseMagicDamage = 24,
+                    Armor = 12,
+                    CritChance = 15,
+                    DodgeChance = 0, // колосс не уклоняется
+                    CritMultiplier = 1.7,
+                    MaxAP = 4,
+                    CurrentAP = 4
+                };
+                titan.Hp = titan.MaxHp;
+                titan.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "S1_PowerStrike"));
+                titan.AvailableSkills.Add(SkillsDatabase.AllSkills.Find(s => s.Id == "M1_Fireball"));
+                enemies.Add(titan);
+
+                var shard = new BattleEnemy
+                {
+                    Name = "Осколок Сердца",
+                    Role = EnemyRole.Aggressor,
+                    MaxHp = 90 + (playerLevel * 5),
+                    Agility = 9,
+                    BaseDamage = 16 + playerLevel,
+                    Armor = 5,
+                    CritChance = 15,
+                    DodgeChance = 5,
+                    CritMultiplier = 1.5,
+                    MaxAP = 4,
+                    CurrentAP = 4
+                };
+                shard.Hp = shard.MaxHp;
+                enemies.Add(shard);
             }
 
             return enemies;

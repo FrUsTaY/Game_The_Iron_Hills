@@ -38,8 +38,12 @@
                         <TextBlock Text="{Binding HpPotions, StringFormat='🧪 HP: {0}'}" Foreground="#55FF55" FontWeight="Bold" FontSize="14"/>
                     </Border>
 
-                    <Border Background="#1E2E4A" CornerRadius="6" Padding="10,6">
+                    <Border Background="#1E2E4A" CornerRadius="6" Padding="10,6" Margin="0,0,10,0">
                         <TextBlock Text="{Binding MpPotions, StringFormat='💧 MP: {0}'}" Foreground="#55AAFF" FontWeight="Bold" FontSize="14"/>
+                    </Border>
+
+                    <Border Background="#2A2A35" BorderBrush="#8D6E63" BorderThickness="1" CornerRadius="6" Padding="10,6">
+                        <TextBlock Text="{Binding OreStock, StringFormat='⛏️ Руда: {0}'}" Foreground="#DDAA88" FontWeight="Bold" FontSize="14"/>
                     </Border>
                 </StackPanel>
             </Grid>
@@ -91,6 +95,13 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="📖 Фолиант Знаний (+1 Навык)" Foreground="White" FontWeight="Bold"/>
                                     <TextBlock Text=" (💰 75)" Foreground="#FFAA00"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="4" Padding="10,6" Background="#4A3728" Click="SellOre_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⛏️ Продать 1 кусок руды (💰 25)" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text=" (💰 25 / шт.)" Foreground="#FFAA00"/>
                                 </StackPanel>
                             </Button>
                         </WrapPanel>

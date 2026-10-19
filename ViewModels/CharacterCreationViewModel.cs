@@ -132,6 +132,10 @@ namespace EpicBattle.ViewModels
 
         private void SelectClass(string className)
         {
+            // При повторном выборе того же класса очки и статы трогать не нужно
+            // (иначе можно терять распределённые очки, кликая по уже выбранному классу)
+            if (string.Equals(SelectedClass, className, StringComparison.Ordinal)) return;
+
             SelectedClass = className;
             // Сбрасываем очки при смене класса, даем базовые статы класса
             AvailablePoints = 5;
@@ -155,7 +159,7 @@ namespace EpicBattle.ViewModels
 
         private void IncreaseStat(object param)
         {
-            if (AvailablePoints <= 0) return;
+            if (AvailablePoints <= 0 || param == null) return;
             string stat = param.ToString();
             if (stat == "STR") Strength++;
             else if (stat == "DEX") Dexterity++;

@@ -30,7 +30,25 @@
             </Grid.ColumnDefinitions>
 
             <!-- Игрок -->
-            <StackPanel Grid.Column="0">
+            <StackPanel Grid.Column="0" Name="PlayerColumnHost">
+                <!-- Этап 3.3: вспышка при получении удара (импульс из VM) -->
+                <Border Background="#44FF3333" CornerRadius="6" Opacity="0" Height="0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding PlayerHitPulse}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.9" To="0" Duration="0:0:0.45"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
                 <TextBlock Text="{Binding Player.Name}" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,0,0,5"/>
 
                 <!-- HP -->
@@ -88,7 +106,7 @@
             <TextBlock Grid.Column="1" Text="VS" Foreground="Gray" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
             <!-- Враги (Список) -->
-            <ItemsControl Grid.Column="2" ItemsSource="{Binding Enemies}">
+            <ItemsControl Grid.Column="2" ItemsSource="{Binding Enemies}" Name="EnemiesHost">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border x:Name="EnemyBorder" BorderBrush="#333333" BorderThickness="2" Margin="0,0,0,10" Padding="10" Background="#222" CornerRadius="6">
@@ -376,6 +394,28 @@
                             </Style>
                         </Button.Style>
                     </Button>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- P0-фикс (Б1): экран поражения. Раньше IsPlayerDead не был привязан ни к одному элементу UI,
+             и после смерти игрока все кнопки блокировались без возможности выхода из боя. -->
+        <Border Grid.Row="0" Grid.RowSpan="5" Background="#E6000000" Panel.ZIndex="200">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPlayerDead}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Background="#2A1515" BorderBrush="#8B0000" BorderThickness="2" CornerRadius="8" Width="360" Padding="24">
+                <StackPanel>
+                    <TextBlock Text="💀 ПОРАЖЕНИЕ" Foreground="#FF4444" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                    <TextBlock Text="Ваш герой пал в бою. Прогресс сохранён на последнем контрольном пункте." Foreground="#CCCCCC" FontSize="13" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,20"/>
+                    <Button Content="Вернуться в главное меню" Command="{Binding ReturnToMenuCommand}" Height="40" FontSize="14" Cursor="Hand"/>
                 </StackPanel>
             </Border>
         </Border>

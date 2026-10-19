@@ -43,6 +43,10 @@ namespace EpicBattle.ViewModels
                 OnPropertyChanged(nameof(DetailsVisibility));
                 OnPropertyChanged(nameof(CanEquipSelected));
                 OnPropertyChanged(nameof(CanUnequipSelected));
+                // P2 (П4): свойства кнопки «Выпить» для расходников
+                OnPropertyChanged(nameof(CanUseSelected));
+                OnPropertyChanged(nameof(UseButtonText));
+                OnPropertyChanged(nameof(SelectedItemSlot));
                 OnPropertyChanged(nameof(SelectedItemName));
                 OnPropertyChanged(nameof(SelectedItemRarityName));
                 OnPropertyChanged(nameof(SelectedItemSlotName));
@@ -74,6 +78,55 @@ namespace EpicBattle.ViewModels
 
         public bool CanUnequipSelected => SelectedItem != null &&
                                           _gameState.GetEquippedList().Contains(SelectedItem);
+
+        // P2-фикс (П4): использование расходников из инвентаря.
+        // Раньше enum Consumable существовал, но предметы этого типа нельзя было применить —
+        // зелья были недоступны за пределами счётчиков HpPotions/MpPotions.
+        public ItemSlot SelectedItemSlot => SelectedItem?.Slot ?? ItemSlot.Weapon;
+        public string UseButtonText => SelectedItemSlot switch
+        {
+            ItemSlot.Consumable => "🧪 Выпить",
+            ItemSlot.Quest => "",
+            _ => ""
+        };
+        public bool CanUseSelected => SelectedItem != null &&
+                                      SelectedItem.Slot == ItemSlot.Consumable &&
+                                      _gameState.Inventory.Contains(SelectedItem);
+
+        public void UseSelectedItem()
+        {
+            if (!CanUseSelected) return;
+            var item = SelectedItem;
+            // P2: эффект зелья описан в Description вида "+40 к здоровью" — парсим числа оттуда;
+            // если не распарсилось — стандартные значения зелий.
+            // Предпочитаем числовые поля предмета (Item.BonusHp/BonusMp), как в экипировке.
+            int hp = item.BonusHp > 0 ? item.BonusHp : 0;
+            int mp = item.BonusMp > 0 ? item.BonusMp : 0;
+            var desc = item.Description ?? string.Empty;
+            var mHp = System.Text.RegularExpressions.Regex.Match(desc, @"\+(\d+)[^0-9]*(здоров|HP|hp)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var mMp = System.Text.RegularExpressions.Regex.Match(desc, @"\+(\d+)[^0-9]*(ман|MP|mp)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (mHp.Success) hp = int.Parse(mHp.Groups[1].Value);
+            if (mMp.Success) mp = int.Parse(mMp.Groups[1].Value);
+            if (hp == 0 && mp == 0) { hp = 40; mp = 25; }
+
+            bool healed = false;
+            if (hp > 0 && _gameState.PlayerHp < _gameState.PlayerMaxHp)
+            {
+                _gameState.PlayerHp = Math.Min(_gameState.PlayerMaxHp, _gameState.PlayerHp + hp);
+                healed = true;
+            }
+            if (mp > 0 && _gameState.PlayerMp < _gameState.PlayerMaxMp)
+            {
+                _gameState.PlayerMp = Math.Min(_gameState.PlayerMaxMp, _gameState.PlayerMp + mp);
+                healed = true;
+            }
+
+            if (healed)
+            {
+                _gameState.Inventory.Remove(item);
+                RefreshInventory();
+            }
+        }
 
         // Слоты экипировки
                 public string EquippedWeaponIcon => _gameState?.EquippedWeapon?.IconPath ?? "🗡️";

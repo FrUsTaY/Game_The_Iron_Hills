@@ -37,6 +37,9 @@ namespace EpicBattle.Models
         public Item? EquippedRing { get; set; }
         public Item? EquippedAmulet { get; set; }
 
+        // Этап 3.2: эффективные бонусы предмета с учетом кузнечных улучшений (+25% за уровень)
+        public static double UpgradeMultiplier(Item item) => 1.0 + 0.25 * (item?.UpgradeLevel ?? 0);
+
         public List<Item> GetEquippedList()
         {
             var list = new List<Item>();
@@ -140,13 +143,19 @@ namespace EpicBattle.Models
         public int PlayerMp { get; set; } = 50;
 
         // --- Производные характеристики (включая экипировку) ---
-        public int TotalStrength => Strength + (GetEquippedList()?.Sum(i => i.BonusStrength) ?? 0);
-        public int TotalDexterity => Dexterity + (GetEquippedList()?.Sum(i => i.BonusDexterity) ?? 0);
-        public int TotalIntelligence => Intelligence + (GetEquippedList()?.Sum(i => i.BonusIntelligence) ?? 0);
-        public int TotalEndurance => Endurance + (GetEquippedList()?.Sum(i => i.BonusEndurance) ?? 0);
+        // Этап 3.2 (часть 2): Eff* свойства предмета уже включают множитель улучшения и руны
+        public int TotalStrength => Strength + (GetEquippedList()?.Sum(i => i.EffStrength) ?? 0);
+        public int TotalDexterity => Dexterity + (GetEquippedList()?.Sum(i => i.EffDexterity) ?? 0);
+        public int TotalIntelligence => Intelligence + (GetEquippedList()?.Sum(i => i.EffIntelligence) ?? 0);
+        public int TotalEndurance => Endurance + (GetEquippedList()?.Sum(i => i.EffEndurance) ?? 0);
 
         public int PlayerMaxHp { get; set; } = 100;
         public int PlayerMaxMp { get; set; } = 50;
+
+        // Этап 3.2 (часть 2): базовый урон хранится как base + точильный бонус.
+        // Раньше заточка инкрементировала PlayerBaseDamage напрямую, и любой вызов
+        // RecalculateDerivedStats() сбрасывал его формулой — затачивание молча сгорало.
+        public int SharpenBonus { get; set; } = 0;         // ⚔️ накопленные бонусы заточки (сериализуется)
         public int PlayerBaseDamage { get; set; } = 15;
         public int PlayerBaseMagicDamage { get; set; } = 15;
 
@@ -155,7 +164,7 @@ namespace EpicBattle.Models
             get
             {
                 double baseDodge = PlayerClass == "Наемник" ? TotalDexterity * 1.5 + 5.0 : TotalDexterity * 1.5;
-                baseDodge += GetEquippedList()?.Sum(i => i.BonusDodgeChance) ?? 0;
+                baseDodge += GetEquippedList()?.Sum(i => i.EffDodgeChance) ?? 0;
                 return Math.Min(60.0, baseDodge);
             }
         }
@@ -165,7 +174,7 @@ namespace EpicBattle.Models
             get
             {
                 double baseCrit = PlayerClass == "Наемник" ? TotalDexterity * 1.5 + 5.0 : TotalDexterity * 1.5;
-                baseCrit += GetEquippedList()?.Sum(i => i.BonusCritChance) ?? 0;
+                baseCrit += GetEquippedList()?.Sum(i => i.EffCritChance) ?? 0;
                 return Math.Min(60.0, baseCrit);
             }
         }
@@ -175,7 +184,7 @@ namespace EpicBattle.Models
             get
             {
                 int baseDef = PlayerClass == "Ветеран" ? TotalEndurance + 2 : TotalEndurance;
-                baseDef += GetEquippedList()?.Sum(i => i.BonusArmor) ?? 0;
+                baseDef += GetEquippedList()?.Sum(i => i.EffArmor) ?? 0;
                 return baseDef;
             }
         }
@@ -183,19 +192,49 @@ namespace EpicBattle.Models
         public void RecalculateDerivedStats()
         {
             var equipped = GetEquippedList();
-            int bonusHp = equipped?.Sum(i => i.BonusHp) ?? 0;
-            int bonusMp = equipped?.Sum(i => i.BonusMp) ?? 0;
-            int bonusDmg = equipped?.Sum(i => i.BonusDamage) ?? 0;
-            int bonusMagDmg = equipped?.Sum(i => i.BonusMagicDamage) ?? 0;
+            int bonusHp = equipped?.Sum(i => i.EffHp) ?? 0;
+            int bonusMp = equipped?.Sum(i => i.EffMp) ?? 0;
+            int bonusDmg = equipped?.Sum(i => i.EffDamage) ?? 0;
+            int bonusMagDmg = equipped?.Sum(i => i.EffMagicDamage) ?? 0;
 
             PlayerMaxHp = (PlayerClass == "Ветеран" ? 60 + (TotalEndurance * 10) : 50 + (TotalEndurance * 10)) + bonusHp;
             PlayerMaxMp = 20 + (TotalIntelligence * 6) + bonusMp;
-            PlayerBaseDamage = 5 + (TotalStrength * 2) + bonusDmg;
-            PlayerBaseMagicDamage = 5 + (TotalIntelligence * 2) + bonusMagDmg;
+            // Этап 3.2 (часть 2): заточка (SharpenBonus) больше не теряется при пересчёте
+            PlayerBaseDamage = 5 + (TotalStrength * 2) + bonusDmg + SharpenBonus;
+            PlayerBaseMagicDamage = 5 + (TotalIntelligence * 2) + bonusMagDmg + SharpenBonus;
 
             if (PlayerHp > PlayerMaxHp) PlayerHp = PlayerMaxHp;
             if (PlayerMp > PlayerMaxMp) PlayerMp = PlayerMaxMp;
         }
+
+        // --- Этап 3.2: Ремесленная система (Кузнец) ---
+        public int Ore { get; set; } = 0;                  // ⛏️ Железная руда Кряжа — материал для улучшений
+        public int BlacksmithUpgradesDone { get; set; } = 0; // Сколько ковок совершал герой (для статистики)
+
+        // --- Этап 3.2 (часть 2): Рунические камни ---
+        // Склад невырезанных камней: ключ = Id рунного камня (RuneDatabase), значение = количество.
+        // Камни выпадают с элитных/боссовых боёв и покупаются у торговца; вставляются в слоты экипировки у кузнеца.
+        public Dictionary<string, int> RuneStock { get; set; } = new Dictionary<string, int>();
+
+        public void AddRune(string runeId, int count = 1)
+        {
+            if (string.IsNullOrEmpty(runeId) || count <= 0) return;
+            if (RuneStock.TryGetValue(runeId, out int cur)) RuneStock[runeId] = cur + count;
+            else RuneStock[runeId] = count;
+        }
+
+        public bool TryTakeRune(string runeId, int count = 1)
+        {
+            if (!RuneStock.TryGetValue(runeId, out int cur) || cur < count) return false;
+            if (cur == count) RuneStock.Remove(runeId);
+            else RuneStock[runeId] = cur - count;
+            return true;
+        }
+
+        public int GetRuneCount(string runeId) => RuneStock.TryGetValue(runeId, out int c) ? c : 0;
+
+        // --- Этап 3.2 (часть 2): Таверна ---
+        public int TavernRestStreak { get; set; } = 0;     // цена отдыха растёт при частых визитах подряд (анти-спам)
 
         // Инвентарь базовый
         public int HpPotions { get; set; } = 3;
@@ -243,6 +282,48 @@ namespace EpicBattle.Models
         public bool KnowsMalkorWeakness { get; set; } = false;
         public bool HasPurificationElixir { get; set; } = false;
         public bool Act2Completed { get; set; } = false;
+
+        // --- Этап 3.4: глобальные флаги финальных решений (для эпилогов трилогии) ---
+        // "Light" (Очищение) / "Dark" (Подчинение) / "Neutral" (Печать) — берётся из выбора в конце Акта 2
+        public string Act2EndingChoice { get; set; } = "";
+        // Аналогично для финального выбора в Акте 3 («Сердце Титана»)
+        public string Act3EndingChoice { get; set; } = "";
+        public bool Act3Completed { get; set; } = false;
+
+        /// <summary>Этап 3.4: итоговая концовка-эпилог с учётом всех ключевых решений кампании.</summary>
+        public string GetEpilogueSummary()
+        {
+            var parts = new List<string>();
+
+            // Союзники и решения Актов 1–2
+            if (HonorGromgar) parts.Add("Вы даровали Громгару честную смерть — орочьи кланы помнят ваш почет и больше не тревожат перевал.");
+            if (SavedPrisonerKael) parts.Add("Спасённый пленник Каэл стал верным спутником и хранителем Пепельного Ручья.");
+            if (GolemAllied) parts.Add("Рунный Голем бьется на вашей стороне — древний страж гор признал нового хозяина Кряжа.");
+
+            switch (Act2EndingChoice)
+            {
+                case "Light": parts.Add("Сердце Кряжа очищено светом, и земли предгорий цветут.");
+                    break;
+                case "Dark": parts.Add("Вы возложили Тень Цитадели на свои плечи — север трепещет перед новым Владыкой.");
+                    break;
+                case "Neutral": parts.Add("Врата Цитадели запечатаны вечной клятвой — вы безмолвный Страж покоя.");
+                    break;
+            }
+
+            switch (Act3EndingChoice)
+            {
+                case "Light": parts.Add("🌅 ЭПИЛОГ СВЕТЛЫХ ГОР: Сердце Титана уснуло спокойным сном камня. Элрик — Легенда Железного Кряжа, и песни о нем будут звучать вечно.");
+                    break;
+                case "Dark": parts.Add("🌑 ЭПИЛОГ ВЛАДЫКИ СЕРДЦА: Сила Титана течет в ваших жилах. Вы восседаете на Троне Древних Королей, и горы склоняются перед вами.");
+                    break;
+                case "Neutral": parts.Add("⚖️ ЭПИЛОГ ХРАНИТЕЛЯ: Сердце запечатано печатью трех актов. Вы остались там, где кончается карта, — вечным хранителем равновесия Кряжа.");
+                    break;
+                default: parts.Add("Финальный выбор еще не сделан.");
+                    break;
+            }
+
+            return string.Join("\n\n", parts);
+        }
 
         public void SetupForAct2(string playerClass = "Ветеран")
         {
@@ -294,6 +375,24 @@ namespace EpicBattle.Models
                 UnlockedSkills.Add("V1_FirstAid");
             }
 
+            RecalculateDerivedStats();
+            PlayerHp = PlayerMaxHp;
+            PlayerMp = PlayerMaxMp;
+        }
+
+        /// <summary>Этап 3.4: Акт 3 «Сердце Титана» — герой 6-го уровня с сохранёнными решениями Актов 1–2.</summary>
+        public void SetupForAct3()
+        {
+            CurrentAct = 3;
+            CurrentNodeId = "Act3_Start";
+            IsStoryMode = true;
+            PlayerLevel = Math.Max(PlayerLevel, 6);
+            Gold += 200;
+            HpPotions = Math.Max(HpPotions, 5);
+            MpPotions = Math.Max(MpPotions, 4);
+            StatPoints += 3;
+            SkillPoints += 2;
+            Ore += 3; // кузнец Кряжа: запас руды к финалу трилогии
             RecalculateDerivedStats();
             PlayerHp = PlayerMaxHp;
             PlayerMp = PlayerMaxMp;

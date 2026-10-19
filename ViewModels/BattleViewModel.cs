@@ -11,6 +11,7 @@ using System.Windows.Input;
 using EpicBattle.Managers;
 using EpicBattle.Models;
 using EpicBattle.Models.Combat;
+using EpicBattle.Services;
 using EpicBattle.Models.RPG;
 using EpicBattle.Views;
 
@@ -28,10 +29,70 @@ namespace EpicBattle.ViewModels
         private int _totalWaves = 1;
         private Action _onCompletedFromMap;
 
+        // P0-фикс (Б2): постоянство HP/MP между сценами сюжетного режима.
+        // Полный отдых в сюжете разрешён только на «безопасных» узлах (лагеря, привалы),
+        // но НЕ перед каждым боем — иначе ставки за весь Акт обнулялись.
+        private static readonly HashSet<string> StoryRestNodes = new HashSet<string>
+        {
+            "Start", "Scene3_Varg", "Act2_Kael_Freed"
+        };
+
         public BattlePlayer Player => _engine?.Player;
         public ObservableCollection<BattleEnemy> Enemies { get; private set; } = new ObservableCollection<BattleEnemy>();
         public ObservableCollection<CombatLogMessage> CombatLog { get; private set; } = new ObservableCollection<CombatLogMessage>();
         public ObservableCollection<Skill> PlayerSkills { get; private set; } = new ObservableCollection<Skill>();
+
+        // Этап 3.3: Floating Combat Text — всплывающие цифры над колонками игрока/врагов.
+        public ObservableCollection<FloatingText> FloatingTexts { get; private set; } = new ObservableCollection<FloatingText>();
+        private bool _lastWasCrit;
+        private const string PlayerFloatKey = "Player";
+
+        // Этап 3.3: вспышка на колонке игрока при получении удара (импульс true→false, перезапускает Storyboard)
+        private bool _playerHitPulse;
+        public bool PlayerHitPulse
+        {
+            get => _playerHitPulse;
+            set { _playerHitPulse = value; OnPropertyChanged(nameof(PlayerHitPulse)); }
+        }
+
+        /// <summary>Этап 3.3: сигнал code-behind подсветить карточку врага (имя цели).</summary>
+        public event Action<string> EnemyHitFlashRequested;
+
+        private void PulsePlayerHit()
+        {
+            if (_playerHitPulse) return;
+            PlayerHitPulse = true;
+            App.Current.Dispatcher.InvokeAsync(() => PlayerHitPulse = false);
+        }
+
+        private void PushFloating(string msg)
+        {
+            try
+            {
+                if (FloatingTextParser.IsCritMarker(msg)) { _lastWasCrit = true; return; }
+                var ft = FloatingTextParser.Parse(msg, PlayerFloatKey);
+                if (ft == null) { _lastWasCrit = false; return; }
+
+                if (_lastWasCrit)
+                {
+                    // пересоздаём как крит: жёлтый, крупный; тряска при тяжёлом ударе по игроку
+                    ft = new FloatingText(ft.Text, FloatingTextKind.Crit, ft.TargetKey, triggersShake: ft.TriggersShake || ft.TargetKey == PlayerFloatKey);
+                }
+                _lastWasCrit = false;
+
+                FloatingTexts.Add(ft);
+                if (FloatingTexts.Count > 24)
+                    FloatingTexts.RemoveAt(0);
+
+                // Этап 3.3: вспышка на колонке игрока при входящем уроне/магии
+                if ((ft.Kind == FloatingTextKind.Damage || ft.Kind == FloatingTextKind.Magic || ft.Kind == FloatingTextKind.Crit))
+                {
+                    if (ft.TargetKey == PlayerFloatKey) PulsePlayerHit();
+                    else EnemyHitFlashRequested?.Invoke(ft.TargetKey);
+                }
+            }
+            catch { /* FX не должны ронять бой */ }
+        }
 
         public string WaveText => _battleModifier == "Elite" 
             ? "💀 ЭЛИТНЫЙ БОЙ" 
@@ -77,6 +138,21 @@ namespace EpicBattle.ViewModels
         {
             get => _isPlayerDead;
             set { _isPlayerDead = value; OnPropertyChanged(); }
+        }
+
+        // P0-фикс (Б1): сводка для экрана поражения
+        private string _defeatSummaryText = string.Empty;
+        public string DefeatSummaryText
+        {
+            get => _defeatSummaryText;
+            set { _defeatSummaryText = value; OnPropertyChanged(); }
+        }
+
+        // P0-фикс (В4): кулдаун навыка игрока готов? (для блокировки кнопок в UI)
+        public bool IsSkillReady(Skill skill)
+        {
+            if (skill == null) return false;
+            return _engine == null || !_engine.TryGetPlayerCooldown(skill.Id, out int remaining) || remaining <= 0;
         }
 
         public bool IsStoryMode => !_isArcade && _onCompletedFromMap == null;
@@ -179,8 +255,11 @@ namespace EpicBattle.ViewModels
 
             _engine.OnLogEvent += (msg) =>
             {
+                // Этап 3.3: звук синтезируется/подбирается до диспатчера — не блокирует UI-поток.
+                AudioEngine.PlayForLogLine(msg);
                 App.Current.Dispatcher.Invoke(() =>
                 {
+                    PushFloating(msg);
                     CombatLog.Add(new CombatLogMessage(msg));
                 });
             };
@@ -263,6 +342,22 @@ namespace EpicBattle.ViewModels
                     if (_battleModifier == "Boss") goldEarned = goldEarned * 2;
 
                     _gameState.Gold += goldEarned;
+
+                    // Этап 3.2: руда для кузнеца падает с врагов в горах Кряжа
+                    int oreFound = LootGenerator.RollOreDrop(isBoss);
+                    _gameState.Ore += oreFound;
+
+                    // Этап 3.2 (часть 2): рунические камни — дроп с элит/боссов
+                    bool runeDropped = false; string runeName = "", runeIcon = "";
+                    if (_battleModifier == "Elite" || _battleModifier == "Boss" || isBoss)
+                    {
+                        if (LootGenerator.RollRuneDrop(_battleModifier == "Boss" || isBoss, out string rid, out runeName, out runeIcon))
+                        {
+                            _gameState.AddRune(rid);
+                            runeDropped = true;
+                        }
+                    }
+
                     DroppedLoot.Clear();
                     foreach (var item in dropped)
                     {
@@ -270,10 +365,26 @@ namespace EpicBattle.ViewModels
                         DroppedLoot.Add(item);
                     }
 
-                    LootSummaryText = $"💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})" + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "");
+                    LootSummaryText = $"💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})"
+                        + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "")
+                        + (oreFound > 0 ? $", ⛏️ Руда: +{oreFound} (Всего: {_gameState.Ore})" : "")
+                        + (runeDropped ? $"\n💠 Найден рунический камень: {runeIcon} {runeName}!" : "");
 
-                    _gameState.PlayerHp = _gameState.PlayerMaxHp;
-                    _gameState.PlayerMp = _gameState.PlayerMaxMp;
+                    // P0-фикс (Б2): полное восстановление HP/MP после боя было только в сюжетном режиме
+                    // (там же оно принудительно ставилось перед боем). Для карты и аркады HP теперь
+                    // переносится между боями — узлы Костёр/Лавка становятся осмысленными.
+                    if (!_isArcade && _onCompletedFromMap == null && !_gameState.IsMapMode)
+                    {
+                        _gameState.PlayerHp = _gameState.PlayerMaxHp;
+                        _gameState.PlayerMp = _gameState.PlayerMaxMp;
+                    }
+                    else
+                    {
+                        // Щадящий режим: после победы игрок не остаётся на 1-2 HP —
+                        // минимум 25% здоровья, чтобы карта не превращалась в unverifiable death-spiral.
+                        int floor = Math.Max(1, (int)(_gameState.PlayerMaxHp * 0.25));
+                        if (_gameState.PlayerHp < floor) _gameState.PlayerHp = floor;
+                    }
 
                     IsUpgradeOverlayVisible = true;
                     UpdateStatsDisplay();
@@ -286,6 +397,28 @@ namespace EpicBattle.ViewModels
                     Log("💀 Вы погибли...");
                     StatusMessage = "Поражение";
                     IsPlayerDead = true;
+
+                    // P0-фикс (Б1): поражение откатывает бой, но не весь прогресс.
+                    // Если игра шла из сохранения — автоматически перезаписываем слот состоянием
+                    // на момент загрузки (последний контрольный пункт). Без этого игрок терял бы
+                    // лут/золото/прогресс карты, заработанные после ручного сохранения.
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(_gameState.SaveName) && _gameState.SaveName != "Новое сохранение")
+                        {
+                            SaveManager.SaveGame(_gameState.SaveName);
+                            Log("💾 Прогресс восстановлен по последнему сохранению.");
+                        }
+                        else
+                        {
+                            Log("⚠️ Автосохранение недоступно: бой начат без загруженного сейва.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Defeat autosave: {ex.Message}");
+                    }
+
                     UpdateCommandStates();
                 }
             }
@@ -428,6 +561,8 @@ namespace EpicBattle.ViewModels
             var target = TargetedEnemy ?? Enemies.FirstOrDefault(e => e.Hp > 0);
             if (target != null)
             {
+                // Этап 3.3: уникальный звук удара по типу экипированного оружия (клинок/посох/кинжалы/топор).
+                AudioEngine.PlayWeaponHit(_gameState?.EquippedWeapon?.Name);
                 _engine.PlayerAttack(target);
                 UpdateProperties();
             }
@@ -488,6 +623,10 @@ namespace EpicBattle.ViewModels
             if (!IsPlayerTurn || Player == null) return false;
             if (param is Skill skill)
             {
+                // P0-фикс (В4): блокировка кнопки навыка на время кулдауна (движок тоже проверяет,
+                // но UI обязан показывать неактивное состояние до попытки применения).
+                if (_engine != null && _engine.TryGetPlayerCooldown(skill.Id, out int remainingCd) && remainingCd > 0)
+                    return false;
                 return Player.CurrentAP >= skill.APCost && Player.Mp >= skill.ManaCost;
             }
             return false;
@@ -495,12 +634,19 @@ namespace EpicBattle.ViewModels
 
         private void EndTurn()
         {
+            // P2-фикс (В9): если у игрока остались неподготовленные AP, предупреждаем —
+            // они сгорят при завершении хода (раньше терялись молча).
+            if (_engine != null && IsPlayerTurn && _engine.Player.CurrentAP > 0)
+            {
+                Log($"⚠️ Сгорает {_engine.Player.CurrentAP} неподготовленных AP. Совет: тратьте AP на атаки/навыки до конца хода.");
+            }
             _engine.EndPlayerTurn();
         }
 
         private void Log(string msg)
         {
             CombatLog.Add(new CombatLogMessage(msg));
+            PushFloating(msg); // Этап 3.3: FX из ручных сообщений VM (зелья и т.п.)
         }
 
         private void UpdateProperties()

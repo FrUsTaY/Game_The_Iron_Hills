@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -52,7 +53,7 @@ namespace EpicBattle.ViewModels
     {
         private readonly GameState _gameState;
         private readonly Action _onLeave;
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public ObservableCollection<MerchantOfferItem> ShopItems { get; set; } = new ObservableCollection<MerchantOfferItem>();
         public ObservableCollection<PlayerSellItem> PlayerItems { get; set; } = new ObservableCollection<PlayerSellItem>();
@@ -62,6 +63,7 @@ namespace EpicBattle.ViewModels
         public int PlayerMaxHp => _gameState.PlayerMaxHp;
         public int PlayerMp => _gameState.PlayerMp;
         public int PlayerMaxMp => _gameState.PlayerMaxMp;
+        public int OreStock => _gameState.Ore;
         public int HpPotions => _gameState.HpPotions;
         public int MpPotions => _gameState.MpPotions;
 
@@ -78,6 +80,7 @@ namespace EpicBattle.ViewModels
         public ICommand BuyMpPotionCommand => new Command(_ => BuyPotion(false));
         public ICommand BuyStatScrollCommand => new Command(_ => BuyStatScroll());
         public ICommand BuySkillTomeCommand => new Command(_ => BuySkillTome());
+        public ICommand SellOreCommand => new Command(_ => SellOre());
         public ICommand LeaveShopCommand => new Command(_ => _onLeave?.Invoke());
 
         public MerchantViewModel(Action onLeave)
@@ -202,9 +205,27 @@ namespace EpicBattle.ViewModels
             RefreshUI();
         }
 
+        private void SellOre()
+        {
+            if (_gameState.Ore <= 0)
+            {
+                StatusMessage = "❌ У тебя нет Железной Руды Кряжа! Ищи её в горах после боёв.";
+                return;
+            }
+
+            // P1-фикс (Б4): раньше продавалась ВСЯ руда одним кликом без подтверждения —
+            // случайный клик уничтожал ресурсную базу крафта. Теперь продажа порционная (по 1).
+            const int orePrice = 25;
+            _gameState.Ore -= 1;
+            _gameState.Gold += orePrice;
+            StatusMessage = $"⛏️ Ростовщик купил 1 кусок руды за {orePrice} 💰. Осталось ⛏️ {_gameState.Ore}. Помни: кузнецу без руды не поможетешь...";
+            RefreshUI();
+        }
+
         private void RefreshUI()
         {
             OnPropertyChanged(nameof(PlayerGold));
+            OnPropertyChanged(nameof(OreStock));
             OnPropertyChanged(nameof(HpPotions));
             OnPropertyChanged(nameof(MpPotions));
             RefreshPlayerItems();

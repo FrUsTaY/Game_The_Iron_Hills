@@ -7,7 +7,7 @@ namespace EpicBattle.Models.Combat
 {
     public class BattleEngine
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
         public BattlePlayer Player { get; private set; }
         public List<BattleEnemy> Enemies { get; private set; }
@@ -21,9 +21,28 @@ namespace EpicBattle.Models.Combat
         public bool IsGromgarEncounter { get; set; } = false;
         public bool GromgarEnraged { get; set; } = false;
         public int GromgarRageThreshold { get; set; } = 30; // % HP
+
+        // Этап 3.4: фаза «Дробление» Первородного Титана Кряжа (Акт 3) — порог 50% HP, +75% урона
+        public bool IsTitanEncounter { get; set; } = false;
+        public bool TitanShattered { get; set; } = false;
+        public BattleEnemy TitanBossRef { get; private set; }
+        // P0-фикс (В1): единый источник порога Ярости — Intent больше не дублирует фазу
+        public BattleEnemy GromgarBossRef { get; private set; }
         public double BloodlustMultiplier { get; set; } = 1.0;
         public bool GromgarChaosAttack { get; set; } = false;
         public int PlayerDamageBuffTurns { get; set; } = 0;
+        // P2-фикс (В2): вместо костыля "PlayerDamageBuffTurns = 99" — явный флаг бессрочного баффа
+        public bool PlayerDamageBuffPermanent { get; set; } = false;
+
+        // P0-фикс (В4): активные кулдауны навыков игрока (Id навыка -> оставшиеся ходы)
+        private readonly Dictionary<string, int> _playerSkillCooldowns = new Dictionary<string, int>();
+
+        // P0-фикс (В4): доступ к кулдаунам игрока из UI
+        public bool TryGetPlayerCooldown(string skillId, out int remaining)
+        {
+            remaining = 0;
+            return _playerSkillCooldowns.TryGetValue(skillId, out remaining);
+        }
 
         public Action<string> OnLogEvent { get; set; } = delegate { };
         public Action OnQueueUpdated { get; set; } = delegate { };
@@ -38,6 +57,10 @@ namespace EpicBattle.Models.Combat
             BattleModifier = battleModifier ?? string.Empty;
             TurnQueue = new List<CombatEntity>();
 
+            // P2-фикс (В2): каждый новый бой стартует без остатков баффов прошлых боёв
+            PlayerDamageBuffTurns = 0;
+            PlayerDamageBuffPermanent = false;
+
             InitializeBattleModifiers();
             BuildQueue();
             NextTurn();
@@ -50,7 +73,7 @@ namespace EpicBattle.Models.Combat
             // --- Акт 1 Модификаторы ---
             if (BattleModifier == "Surprise")
             {
-                OnLogEvent("⚡ [Внезапный удар] Вы используете Руну Огня! Враги ошеломлены.");
+                OnLogEvent("⚡ [Внезапный удар] Огненная руна вспыхивает в руке! Враги ошеломлены.");
                 var first = Enemies.FirstOrDefault();
                 if (first != null)
                 {
@@ -101,19 +124,45 @@ namespace EpicBattle.Models.Combat
                 }
                 OnLogEvent("⚔️ Честный поединок! Враги воодушевлены (+10% к урону).");
             }
+            else if (BattleModifier.StartsWith("Act3_Titan"))
+            {
+                // Этап 3.4: любое столкновение с Титаном активирует отслеживание фазы «Дробление»
+                IsTitanEncounter = true;
+                TitanBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_titan");
+
+                if (BattleModifier == "Act3_Titan_Shield")
+                {
+                    var titan = TitanBossRef;
+                    if (titan != null)
+                    {
+                        titan.ApplyEffect(new StatusEffect { Id = "Shield", Name = "Щит Древних Королей", Type = StatusEffectType.Buff, Duration = 99, Value = 150, IconPath = "🛡" });
+                        OnLogEvent("👑 [Корона Древних Королей] Руны тронов вспыхивают и окутывают Титана защитным щитом (поглощает 150 урона)!");
+                    }
+                }
+            }
+            else if (BattleModifier == "Act3_Crystal_Empowered")
+            {
+                // Этап 3.4: Сердце Рунного Голема усиливает героя на весь финальный бой
+                PlayerDamageBuffPermanent = true;
+                PlayerDamageBuffTurns = int.MaxValue;
+                Player.ApplyEffect(new StatusEffect { Id = "Regen", Name = "Энергия Ядра", Type = StatusEffectType.Buff, Duration = 8, Value = 12, IconPath = "✨" });
+                OnLogEvent("🗿 [Сердце Рунного Голема] Ядром вы питаете своё снаряжение (+50% к урону на весь бой, Регенерация +12 HP)!");
+            }
             else if (BattleModifier.StartsWith("Gromgar"))
             {
                 IsGromgarEncounter = true;
+                // P0-фикс (В1): фиксируем ссылку на босса — порог Ярости проверяется только в ProcessTurnStart
+                GromgarBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
                 if (BattleModifier == "Gromgar_Honor")
                 {
                     GromgarRageThreshold = 40;
-                    var gromgar = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+                    var gromgar = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
                     if (gromgar != null) gromgar.CritChance = 5;
                     OnLogEvent("🛡️ Слова о чести заставляют Громгара сомневаться (крит снижен, порог Ярости 40%).");
                 }
                 else if (BattleModifier == "Gromgar_Lore")
                 {
-                    var gromgar = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+                    var gromgar = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
                     if (gromgar != null)
                     {
                         int dmg = (int)(gromgar.MaxHp * 0.15);
@@ -125,7 +174,9 @@ namespace EpicBattle.Models.Combat
                 else if (BattleModifier == "Gromgar_Ruthless")
                 {
                     BloodlustMultiplier = 1.25;
-                    OnLogEvent("🩸 ЖАЖДА КРОВИ! Вы и Громгар наносите на 25% больше урона, но защита снижена.");
+                    // P2-фикс (В3): текст и логика согласованы — защита НЕ снижается,
+                    // вместо этого входящий урон под блокировкой растёт на +15% (см. CalculateDamage)
+                    OnLogEvent("🩸 ЖАЖДА КРОВИ! Вы и Громгар наносите на 25% больше урона, а блок защищает слабее (+15% урона сквозь защиту)!");
                 }
             }
 
@@ -179,7 +230,7 @@ namespace EpicBattle.Models.Combat
             }
             else if (BattleModifier == "Act2_Malkor_Weakened")
             {
-                var malkor = Enemies.FirstOrDefault(e => e.Name.Contains("Малкор"));
+                var malkor = Enemies.FirstOrDefault(e => e.Id == "boss_malkor" || e.Name.Contains("Малкор"));
                 if (malkor != null)
                 {
                     int dmg = (int)(malkor.MaxHp * 0.30);
@@ -199,7 +250,9 @@ namespace EpicBattle.Models.Combat
             }
             else if (BattleModifier == "Act2_Purification")
             {
-                PlayerDamageBuffTurns = 99;
+                // P2-фикс (В2): бессрочный бафф через явный флаг вместо магического 99
+                PlayerDamageBuffPermanent = true;
+                PlayerDamageBuffTurns = int.MaxValue;
                 Player.ApplyEffect(new StatusEffect { Id = "Regen", Name = "Регенерация", Type = StatusEffectType.Buff, Duration = 5, Value = 15, IconPath = "✨" });
                 OnLogEvent("🧪 [Эликсир Очищения] Священная аура наполняет вас (+50% к урону на весь бой, Регенерация +15 HP)!");
             }
@@ -232,7 +285,20 @@ namespace EpicBattle.Models.Combat
             OnLogEvent($"⚔️ --- ВОЛНА {CurrentWave} ИЗ {TotalWaves} ---");
             OnLogEvent("Новые противники вступают в бой! +15 MP восстановлено.");
 
-            InitializeBattleModifiers();
+            // P0-фикс (В7): стартовые эффекты модификатора (станы, урон по врагам, баффы игрока)
+            // применяются ОДИН раз при создании боя. Повторный вызов на волне 2+ кумулятивно
+            // усиливал Aggressive (урон ×1.15^n), заново наносил Ambush/Golem_Assault и т.д.
+            // При этом ссылки на новых врагов нужно обновить (в т.ч. GromgarBossRef для фазы Ярости).
+            if (IsGromgarEncounter)
+            {
+                GromgarBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
+            }
+            // Этап 3.4: обновление ссылки на Титана для фазы «Дробление» во второй волне
+            if (IsTitanEncounter)
+            {
+                TitanBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_titan");
+            }
+
             BuildQueue();
             NextTurn();
         }
@@ -329,7 +395,21 @@ namespace EpicBattle.Models.Combat
 
             if (entity is BattlePlayer player)
             {
-                if (PlayerDamageBuffTurns > 0)
+                // P0-фикс (В4): отсчёт перезарядок навыков игрока (синхронно с UI-объектами Skill)
+                var readySkills = new List<string>();
+                foreach (var kv in _playerSkillCooldowns)
+                {
+                    if (kv.Value > 1) _playerSkillCooldowns[kv.Key] = kv.Value - 1;
+                    else readySkills.Add(kv.Key);
+                }
+                foreach (var id in readySkills) _playerSkillCooldowns.Remove(id);
+
+                foreach (var s in player.UnlockedSkills)
+                {
+                    s.CooldownRemaining = _playerSkillCooldowns.TryGetValue(s.Id, out int cd) ? cd : 0;
+                }
+
+                if (PlayerDamageBuffTurns > 0 && !PlayerDamageBuffPermanent)
                 {
                     PlayerDamageBuffTurns--;
                 }
@@ -350,8 +430,12 @@ namespace EpicBattle.Models.Combat
             }
             else if (entity is BattleEnemy enemy)
             {
-                // Проверка фазы ярости босса Громгара
-                if (enemy.Name.Contains("Громгар") && !GromgarEnraged)
+                // P1-фикс (В4): тик перезарядок вражеских навыков в начале его хода
+                enemy.TickSkillCooldowns();
+
+                // P0-фикс (В1): единая точка включения Ярости Громгара — порог из GromgarRageThreshold,
+                // без дублирующей проверки 35% в DetermineIntent
+                if (IsGromgarEncounter && ReferenceEquals(enemy, GromgarBossRef) && !GromgarEnraged)
                 {
                     double hpPct = (double)enemy.Hp / enemy.MaxHp * 100.0;
                     if (hpPct <= GromgarRageThreshold)
@@ -359,6 +443,18 @@ namespace EpicBattle.Models.Combat
                         GromgarEnraged = true;
                         enemy.ApplyEffect(new StatusEffect { Id = "Rage", Name = "Ярость Вождя", Type = StatusEffectType.Buff, Duration = 99, Value = 50, IconPath = "😡" });
                         OnLogEvent("🔥 Вождь Громгар впадает в безумную ЯРОСТЬ! Его урон увеличен на 50%!");
+                    }
+                }
+
+                // Этап 3.4: фаза «Дробление» Первородного Титана — на 50% HP босс раскалируется (+75% урона)
+                if (IsTitanEncounter && ReferenceEquals(enemy, TitanBossRef) && !TitanShattered)
+                {
+                    double hpPct = (double)enemy.Hp / enemy.MaxHp * 100.0;
+                    if (hpPct <= 50)
+                    {
+                        TitanShattered = true;
+                        enemy.ApplyEffect(new StatusEffect { Id = "Rage", Name = "Дробление Сердца", Type = StatusEffectType.Buff, Duration = 99, Value = 75, IconPath = "🌋" });
+                        OnLogEvent("🌋 ПЕРЕВОРОДНЫЙ ТИТАН РАСКАЛЯЕТСЯ! Магма хлещет из трещин панциря — его удары наносят +75% урона! Земля содрогается!");
                     }
                 }
             }
@@ -455,29 +551,41 @@ namespace EpicBattle.Models.Combat
             }
             else if (enemy.CurrentIntent.Type == IntentType.Cast)
             {
-                if (enemy.CurrentIntent.Description.Contains("ярость"))
+                if (enemy.CurrentIntent.Kind == IntentKind.RageCast)
                 {
                     enemy.ApplyEffect(new StatusEffect { Id = "Rage", Name = "Ярость", Type = StatusEffectType.Buff, Duration = 3, Value = 50, IconPath = "😡" });
                     OnLogEvent($"😡 {enemy.Name} впадает в ярость (+50% к урону)!");
                 }
-                else if (enemy.CurrentIntent.Description.Contains("Ослепление"))
+                else if (enemy.CurrentIntent.Kind == IntentKind.BlindCast)
                 {
+                    // P1-фикс (В6): ослепление теперь реально стоит ресурсов и имеет перезарядку
+                    enemy.CurrentAP -= 2;
+                    enemy.Mp = Math.Max(0, enemy.Mp - 8);
+                    enemy.StartSkillCooldown("T_Blind", 4);
                     Player.ApplyEffect(new StatusEffect { Id = "Blind", Name = "Слепота", Type = StatusEffectType.Debuff, Duration = 2, Value = 45, IconPath = "👁️" });
                     OnLogEvent($"👁️ {enemy.Name} ослепляет вас на 2 хода!");
                 }
-                else if (enemy.CurrentIntent.Description.Contains("Рассекающий"))
+                else if (enemy.CurrentIntent.Kind == IntentKind.CleaveCast)
                 {
                     var skill = enemy.AvailableSkills.FirstOrDefault(s => s.Id == "S2_Cleave");
                     if (skill != null) ExecuteSkill(enemy, skill, target: null);
                 }
-                else if (enemy.CurrentIntent.Description.Contains("Огненный шар"))
+                else if (enemy.CurrentIntent.Kind == IntentKind.FireballCast)
                 {
                     var skill = enemy.AvailableSkills.FirstOrDefault(s => s.Id == "M1_Fireball");
                     if (skill != null) ExecuteSkill(enemy, skill, target: null);
                 }
             }
+            else if (enemy.CurrentIntent.Kind == IntentKind.HeavyAttack)
+            {
+                // P1-фикс (В4): PowerStrike у врагов теперь с перезарядкой 2 хода (как у игрока) —
+                // снижает вин-рейт против «Мощного удара» берсерков/агрессоров
+                enemy.StartSkillCooldown("S1_PowerStrike", 2);
+            }
             else if (enemy.CurrentIntent.Type == IntentType.Heal)
             {
+                // P1-фикс (В4): перезарядка лечения 3 хода — связка «Вампиризм + бессмертный FirstAid» nerf'нута
+                enemy.StartSkillCooldown("V1_FirstAid", 3);
                 var injuredAlly = Enemies
                     .Where(e => e.Hp > 0 && e.Hp < e.MaxHp)
                     .OrderBy(e => (float)e.Hp / e.MaxHp)
@@ -563,6 +671,21 @@ namespace EpicBattle.Models.Combat
                 damage += (int)(target.Armor * 0.15f);
             }
 
+            // Этап 3.4: Щит Древних Королей Титана — поглощает урон, пока не исчерпан
+            var kingShield = target.ActiveEffects.FirstOrDefault(e => e.Id == "Shield");
+            if (kingShield != null && kingShield.Value > 0)
+            {
+                int absorbed = (int)Math.Min(kingShield.Value, damage);
+                kingShield.Value -= absorbed;
+                damage -= absorbed;
+                OnLogEvent($"👑 Щит Древних Королей поглощает {absorbed} урона (осталось {kingShield.Value}).");
+                if (kingShield.Value <= 0)
+                {
+                    target.ActiveEffects.Remove(kingShield);
+                    OnLogEvent("💥 Защитная руна тронов разлетается в осколки — Щит пал!");
+                }
+            }
+
             if (damage < 1) damage = 1;
 
             if (target.ActiveEffects.Any(e => e.Id == "ManaShield"))
@@ -581,6 +704,9 @@ namespace EpicBattle.Models.Combat
                     target.Mp = 0;
                     OnLogEvent("🛡️ Щит маны разбит!");
                 }
+                // P2-фикс (В5): повторный кламп — раньше после вычитания щита урон мог уйти в 0/отрицательное
+                // (кламп "damage >= 1" стоял ДО щита)
+                if (damage < 0) damage = 0;
             }
 
             if (isCrit)
@@ -604,8 +730,30 @@ namespace EpicBattle.Models.Combat
                 return;
             }
 
+            // P0-фикс (В4): реальная проверка кулдауна навыка + синхронизация UI-отображения
+            if (caster is BattlePlayer)
+            {
+                if (_playerSkillCooldowns.TryGetValue(skill.Id, out int remainingCd) && remainingCd > 0)
+                {
+                    OnLogEvent($"⏳ '{skill.Name}' на перезарядке: ещё {remainingCd} ход(ов).");
+                    return;
+                }
+            }
+
             caster.CurrentAP -= skill.APCost;
             caster.Mp -= skill.ManaCost;
+
+            // P0-фикс (В4): запуск перезарядки после использования
+            if (caster is BattlePlayer && skill.Cooldown > 0)
+            {
+                _playerSkillCooldowns[skill.Id] = skill.Cooldown;
+                skill.CooldownRemaining = skill.Cooldown;
+            }
+            // P1-фикс (В4): перезарядка вражеских навыков из БД (Fireball/Cleave/PowerStrike/FirstAid)
+            else if (caster is BattleEnemy e2 && skill.Cooldown > 0)
+            {
+                e2.StartSkillCooldown(skill.Id, skill.Cooldown);
+            }
 
             if (skill.Id == "S1_PowerStrike")
             {
@@ -738,22 +886,19 @@ namespace EpicBattle.Models.Combat
 
         public void CheckEnemyDeaths()
         {
+            // P2-фикс (В8): раньше смерть фиксировалась только при наличии врага в TurnQueue,
+            // а «else if (!died)» ложно помечал уже удалённых врагов как новых погибших.
+            // Теперь факт смерти определяется состоянием HP, лог пишется один раз.
             bool died = false;
             foreach (var enemy in Enemies.ToList())
             {
-                if (enemy.Hp <= 0)
+                if (enemy.Hp <= 0 && !enemy.DeathAnnounced)
                 {
+                    enemy.DeathAnnounced = true;
+                    OnLogEvent($"💀 {enemy.Name} повержен!");
                     if (TurnQueue.Contains(enemy))
-                    {
-                        OnLogEvent($"💀 {enemy.Name} повержен!");
                         TurnQueue.Remove(enemy);
-                        died = true;
-                    }
-                    else if (!died)
-                    {
-                        TurnQueue.Remove(enemy);
-                        died = true;
-                    }
+                    died = true;
                 }
             }
 

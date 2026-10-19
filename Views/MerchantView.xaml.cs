@@ -52,6 +52,11 @@ namespace EpicBattle.Views
             _vm.BuySkillTomeCommand.Execute(null);
         }
 
+        private void SellOre_Click(object sender, RoutedEventArgs e)
+        {
+            _vm.SellOreCommand.Execute(null);
+        }
+
         private void LeaveShop_Click(object sender, RoutedEventArgs e)
         {
             _vm.LeaveShopCommand.Execute(null);

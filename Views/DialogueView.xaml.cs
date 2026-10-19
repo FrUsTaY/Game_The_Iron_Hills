@@ -66,6 +66,19 @@ namespace EpicBattle.Views
                     {
                         filteredChoices.Add(choice);
                     }
+                    // Этап 3.4: флаги финальных решений Актов 1–2 для вариативных реплик и опций боя в Акте 3
+                    else if (choice.RequiredFlag == "Act2LightEnding" && SaveManager.CurrentState.Act2EndingChoice == "Light")
+                    {
+                        filteredChoices.Add(choice);
+                    }
+                    else if (choice.RequiredFlag == "Act2DarkEnding" && SaveManager.CurrentState.Act2EndingChoice == "Dark")
+                    {
+                        filteredChoices.Add(choice);
+                    }
+                    else if (choice.RequiredFlag == "Act2NeutralEnding" && SaveManager.CurrentState.Act2EndingChoice == "Neutral")
+                    {
+                        filteredChoices.Add(choice);
+                    }
                     else if (choice.RequiredFlag.StartsWith("Class_"))
                     {
                         string requiredClass = choice.RequiredFlag.Substring(6);
@@ -218,6 +231,7 @@ namespace EpicBattle.Views
                 else if (choice.Action == "Act2_Ending_Purify")
                 {
                     state.Act2Completed = true;
+                    state.Act2EndingChoice = "Light"; // Этап 3.4: флага финального решения для эпилога
                     var sword = ItemsDatabase.Clone("W_SolarBlade_Legendary");
                     if (sword != null && !state.Inventory.Exists(i => i.Id == sword.Id)) state.Inventory.Add(sword);
                     MessageBox.Show("Светлый финал достигнут!\nВ инвентарь добавлен: Клинок Солнечного Очищения (Легендарный)!", "Триумф", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -225,6 +239,7 @@ namespace EpicBattle.Views
                 else if (choice.Action == "Act2_Ending_Domination")
                 {
                     state.Act2Completed = true;
+                    state.Act2EndingChoice = "Dark"; // Этап 3.4
                     var robe = ItemsDatabase.Clone("C_ArchmageRobe_Legendary");
                     if (robe != null && !state.Inventory.Exists(i => i.Id == robe.Id)) state.Inventory.Add(robe);
                     MessageBox.Show("Темный финал достигнут!\nВ инвентарь добавлена: Мантия Первородной Тьмы (Легендарная)!", "Власть", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -232,9 +247,40 @@ namespace EpicBattle.Views
                 else if (choice.Action == "Act2_Ending_Balance")
                 {
                     state.Act2Completed = true;
+                    state.Act2EndingChoice = "Neutral"; // Этап 3.4
                     var emblem = ItemsDatabase.Clone("A_SolarEmblem_Legendary");
                     if (emblem != null && !state.Inventory.Exists(i => i.Id == emblem.Id)) state.Inventory.Add(emblem);
                     MessageBox.Show("Финал Равновесия достигнут!\nВ инвентарь добавлена: Эмблема Солнечного Очищения (Легендарная)!", "Равновесие", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                // ==========================================
+                // === ЭТАП 3.4: АКТ 3 «СЕРДЦЕ ТИТАНА» ===
+                // ==========================================
+                else if (choice.Action == "SetupAct3")
+                {
+                    state.SetupForAct3();
+                }
+                else if (choice.Action == "Act3_Ending_Seal")
+                {
+                    state.Act3Completed = true;
+                    state.Act3EndingChoice = "Neutral";
+                    MessageBox.Show(state.GetEpilogueSummary(), "⚖️ Финал Хранителя", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (choice.Action == "Act3_Ending_Heart")
+                {
+                    state.Act3Completed = true;
+                    state.Act3EndingChoice = "Dark";
+                    var crown = ItemsDatabase.Clone("A_TitanHeartAmulet_Legendary");
+                    if (crown != null && !state.Inventory.Exists(i => i.Id == crown.Id)) state.Inventory.Add(crown);
+                    MessageBox.Show(state.GetEpilogueSummary() + "\n\nПолучен легендарный амулет: Сердце Титана в Дланях!", "🌑 Финал Владыки", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (choice.Action == "Act3_Ending_Dawn")
+                {
+                    state.Act3Completed = true;
+                    state.Act3EndingChoice = "Light";
+                    var blade = ItemsDatabase.Clone("W_Dawnbreaker_Legendary");
+                    if (blade != null && !state.Inventory.Exists(i => i.Id == blade.Id)) state.Inventory.Add(blade);
+                    MessageBox.Show(state.GetEpilogueSummary() + "\n\nПолучен легендарный меч: Рассеятель Утра!", "🌅 Финал Светлых Гор", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 // ==========================================

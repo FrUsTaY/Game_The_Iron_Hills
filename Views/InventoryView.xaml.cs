@@ -40,6 +40,14 @@ namespace EpicBattle.Views
             }
         }
 
+        private void UseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is InventoryViewModel vm)
+            {
+                vm.UseSelectedItem();
+            }
+        }
+
         private void UnequipBtn_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is InventoryViewModel vm)

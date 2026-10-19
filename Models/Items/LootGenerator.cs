@@ -1,3 +1,4 @@
+using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,28 @@ namespace EpicBattle.Models.Items
 {
     public static class LootGenerator
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
+
+        /// <summary>Шанс найти Железную Руду Кряжа после боя (материал для Кузнеца, Этап 3.2).</summary>
+        public static int RollOreDrop(bool isEliteOrBoss)
+        {
+            int chance = isEliteOrBoss ? 90 : 35;
+            if (rand.Next(100) >= chance) return 0;
+            if (isEliteOrBoss && rand.Next(100) < 40) return 2; // элита/босс может дать сразу два куска
+            return 1;
+        }
+
+        /// <summary>Этап 3.2 (часть 2): шанс выпадения рунического камня с боя.</summary>
+        public static bool RollRuneDrop(bool isBoss, out string runeId, out string runeName, out string runeIcon)
+        {
+            // обычный бой — почти без рун; элита ~35%; босс гарантированно + шанс на Титана
+            int chance = isBoss ? 100 : 35;
+            runeId = runeName = runeIcon = "";
+            if (rand.Next(100) >= chance) return false;
+            var stone = RuneDatabase.RollRandomDrop(isBoss);
+            runeId = stone.Id; runeName = stone.Name; runeIcon = stone.Icon;
+            return true;
+        }
 
         public static List<Item> GenerateBattleLoot(int playerLevel, bool isBossFight, out int goldReward)
         {
