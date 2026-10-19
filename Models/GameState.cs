@@ -283,6 +283,48 @@ namespace EpicBattle.Models
         public bool HasPurificationElixir { get; set; } = false;
         public bool Act2Completed { get; set; } = false;
 
+        // --- Этап 3.4: глобальные флаги финальных решений (для эпилогов трилогии) ---
+        // "Light" (Очищение) / "Dark" (Подчинение) / "Neutral" (Печать) — берётся из выбора в конце Акта 2
+        public string Act2EndingChoice { get; set; } = "";
+        // Аналогично для финального выбора в Акте 3 («Сердце Титана»)
+        public string Act3EndingChoice { get; set; } = "";
+        public bool Act3Completed { get; set; } = false;
+
+        /// <summary>Этап 3.4: итоговая концовка-эпилог с учётом всех ключевых решений кампании.</summary>
+        public string GetEpilogueSummary()
+        {
+            var parts = new List<string>();
+
+            // Союзники и решения Актов 1–2
+            if (HonorGromgar) parts.Add("Вы даровали Громгару честную смерть — орочьи кланы помнят ваш почет и больше не тревожат перевал.");
+            if (SavedPrisonerKael) parts.Add("Спасённый пленник Каэл стал верным спутником и хранителем Пепельного Ручья.");
+            if (GolemAllied) parts.Add("Рунный Голем бьется на вашей стороне — древний страж гор признал нового хозяина Кряжа.");
+
+            switch (Act2EndingChoice)
+            {
+                case "Light": parts.Add("Сердце Кряжа очищено светом, и земли предгорий цветут.");
+                    break;
+                case "Dark": parts.Add("Вы возложили Тень Цитадели на свои плечи — север трепещет перед новым Владыкой.");
+                    break;
+                case "Neutral": parts.Add("Врата Цитадели запечатаны вечной клятвой — вы безмолвный Страж покоя.");
+                    break;
+            }
+
+            switch (Act3EndingChoice)
+            {
+                case "Light": parts.Add("🌅 ЭПИЛОГ СВЕТЛЫХ ГОР: Сердце Титана уснуло спокойным сном камня. Элрик — Легенда Железного Кряжа, и песни о нем будут звучать вечно.");
+                    break;
+                case "Dark": parts.Add("🌑 ЭПИЛОГ ВЛАДЫКИ СЕРДЦА: Сила Титана течет в ваших жилах. Вы восседаете на Троне Древних Королей, и горы склоняются перед вами.");
+                    break;
+                case "Neutral": parts.Add("⚖️ ЭПИЛОГ ХРАНИТЕЛЯ: Сердце запечатано печатью трех актов. Вы остались там, где кончается карта, — вечным хранителем равновесия Кряжа.");
+                    break;
+                default: parts.Add("Финальный выбор еще не сделан.");
+                    break;
+            }
+
+            return string.Join("\n\n", parts);
+        }
+
         public void SetupForAct2(string playerClass = "Ветеран")
         {
             PlayerClass = playerClass;
@@ -333,6 +375,24 @@ namespace EpicBattle.Models
                 UnlockedSkills.Add("V1_FirstAid");
             }
 
+            RecalculateDerivedStats();
+            PlayerHp = PlayerMaxHp;
+            PlayerMp = PlayerMaxMp;
+        }
+
+        /// <summary>Этап 3.4: Акт 3 «Сердце Титана» — герой 6-го уровня с сохранёнными решениями Актов 1–2.</summary>
+        public void SetupForAct3()
+        {
+            CurrentAct = 3;
+            CurrentNodeId = "Act3_Start";
+            IsStoryMode = true;
+            PlayerLevel = Math.Max(PlayerLevel, 6);
+            Gold += 200;
+            HpPotions = Math.Max(HpPotions, 5);
+            MpPotions = Math.Max(MpPotions, 4);
+            StatPoints += 3;
+            SkillPoints += 2;
+            Ore += 3; // кузнец Кряжа: запас руды к финалу трилогии
             RecalculateDerivedStats();
             PlayerHp = PlayerMaxHp;
             PlayerMp = PlayerMaxMp;

@@ -21,6 +21,11 @@ namespace EpicBattle.Models.Combat
         public bool IsGromgarEncounter { get; set; } = false;
         public bool GromgarEnraged { get; set; } = false;
         public int GromgarRageThreshold { get; set; } = 30; // % HP
+
+        // Этап 3.4: фаза «Дробление» Первородного Титана Кряжа (Акт 3) — порог 50% HP, +75% урона
+        public bool IsTitanEncounter { get; set; } = false;
+        public bool TitanShattered { get; set; } = false;
+        public BattleEnemy TitanBossRef { get; private set; }
         // P0-фикс (В1): единый источник порога Ярости — Intent больше не дублирует фазу
         public BattleEnemy GromgarBossRef { get; private set; }
         public double BloodlustMultiplier { get; set; } = 1.0;
@@ -118,6 +123,30 @@ namespace EpicBattle.Models.Combat
                     enemy.BaseDamage = (int)(enemy.BaseDamage * 1.10);
                 }
                 OnLogEvent("⚔️ Честный поединок! Враги воодушевлены (+10% к урону).");
+            }
+            else if (BattleModifier.StartsWith("Act3_Titan"))
+            {
+                // Этап 3.4: любое столкновение с Титаном активирует отслеживание фазы «Дробление»
+                IsTitanEncounter = true;
+                TitanBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_titan");
+
+                if (BattleModifier == "Act3_Titan_Shield")
+                {
+                    var titan = TitanBossRef;
+                    if (titan != null)
+                    {
+                        titan.ApplyEffect(new StatusEffect { Id = "Shield", Name = "Щит Древних Королей", Type = StatusEffectType.Buff, Duration = 99, Value = 150, IconPath = "🛡" });
+                        OnLogEvent("👑 [Корона Древних Королей] Руны тронов вспыхивают и окутывают Титана защитным щитом (поглощает 150 урона)!");
+                    }
+                }
+            }
+            else if (BattleModifier == "Act3_Crystal_Empowered")
+            {
+                // Этап 3.4: Сердце Рунного Голема усиливает героя на весь финальный бой
+                PlayerDamageBuffPermanent = true;
+                PlayerDamageBuffTurns = int.MaxValue;
+                Player.ApplyEffect(new StatusEffect { Id = "Regen", Name = "Энергия Ядра", Type = StatusEffectType.Buff, Duration = 8, Value = 12, IconPath = "✨" });
+                OnLogEvent("🗿 [Сердце Рунного Голема] Ядром вы питаете своё снаряжение (+50% к урону на весь бой, Регенерация +12 HP)!");
             }
             else if (BattleModifier.StartsWith("Gromgar"))
             {
@@ -264,6 +293,11 @@ namespace EpicBattle.Models.Combat
             {
                 GromgarBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_gromgar");
             }
+            // Этап 3.4: обновление ссылки на Титана для фазы «Дробление» во второй волне
+            if (IsTitanEncounter)
+            {
+                TitanBossRef = Enemies.FirstOrDefault(e => e.Id == "boss_titan");
+            }
 
             BuildQueue();
             NextTurn();
@@ -409,6 +443,18 @@ namespace EpicBattle.Models.Combat
                         GromgarEnraged = true;
                         enemy.ApplyEffect(new StatusEffect { Id = "Rage", Name = "Ярость Вождя", Type = StatusEffectType.Buff, Duration = 99, Value = 50, IconPath = "😡" });
                         OnLogEvent("🔥 Вождь Громгар впадает в безумную ЯРОСТЬ! Его урон увеличен на 50%!");
+                    }
+                }
+
+                // Этап 3.4: фаза «Дробление» Первородного Титана — на 50% HP босс раскалируется (+75% урона)
+                if (IsTitanEncounter && ReferenceEquals(enemy, TitanBossRef) && !TitanShattered)
+                {
+                    double hpPct = (double)enemy.Hp / enemy.MaxHp * 100.0;
+                    if (hpPct <= 50)
+                    {
+                        TitanShattered = true;
+                        enemy.ApplyEffect(new StatusEffect { Id = "Rage", Name = "Дробление Сердца", Type = StatusEffectType.Buff, Duration = 99, Value = 75, IconPath = "🌋" });
+                        OnLogEvent("🌋 ПЕРЕВОРОДНЫЙ ТИТАН РАСКАЛЯЕТСЯ! Магма хлещет из трещин панциря — его удары наносят +75% урона! Земля содрогается!");
                     }
                 }
             }
@@ -623,6 +669,21 @@ namespace EpicBattle.Models.Combat
             if (target.ActiveEffects.Any(e => e.Id == "Rage"))
             {
                 damage += (int)(target.Armor * 0.15f);
+            }
+
+            // Этап 3.4: Щит Древних Королей Титана — поглощает урон, пока не исчерпан
+            var kingShield = target.ActiveEffects.FirstOrDefault(e => e.Id == "Shield");
+            if (kingShield != null && kingShield.Value > 0)
+            {
+                int absorbed = (int)Math.Min(kingShield.Value, damage);
+                kingShield.Value -= absorbed;
+                damage -= absorbed;
+                OnLogEvent($"👑 Щит Древних Королей поглощает {absorbed} урона (осталось {kingShield.Value}).");
+                if (kingShield.Value <= 0)
+                {
+                    target.ActiveEffects.Remove(kingShield);
+                    OnLogEvent("💥 Защитная руна тронов разлетается в осколки — Щит пал!");
+                }
             }
 
             if (damage < 1) damage = 1;
