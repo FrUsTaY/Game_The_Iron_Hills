@@ -62,6 +62,7 @@ namespace EpicBattle.ViewModels
         public int PlayerMaxHp => _gameState.PlayerMaxHp;
         public int PlayerMp => _gameState.PlayerMp;
         public int PlayerMaxMp => _gameState.PlayerMaxMp;
+        public int OreStock => _gameState.Ore;
         public int HpPotions => _gameState.HpPotions;
         public int MpPotions => _gameState.MpPotions;
 
@@ -78,6 +79,7 @@ namespace EpicBattle.ViewModels
         public ICommand BuyMpPotionCommand => new Command(_ => BuyPotion(false));
         public ICommand BuyStatScrollCommand => new Command(_ => BuyStatScroll());
         public ICommand BuySkillTomeCommand => new Command(_ => BuySkillTome());
+        public ICommand SellOreCommand => new Command(_ => SellOre());
         public ICommand LeaveShopCommand => new Command(_ => _onLeave?.Invoke());
 
         public MerchantViewModel(Action onLeave)
@@ -202,9 +204,26 @@ namespace EpicBattle.ViewModels
             RefreshUI();
         }
 
+        private void SellOre()
+        {
+            if (_gameState.Ore <= 0)
+            {
+                StatusMessage = "❌ У тебя нет Железной Руды Кряжа! Ищи её в горах после боёв.";
+                return;
+            }
+
+            const int orePrice = 25;
+            int sold = _gameState.Ore;
+            _gameState.Ore = 0;
+            _gameState.Gold += sold * orePrice;
+            StatusMessage = $"⛏️ Ростовщик скупил всю твою руду ({sold} шт.) за {sold * orePrice} 💰. Но кузнецу без неё не поможетешь...";
+            RefreshUI();
+        }
+
         private void RefreshUI()
         {
             OnPropertyChanged(nameof(PlayerGold));
+            OnPropertyChanged(nameof(OreStock));
             OnPropertyChanged(nameof(HpPotions));
             OnPropertyChanged(nameof(MpPotions));
             RefreshPlayerItems();

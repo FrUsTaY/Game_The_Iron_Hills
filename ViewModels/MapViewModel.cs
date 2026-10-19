@@ -73,6 +73,12 @@ namespace EpicBattle.ViewModels
             set { if (_gameState != null) { _gameState.Gold = value; OnPropertyChanged(); } }
         }
 
+        public int OreStock
+        {
+            get => _gameState?.Ore ?? 0;
+            set { if (_gameState != null) { _gameState.Ore = value; OnPropertyChanged(); } }
+        }
+
         public int HpPotions
         {
             get => _gameState?.HpPotions ?? 0;
@@ -149,6 +155,7 @@ namespace EpicBattle.ViewModels
             OnPropertyChanged(nameof(PlayerMp));
             OnPropertyChanged(nameof(PlayerMaxMp));
             OnPropertyChanged(nameof(Gold));
+            OnPropertyChanged(nameof(OreStock));
             OnPropertyChanged(nameof(HpPotions));
             OnPropertyChanged(nameof(MpPotions));
             OnPropertyChanged(nameof(StatPoints));
@@ -188,6 +195,10 @@ namespace EpicBattle.ViewModels
                         NavigationManager.NavigateTo(new CampfireView(OnNodeCompleted));
                         break;
 
+                    case MapNodeType.Blacksmith:
+                        NavigationManager.NavigateTo(new BlacksmithView(OnNodeCompleted));
+                        break;
+
                     case MapNodeType.Boss:
                         NavigationManager.NavigateTo(new BattleView(isArcade: true, returnNodeId: null, battleModifier: "Boss", arcadeLevel: node.Floor + 3, onCompletedFromMap: OnBossCompleted));
                         break;
@@ -209,6 +220,7 @@ namespace EpicBattle.ViewModels
             _gameState.Gold += 150;
             _gameState.StatPoints += 2;
             _gameState.SkillPoints += 1;
+            _gameState.Ore += 3; // Этап 3.2: жилы руды с босса — подарок кузнецу не нужны
 
             _isVictoryVisible = true;
             NavigationManager.NavigateTo(new MapView());

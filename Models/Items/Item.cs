@@ -37,6 +37,10 @@ namespace EpicBattle.Models.Items
         public int RequiredLevel { get; set; } = 1;
         public int GoldValue { get; set; } = 10;
 
+        // --- Этап 3.2: Ремесленная система (улучшение у кузнеца) ---
+        public int UpgradeLevel { get; set; } = 0;      // +1, +2, +3 (максимум для редкости)
+        public bool IsUpgradable { get; set; } = false; // Улучшается только экипируемая базовая экипировка
+
         // Бонусы к характеристикам
         public int BonusDamage { get; set; } = 0;
         public int BonusMagicDamage { get; set; } = 0;
@@ -99,6 +103,23 @@ namespace EpicBattle.Models.Items
         };
 
         [JsonIgnore]
+        public int MaxUpgradeLevel => Rarity switch
+        {
+            ItemRarity.Common => 1,
+            ItemRarity.Magic => 2,
+            ItemRarity.Rare => 3,
+            ItemRarity.Epic => 4,
+            ItemRarity.Legendary => 5,
+            _ => 1
+        };
+
+        [JsonIgnore]
+        public bool IsMaxUpgraded => UpgradeLevel >= MaxUpgradeLevel;
+
+        [JsonIgnore]
+        public string DisplayName => UpgradeLevel > 0 ? $"{Name} +{UpgradeLevel}" : Name;
+
+        [JsonIgnore]
         public string SlotDisplayName => Slot switch
         {
             ItemSlot.Weapon => "Оружие",
@@ -118,19 +139,22 @@ namespace EpicBattle.Models.Items
         {
             get
             {
+                // Этап 3.2: каждое улучшение (+1) усиливает базовые бонусы предмета на 25%
+                double mult = 1.0 + 0.25 * UpgradeLevel;
                 var list = new System.Collections.Generic.List<string>();
-                if (BonusDamage > 0) list.Add($"+{BonusDamage} Урон");
-                if (BonusMagicDamage > 0) list.Add($"+{BonusMagicDamage} Маг.урон");
-                if (BonusArmor > 0) list.Add($"+{BonusArmor} Броня");
-                if (BonusHp > 0) list.Add($"+{BonusHp} HP");
-                if (BonusMp > 0) list.Add($"+{BonusMp} MP");
-                if (BonusStrength > 0) list.Add($"+{BonusStrength} Сила");
-                if (BonusDexterity > 0) list.Add($"+{BonusDexterity} Ловкость");
-                if (BonusIntelligence > 0) list.Add($"+{BonusIntelligence} Интеллект");
-                if (BonusEndurance > 0) list.Add($"+{BonusEndurance} Выносливость");
-                if (BonusCritChance > 0) list.Add($"+{BonusCritChance:F1}% Крит");
-                if (BonusDodgeChance > 0) list.Add($"+{BonusDodgeChance:F1}% Уклон");
+                if (BonusDamage > 0) list.Add($"+{(int)(BonusDamage * mult)} Урон");
+                if (BonusMagicDamage > 0) list.Add($"+{(int)(BonusMagicDamage * mult)} Маг.урон");
+                if (BonusArmor > 0) list.Add($"+{(int)(BonusArmor * mult)} Броня");
+                if (BonusHp > 0) list.Add($"+{(int)(BonusHp * mult)} HP");
+                if (BonusMp > 0) list.Add($"+{(int)(BonusMp * mult)} MP");
+                if (BonusStrength > 0) list.Add($"+{(int)(BonusStrength * mult)} Сила");
+                if (BonusDexterity > 0) list.Add($"+{(int)(BonusDexterity * mult)} Ловкость");
+                if (BonusIntelligence > 0) list.Add($"+{(int)(BonusIntelligence * mult)} Интеллект");
+                if (BonusEndurance > 0) list.Add($"+{(int)(BonusEndurance * mult)} Выносливость");
+                if (BonusCritChance > 0) list.Add($"+{BonusCritChance * mult:F1}% Крит");
+                if (BonusDodgeChance > 0) list.Add($"+{BonusDodgeChance * mult:F1}% Уклон");
 
+                if (UpgradeLevel > 0) list.Add($"⭐ Ур.{UpgradeLevel}/{MaxUpgradeLevel}");
                 if (list.Count == 0) return Description;
                 return string.Join(", ", list);
             }

@@ -37,6 +37,9 @@ namespace EpicBattle.Models
         public Item? EquippedRing { get; set; }
         public Item? EquippedAmulet { get; set; }
 
+        // Этап 3.2: эффективные бонусы предмета с учетом кузнечных улучшений (+25% за уровень)
+        public static double UpgradeMultiplier(Item item) => 1.0 + 0.25 * (item?.UpgradeLevel ?? 0);
+
         public List<Item> GetEquippedList()
         {
             var list = new List<Item>();
@@ -140,10 +143,10 @@ namespace EpicBattle.Models
         public int PlayerMp { get; set; } = 50;
 
         // --- Производные характеристики (включая экипировку) ---
-        public int TotalStrength => Strength + (GetEquippedList()?.Sum(i => i.BonusStrength) ?? 0);
-        public int TotalDexterity => Dexterity + (GetEquippedList()?.Sum(i => i.BonusDexterity) ?? 0);
-        public int TotalIntelligence => Intelligence + (GetEquippedList()?.Sum(i => i.BonusIntelligence) ?? 0);
-        public int TotalEndurance => Endurance + (GetEquippedList()?.Sum(i => i.BonusEndurance) ?? 0);
+        public int TotalStrength => Strength + (GetEquippedList()?.Sum(i => (int)(i.BonusStrength * UpgradeMultiplier(i))) ?? 0);
+        public int TotalDexterity => Dexterity + (GetEquippedList()?.Sum(i => (int)(i.BonusDexterity * UpgradeMultiplier(i))) ?? 0);
+        public int TotalIntelligence => Intelligence + (GetEquippedList()?.Sum(i => (int)(i.BonusIntelligence * UpgradeMultiplier(i))) ?? 0);
+        public int TotalEndurance => Endurance + (GetEquippedList()?.Sum(i => (int)(i.BonusEndurance * UpgradeMultiplier(i))) ?? 0);
 
         public int PlayerMaxHp { get; set; } = 100;
         public int PlayerMaxMp { get; set; } = 50;
@@ -155,7 +158,7 @@ namespace EpicBattle.Models
             get
             {
                 double baseDodge = PlayerClass == "Наемник" ? TotalDexterity * 1.5 + 5.0 : TotalDexterity * 1.5;
-                baseDodge += GetEquippedList()?.Sum(i => i.BonusDodgeChance) ?? 0;
+                baseDodge += GetEquippedList()?.Sum(i => i.BonusDodgeChance * UpgradeMultiplier(i)) ?? 0;
                 return Math.Min(60.0, baseDodge);
             }
         }
@@ -165,7 +168,7 @@ namespace EpicBattle.Models
             get
             {
                 double baseCrit = PlayerClass == "Наемник" ? TotalDexterity * 1.5 + 5.0 : TotalDexterity * 1.5;
-                baseCrit += GetEquippedList()?.Sum(i => i.BonusCritChance) ?? 0;
+                baseCrit += GetEquippedList()?.Sum(i => i.BonusCritChance * UpgradeMultiplier(i)) ?? 0;
                 return Math.Min(60.0, baseCrit);
             }
         }
@@ -175,7 +178,7 @@ namespace EpicBattle.Models
             get
             {
                 int baseDef = PlayerClass == "Ветеран" ? TotalEndurance + 2 : TotalEndurance;
-                baseDef += GetEquippedList()?.Sum(i => i.BonusArmor) ?? 0;
+                baseDef += GetEquippedList()?.Sum(i => (int)(i.BonusArmor * UpgradeMultiplier(i))) ?? 0;
                 return baseDef;
             }
         }
@@ -183,10 +186,10 @@ namespace EpicBattle.Models
         public void RecalculateDerivedStats()
         {
             var equipped = GetEquippedList();
-            int bonusHp = equipped?.Sum(i => i.BonusHp) ?? 0;
-            int bonusMp = equipped?.Sum(i => i.BonusMp) ?? 0;
-            int bonusDmg = equipped?.Sum(i => i.BonusDamage) ?? 0;
-            int bonusMagDmg = equipped?.Sum(i => i.BonusMagicDamage) ?? 0;
+            int bonusHp = equipped?.Sum(i => (int)(i.BonusHp * UpgradeMultiplier(i))) ?? 0;
+            int bonusMp = equipped?.Sum(i => (int)(i.BonusMp * UpgradeMultiplier(i))) ?? 0;
+            int bonusDmg = equipped?.Sum(i => (int)(i.BonusDamage * UpgradeMultiplier(i))) ?? 0;
+            int bonusMagDmg = equipped?.Sum(i => (int)(i.BonusMagicDamage * UpgradeMultiplier(i))) ?? 0;
 
             PlayerMaxHp = (PlayerClass == "Ветеран" ? 60 + (TotalEndurance * 10) : 50 + (TotalEndurance * 10)) + bonusHp;
             PlayerMaxMp = 20 + (TotalIntelligence * 6) + bonusMp;
@@ -196,6 +199,10 @@ namespace EpicBattle.Models
             if (PlayerHp > PlayerMaxHp) PlayerHp = PlayerMaxHp;
             if (PlayerMp > PlayerMaxMp) PlayerMp = PlayerMaxMp;
         }
+
+        // --- Этап 3.2: Ремесленная система (Кузнец) ---
+        public int Ore { get; set; } = 0;                  // ⛏️ Железная руда Кряжа — материал для улучшений
+        public int BlacksmithUpgradesDone { get; set; } = 0; // Сколько ковок совершал герой (для статистики)
 
         // Инвентарь базовый
         public int HpPotions { get; set; } = 3;

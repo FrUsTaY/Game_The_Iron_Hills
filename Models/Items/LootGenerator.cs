@@ -8,6 +8,15 @@ namespace EpicBattle.Models.Items
     {
         private static readonly Random rand = new Random();
 
+        /// <summary>Шанс найти Железную Руду Кряжа после боя (материал для Кузнеца, Этап 3.2).</summary>
+        public static int RollOreDrop(bool isEliteOrBoss)
+        {
+            int chance = isEliteOrBoss ? 90 : 35;
+            if (rand.Next(100) >= chance) return 0;
+            if (isEliteOrBoss && rand.Next(100) < 40) return 2; // элита/босс может дать сразу два куска
+            return 1;
+        }
+
         public static List<Item> GenerateBattleLoot(int playerLevel, bool isBossFight, out int goldReward)
         {
             var loot = new List<Item>();

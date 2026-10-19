@@ -53,6 +53,9 @@
                         <Border Background="#1E2E4A" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
                             <TextBlock Text="{Binding MpPotions, StringFormat='💧 {0}'}" Foreground="#55AAFF" FontWeight="Bold" FontSize="13"/>
                         </Border>
+                        <Border Background="#2A2230" BorderBrush="#8D6E63" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding OreStock, StringFormat='⛏️ {0}'}" Foreground="#DDAA88" FontWeight="Bold" FontSize="13"/>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
 

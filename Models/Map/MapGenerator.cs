@@ -75,21 +75,24 @@ namespace EpicBattle.Models.Map
                         {
                             if (roll < 55) type = MapNodeType.NormalBattle;
                             else if (roll < 85) type = MapNodeType.Encounter;
-                            else type = MapNodeType.Merchant;
+                            else if (roll < 93) type = MapNodeType.Merchant;
+                            else type = MapNodeType.Blacksmith;
                         }
                         else if (f == 5)
                         {
                             // Середина пути: привал, торговец или элитный бой
                             if (roll < 40) type = MapNodeType.Campfire;
                             else if (roll < 70) type = MapNodeType.EliteBattle;
-                            else type = MapNodeType.Merchant;
+                            else if (roll < 90) type = MapNodeType.Merchant;
+                            else type = MapNodeType.Blacksmith;
                         }
                         else
                         {
                             if (roll < 40) type = MapNodeType.NormalBattle;
                             else if (roll < 65) type = MapNodeType.EliteBattle;
                             else if (roll < 80) type = MapNodeType.Encounter;
-                            else if (roll < 90) type = MapNodeType.Merchant;
+                            else if (roll < 88) type = MapNodeType.Merchant;
+                            else if (roll < 94) type = MapNodeType.Blacksmith;
                             else type = MapNodeType.Campfire;
                         }
 
@@ -180,6 +183,11 @@ namespace EpicBattle.Models.Map
                     node.Title = GetMerchantTitle(actNumber);
                     node.Description = "Торговая лавка. Покупка редкого снаряжения, зелий и свитков, а также продажа лута.";
                     break;
+                case MapNodeType.Blacksmith:
+                    node.Icon = "🔨";
+                    node.Title = GetBlacksmithTitle(actNumber);
+                    node.Description = "Забытая кузница Кряжа. Мастер улучшит вашу экипировку за золото и редкие материалы.";
+                    break;
                 case MapNodeType.Campfire:
                     node.Icon = "⛺";
                     node.Title = GetCampfireTitle(actNumber);
@@ -222,6 +230,13 @@ namespace EpicBattle.Models.Map
             1 => PickRandom("Караван рудокопов", "Оружейник-отшельник", "Странствующий купец"),
             2 => PickRandom("Контрабандист Цитадели", "Теневой ростовщик", "Маг-ренегат"),
             _ => PickRandom("Дворфийский мастер", "Дух древнего кузнеца")
+        };
+
+        private static string GetBlacksmithTitle(int act) => act switch
+        {
+            1 => PickRandom("Кузня Бородана", "Наковальня Рудокопа", "Горнище в скале"),
+            2 => PickRandom("Рунная Кузница Голема", "Мастерская Теневых Литьев", "Заброшенный Молот"),
+            _ => PickRandom("Сердце Кузни Титанов", "Магматический Горн")
         };
 
         private static string GetCampfireTitle(int act) => act switch

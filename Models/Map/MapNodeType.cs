@@ -7,6 +7,7 @@ namespace EpicBattle.Models.Map
         Encounter,    // 📜 Случайное событие
         Merchant,     // 💰 Торговец
         Campfire,     // ⛺ Привал / Лагерь
+        Blacksmith,   // 🔨 Кузница (Этап 3.2: улучшение экипировки)
         Boss          // 👑 Босс
     }
 }

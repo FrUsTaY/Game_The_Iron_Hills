@@ -263,6 +263,11 @@ namespace EpicBattle.ViewModels
                     if (_battleModifier == "Boss") goldEarned = goldEarned * 2;
 
                     _gameState.Gold += goldEarned;
+
+                    // Этап 3.2: руда для кузнеца падает с врагов в горах Кряжа
+                    int oreFound = LootGenerator.RollOreDrop(isBoss);
+                    _gameState.Ore += oreFound;
+
                     DroppedLoot.Clear();
                     foreach (var item in dropped)
                     {
@@ -270,7 +275,9 @@ namespace EpicBattle.ViewModels
                         DroppedLoot.Add(item);
                     }
 
-                    LootSummaryText = $"💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})" + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "");
+                    LootSummaryText = $"💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})"
+                        + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "")
+                        + (oreFound > 0 ? $", ⛏️ Руда: +{oreFound} (Всего: {_gameState.Ore})" : "");
 
                     _gameState.PlayerHp = _gameState.PlayerMaxHp;
                     _gameState.PlayerMp = _gameState.PlayerMaxMp;
