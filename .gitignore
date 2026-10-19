@@ -1,0 +1,19 @@
+# Построенные артефакты .NET
+bin/
+obj/
+publish/
+
+# Настройки IDE
+.vs/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+*.user
+*.suo
+
+# Сохранения игры (генерируются в рантайме)
+Saves/
+
+# Прочее
+*.log
+.DS_Store
