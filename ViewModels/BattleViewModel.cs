@@ -28,6 +28,14 @@ namespace EpicBattle.ViewModels
         private int _totalWaves = 1;
         private Action _onCompletedFromMap;
 
+        // P0-фикс (Б2): постоянство HP/MP между сценами сюжетного режима.
+        // Полный отдых в сюжете разрешён только на «безопасных» узлах (лагеря, привалы),
+        // но НЕ перед каждым боем — иначе ставки за весь Акт обнулялись.
+        private static readonly HashSet<string> StoryRestNodes = new HashSet<string>
+        {
+            "Start", "Scene3_Varg", "Act2_Kael_Freed"
+        };
+
         public BattlePlayer Player => _engine?.Player;
         public ObservableCollection<BattleEnemy> Enemies { get; private set; } = new ObservableCollection<BattleEnemy>();
         public ObservableCollection<CombatLogMessage> CombatLog { get; private set; } = new ObservableCollection<CombatLogMessage>();
@@ -77,6 +85,21 @@ namespace EpicBattle.ViewModels
         {
             get => _isPlayerDead;
             set { _isPlayerDead = value; OnPropertyChanged(); }
+        }
+
+        // P0-фикс (Б1): сводка для экрана поражения
+        private string _defeatSummaryText = string.Empty;
+        public string DefeatSummaryText
+        {
+            get => _defeatSummaryText;
+            set { _defeatSummaryText = value; OnPropertyChanged(); }
+        }
+
+        // P0-фикс (В4): кулдаун навыка игрока готов? (для блокировки кнопок в UI)
+        public bool IsSkillReady(Skill skill)
+        {
+            if (skill == null) return false;
+            return _engine == null || !_engine.TryGetPlayerCooldown(skill.Id, out int remaining) || remaining <= 0;
         }
 
         public bool IsStoryMode => !_isArcade && _onCompletedFromMap == null;

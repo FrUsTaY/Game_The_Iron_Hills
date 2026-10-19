@@ -21,9 +21,21 @@ namespace EpicBattle.Models.Combat
         public bool IsGromgarEncounter { get; set; } = false;
         public bool GromgarEnraged { get; set; } = false;
         public int GromgarRageThreshold { get; set; } = 30; // % HP
+        // P0-фикс (В1): единый источник порога Ярости — Intent больше не дублирует фазу
+        public BattleEnemy GromgarBossRef { get; private set; }
         public double BloodlustMultiplier { get; set; } = 1.0;
         public bool GromgarChaosAttack { get; set; } = false;
         public int PlayerDamageBuffTurns { get; set; } = 0;
+
+        // P0-фикс (В4): активные кулдауны навыков игрока (Id навыка -> оставшиеся ходы)
+        private readonly Dictionary<string, int> _playerSkillCooldowns = new Dictionary<string, int>();
+
+        // P0-фикс (В4): доступ к кулдаунам игрока из UI
+        public bool TryGetPlayerCooldown(string skillId, out int remaining)
+        {
+            remaining = 0;
+            return _playerSkillCooldowns.TryGetValue(skillId, out remaining);
+        }
 
         public Action<string> OnLogEvent { get; set; } = delegate { };
         public Action OnQueueUpdated { get; set; } = delegate { };
@@ -104,6 +116,8 @@ namespace EpicBattle.Models.Combat
             else if (BattleModifier.StartsWith("Gromgar"))
             {
                 IsGromgarEncounter = true;
+                // P0-фикс (В1): фиксируем ссылку на босса — порог Ярости проверяется только в ProcessTurnStart
+                GromgarBossRef = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
                 if (BattleModifier == "Gromgar_Honor")
                 {
                     GromgarRageThreshold = 40;
@@ -232,7 +246,15 @@ namespace EpicBattle.Models.Combat
             OnLogEvent($"⚔️ --- ВОЛНА {CurrentWave} ИЗ {TotalWaves} ---");
             OnLogEvent("Новые противники вступают в бой! +15 MP восстановлено.");
 
-            InitializeBattleModifiers();
+            // P0-фикс (В7): стартовые эффекты модификатора (станы, урон по врагам, баффы игрока)
+            // применяются ОДИН раз при создании боя. Повторный вызов на волне 2+ кумулятивно
+            // усиливал Aggressive (урон ×1.15^n), заново наносил Ambush/Golem_Assault и т.д.
+            // При этом ссылки на новых врагов нужно обновить (в т.ч. GromgarBossRef для фазы Ярости).
+            if (IsGromgarEncounter)
+            {
+                GromgarBossRef = Enemies.FirstOrDefault(e => e.Name.Contains("Громгар"));
+            }
+
             BuildQueue();
             NextTurn();
         }
@@ -329,6 +351,15 @@ namespace EpicBattle.Models.Combat
 
             if (entity is BattlePlayer player)
             {
+                // P0-фикс (В4): отсчёт перезарядок навыков игрока
+                var readySkills = new List<string>();
+                foreach (var kv in _playerSkillCooldowns)
+                {
+                    if (kv.Value > 1) _playerSkillCooldowns[kv.Key] = kv.Value - 1;
+                    else readySkills.Add(kv.Key);
+                }
+                foreach (var id in readySkills) _playerSkillCooldowns.Remove(id);
+
                 if (PlayerDamageBuffTurns > 0)
                 {
                     PlayerDamageBuffTurns--;
@@ -350,8 +381,9 @@ namespace EpicBattle.Models.Combat
             }
             else if (entity is BattleEnemy enemy)
             {
-                // Проверка фазы ярости босса Громгара
-                if (enemy.Name.Contains("Громгар") && !GromgarEnraged)
+                // P0-фикс (В1): единая точка включения Ярости Громгара — порог из GromgarRageThreshold,
+                // без дублирующей проверки 35% в DetermineIntent
+                if (IsGromgarEncounter && ReferenceEquals(enemy, GromgarBossRef) && !GromgarEnraged)
                 {
                     double hpPct = (double)enemy.Hp / enemy.MaxHp * 100.0;
                     if (hpPct <= GromgarRageThreshold)
@@ -604,8 +636,21 @@ namespace EpicBattle.Models.Combat
                 return;
             }
 
+            // P0-фикс (В4): реальная проверка кулдауна навыка
+            if (caster is BattlePlayer && _playerSkillCooldowns.TryGetValue(skill.Id, out int remainingCd) && remainingCd > 0)
+            {
+                OnLogEvent($"⏳ '{skill.Name}' на перезарядке: ещё {remainingCd} ход(ов).");
+                return;
+            }
+
             caster.CurrentAP -= skill.APCost;
             caster.Mp -= skill.ManaCost;
+
+            // P0-фикс (В4): запуск перезарядки после использования
+            if (caster is BattlePlayer && skill.Cooldown > 0)
+            {
+                _playerSkillCooldowns[skill.Id] = skill.Cooldown;
+            }
 
             if (skill.Id == "S1_PowerStrike")
             {

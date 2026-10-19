@@ -59,15 +59,12 @@ namespace EpicBattle.Models.Combat
                 return;
             }
 
+            // P0-фикс (В1): фаза Ярости Громгара — единый источник истины в BattleEngine.ProcessTurnStart
+            // (GromgarRageThreshold). Здесь больше нет дублирующей проверки 35%, включавшей ярость дважды.
+
             // 1. Уникальная логика босса Громгара
             if (Name.Contains("Громгар"))
             {
-                if (!ActiveEffects.Any(e => e.Id == "Rage") && ((float)Hp / MaxHp <= 0.35f))
-                {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "😡", Description = "Впасть в ярость" };
-                    return;
-                }
-
                 var cleaveSkill = AvailableSkills.FirstOrDefault(s => s.Id == "S2_Cleave");
                 if (cleaveSkill != null && CurrentAP >= cleaveSkill.APCost && rand.Next(100) < 40)
                 {
