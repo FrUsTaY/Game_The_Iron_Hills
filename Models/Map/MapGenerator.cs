@@ -74,26 +74,29 @@ namespace EpicBattle.Models.Map
 
                         if (f < 3)
                         {
-                            if (roll < 55) type = MapNodeType.NormalBattle;
-                            else if (roll < 85) type = MapNodeType.Encounter;
-                            else if (roll < 93) type = MapNodeType.Merchant;
-                            else type = MapNodeType.Blacksmith;
+                            if (roll < 52) type = MapNodeType.NormalBattle;
+                            else if (roll < 80) type = MapNodeType.Encounter;
+                            else if (roll < 88) type = MapNodeType.Merchant;
+                            else if (roll < 94) type = MapNodeType.Blacksmith;
+                            else type = MapNodeType.Tavern; // Этап 3.2: Таверна
                         }
                         else if (f == 5)
                         {
                             // Середина пути: привал, торговец или элитный бой
-                            if (roll < 40) type = MapNodeType.Campfire;
-                            else if (roll < 70) type = MapNodeType.EliteBattle;
-                            else if (roll < 90) type = MapNodeType.Merchant;
-                            else type = MapNodeType.Blacksmith;
+                            if (roll < 32) type = MapNodeType.Campfire;
+                            else if (roll < 62) type = MapNodeType.EliteBattle;
+                            else if (roll < 80) type = MapNodeType.Merchant;
+                            else if (roll < 90) type = MapNodeType.Blacksmith;
+                            else type = MapNodeType.Tavern;
                         }
                         else
                         {
-                            if (roll < 40) type = MapNodeType.NormalBattle;
-                            else if (roll < 65) type = MapNodeType.EliteBattle;
-                            else if (roll < 80) type = MapNodeType.Encounter;
-                            else if (roll < 88) type = MapNodeType.Merchant;
-                            else if (roll < 94) type = MapNodeType.Blacksmith;
+                            if (roll < 38) type = MapNodeType.NormalBattle;
+                            else if (roll < 63) type = MapNodeType.EliteBattle;
+                            else if (roll < 78) type = MapNodeType.Encounter;
+                            else if (roll < 86) type = MapNodeType.Merchant;
+                            else if (roll < 92) type = MapNodeType.Blacksmith;
+                            else if (roll < 96) type = MapNodeType.Tavern;
                             else type = MapNodeType.Campfire;
                         }
 
@@ -189,6 +192,11 @@ namespace EpicBattle.Models.Map
                     node.Title = GetBlacksmithTitle(actNumber);
                     node.Description = "Забытая кузница Кряжа. Мастер улучшит вашу экипировку за золото и редкие материалы.";
                     break;
+                case MapNodeType.Tavern:
+                    node.Icon = "🍺";
+                    node.Title = GetTavernTitle(actNumber);
+                    node.Description = "Тёплый дом в холоде Кряжа. Отдых за золото, слухи трактирщика и скупка рунических камней.";
+                    break;
                 case MapNodeType.Campfire:
                     node.Icon = "⛺";
                     node.Title = GetCampfireTitle(actNumber);
@@ -238,6 +246,13 @@ namespace EpicBattle.Models.Map
             1 => PickRandom("Кузня Бородана", "Наковальня Рудокопа", "Горнище в скале"),
             2 => PickRandom("Рунная Кузница Голема", "Мастерская Теневых Литьев", "Заброшенный Молот"),
             _ => PickRandom("Сердце Кузни Титанов", "Магматический Горн")
+        };
+
+        private static string GetTavernTitle(int act) => act switch
+        {
+            1 => PickRandom("Пивная «Под Горами»", "Таверна Драного Гоблина", "Ночлежка у Мостика"),
+            2 => PickRandom("Застолье Угрюмого Камня", "Кабак Контрабандиста", "Питьевой Дом Теней"),
+            _ => PickRandom("Чертог Пивного Барда", "Зал Слабости")
         };
 
         private static string GetCampfireTitle(int act) => act switch

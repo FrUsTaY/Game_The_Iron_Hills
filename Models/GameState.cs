@@ -143,13 +143,19 @@ namespace EpicBattle.Models
         public int PlayerMp { get; set; } = 50;
 
         // --- Производные характеристики (включая экипировку) ---
-        public int TotalStrength => Strength + (GetEquippedList()?.Sum(i => (int)(i.BonusStrength * UpgradeMultiplier(i))) ?? 0);
-        public int TotalDexterity => Dexterity + (GetEquippedList()?.Sum(i => (int)(i.BonusDexterity * UpgradeMultiplier(i))) ?? 0);
-        public int TotalIntelligence => Intelligence + (GetEquippedList()?.Sum(i => (int)(i.BonusIntelligence * UpgradeMultiplier(i))) ?? 0);
-        public int TotalEndurance => Endurance + (GetEquippedList()?.Sum(i => (int)(i.BonusEndurance * UpgradeMultiplier(i))) ?? 0);
+        // Этап 3.2 (часть 2): Eff* свойства предмета уже включают множитель улучшения и руны
+        public int TotalStrength => Strength + (GetEquippedList()?.Sum(i => i.EffStrength) ?? 0);
+        public int TotalDexterity => Dexterity + (GetEquippedList()?.Sum(i => i.EffDexterity) ?? 0);
+        public int TotalIntelligence => Intelligence + (GetEquippedList()?.Sum(i => i.EffIntelligence) ?? 0);
+        public int TotalEndurance => Endurance + (GetEquippedList()?.Sum(i => i.EffEndurance) ?? 0);
 
         public int PlayerMaxHp { get; set; } = 100;
         public int PlayerMaxMp { get; set; } = 50;
+
+        // Этап 3.2 (часть 2): базовый урон хранится как base + точильный бонус.
+        // Раньше заточка инкрементировала PlayerBaseDamage напрямую, и любой вызов
+        // RecalculateDerivedStats() сбрасывал его формулой — затачивание молча сгорало.
+        public int SharpenBonus { get; set; } = 0;         // ⚔️ накопленные бонусы заточки (сериализуется)
         public int PlayerBaseDamage { get; set; } = 15;
         public int PlayerBaseMagicDamage { get; set; } = 15;
 
@@ -158,7 +164,7 @@ namespace EpicBattle.Models
             get
             {
                 double baseDodge = PlayerClass == "Наемник" ? TotalDexterity * 1.5 + 5.0 : TotalDexterity * 1.5;
-                baseDodge += GetEquippedList()?.Sum(i => i.BonusDodgeChance * UpgradeMultiplier(i)) ?? 0;
+                baseDodge += GetEquippedList()?.Sum(i => i.EffDodgeChance) ?? 0;
                 return Math.Min(60.0, baseDodge);
             }
         }
@@ -168,7 +174,7 @@ namespace EpicBattle.Models
             get
             {
                 double baseCrit = PlayerClass == "Наемник" ? TotalDexterity * 1.5 + 5.0 : TotalDexterity * 1.5;
-                baseCrit += GetEquippedList()?.Sum(i => i.BonusCritChance * UpgradeMultiplier(i)) ?? 0;
+                baseCrit += GetEquippedList()?.Sum(i => i.EffCritChance) ?? 0;
                 return Math.Min(60.0, baseCrit);
             }
         }
@@ -178,7 +184,7 @@ namespace EpicBattle.Models
             get
             {
                 int baseDef = PlayerClass == "Ветеран" ? TotalEndurance + 2 : TotalEndurance;
-                baseDef += GetEquippedList()?.Sum(i => (int)(i.BonusArmor * UpgradeMultiplier(i))) ?? 0;
+                baseDef += GetEquippedList()?.Sum(i => i.EffArmor) ?? 0;
                 return baseDef;
             }
         }
@@ -186,15 +192,16 @@ namespace EpicBattle.Models
         public void RecalculateDerivedStats()
         {
             var equipped = GetEquippedList();
-            int bonusHp = equipped?.Sum(i => (int)(i.BonusHp * UpgradeMultiplier(i))) ?? 0;
-            int bonusMp = equipped?.Sum(i => (int)(i.BonusMp * UpgradeMultiplier(i))) ?? 0;
-            int bonusDmg = equipped?.Sum(i => (int)(i.BonusDamage * UpgradeMultiplier(i))) ?? 0;
-            int bonusMagDmg = equipped?.Sum(i => (int)(i.BonusMagicDamage * UpgradeMultiplier(i))) ?? 0;
+            int bonusHp = equipped?.Sum(i => i.EffHp) ?? 0;
+            int bonusMp = equipped?.Sum(i => i.EffMp) ?? 0;
+            int bonusDmg = equipped?.Sum(i => i.EffDamage) ?? 0;
+            int bonusMagDmg = equipped?.Sum(i => i.EffMagicDamage) ?? 0;
 
             PlayerMaxHp = (PlayerClass == "Ветеран" ? 60 + (TotalEndurance * 10) : 50 + (TotalEndurance * 10)) + bonusHp;
             PlayerMaxMp = 20 + (TotalIntelligence * 6) + bonusMp;
-            PlayerBaseDamage = 5 + (TotalStrength * 2) + bonusDmg;
-            PlayerBaseMagicDamage = 5 + (TotalIntelligence * 2) + bonusMagDmg;
+            // Этап 3.2 (часть 2): заточка (SharpenBonus) больше не теряется при пересчёте
+            PlayerBaseDamage = 5 + (TotalStrength * 2) + bonusDmg + SharpenBonus;
+            PlayerBaseMagicDamage = 5 + (TotalIntelligence * 2) + bonusMagDmg + SharpenBonus;
 
             if (PlayerHp > PlayerMaxHp) PlayerHp = PlayerMaxHp;
             if (PlayerMp > PlayerMaxMp) PlayerMp = PlayerMaxMp;
@@ -203,6 +210,31 @@ namespace EpicBattle.Models
         // --- Этап 3.2: Ремесленная система (Кузнец) ---
         public int Ore { get; set; } = 0;                  // ⛏️ Железная руда Кряжа — материал для улучшений
         public int BlacksmithUpgradesDone { get; set; } = 0; // Сколько ковок совершал герой (для статистики)
+
+        // --- Этап 3.2 (часть 2): Рунические камни ---
+        // Склад невырезанных камней: ключ = Id рунного камня (RuneDatabase), значение = количество.
+        // Камни выпадают с элитных/боссовых боёв и покупаются у торговца; вставляются в слоты экипировки у кузнеца.
+        public Dictionary<string, int> RuneStock { get; set; } = new Dictionary<string, int>();
+
+        public void AddRune(string runeId, int count = 1)
+        {
+            if (string.IsNullOrEmpty(runeId) || count <= 0) return;
+            if (RuneStock.TryGetValue(runeId, out int cur)) RuneStock[runeId] = cur + count;
+            else RuneStock[runeId] = count;
+        }
+
+        public bool TryTakeRune(string runeId, int count = 1)
+        {
+            if (!RuneStock.TryGetValue(runeId, out int cur) || cur < count) return false;
+            if (cur == count) RuneStock.Remove(runeId);
+            else RuneStock[runeId] = cur - count;
+            return true;
+        }
+
+        public int GetRuneCount(string runeId) => RuneStock.TryGetValue(runeId, out int c) ? c : 0;
+
+        // --- Этап 3.2 (часть 2): Таверна ---
+        public int TavernRestStreak { get; set; } = 0;     // цена отдыха растёт при частых визитах подряд (анти-спам)
 
         // Инвентарь базовый
         public int HpPotions { get; set; } = 3;

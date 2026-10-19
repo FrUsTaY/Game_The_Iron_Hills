@@ -291,6 +291,17 @@ namespace EpicBattle.ViewModels
                     int oreFound = LootGenerator.RollOreDrop(isBoss);
                     _gameState.Ore += oreFound;
 
+                    // Этап 3.2 (часть 2): рунические камни — дроп с элит/боссов
+                    bool runeDropped = false; string runeName = "", runeIcon = "";
+                    if (_battleModifier == "Elite" || _battleModifier == "Boss" || isBoss)
+                    {
+                        if (LootGenerator.RollRuneDrop(_battleModifier == "Boss" || isBoss, out string rid, out runeName, out runeIcon))
+                        {
+                            _gameState.AddRune(rid);
+                            runeDropped = true;
+                        }
+                    }
+
                     DroppedLoot.Clear();
                     foreach (var item in dropped)
                     {
@@ -300,7 +311,8 @@ namespace EpicBattle.ViewModels
 
                     LootSummaryText = $"💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})"
                         + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "")
-                        + (oreFound > 0 ? $", ⛏️ Руда: +{oreFound} (Всего: {_gameState.Ore})" : "");
+                        + (oreFound > 0 ? $", ⛏️ Руда: +{oreFound} (Всего: {_gameState.Ore})" : "")
+                        + (runeDropped ? $"\n💠 Найден рунический камень: {runeIcon} {runeName}!" : "");
 
                     // P0-фикс (Б2): полное восстановление HP/MP после боя было только в сюжетном режиме
                     // (там же оно принудительно ставилось перед боем). Для карты и аркады HP теперь

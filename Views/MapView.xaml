@@ -56,6 +56,9 @@
                         <Border Background="#2A2230" BorderBrush="#8D6E63" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
                             <TextBlock Text="{Binding OreStock, StringFormat='⛏️ {0}'}" Foreground="#DDAA88" FontWeight="Bold" FontSize="13"/>
                         </Border>
+                        <Border Background="#222A35" BorderBrush="#5C85B0" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding RuneStockCount, StringFormat='🪨 {0}'}" Foreground="#7EC8E3" FontWeight="Bold" FontSize="13"/>
+                        </Border>
                     </StackPanel>
                 </StackPanel>
 

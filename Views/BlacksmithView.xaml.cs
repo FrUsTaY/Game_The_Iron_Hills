@@ -42,6 +42,18 @@ namespace EpicBattle.Views
             _vm.ReforgeCommand.Execute(null);
         }
 
+        private void SelectRune_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string key)
+                _vm.SelectRuneCommand.Execute(key);
+        }
+
+        private void InsertRune_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is ForgeItemCard card)
+                _vm.InsertRuneCommand.Execute(card);
+        }
+
         private void LeaveSmith_Click(object sender, RoutedEventArgs e)
         {
             _vm.LeaveSmithCommand.Execute(null);

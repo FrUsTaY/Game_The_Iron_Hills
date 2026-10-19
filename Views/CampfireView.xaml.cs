@@ -80,8 +80,9 @@ namespace EpicBattle.Views
             DisableCampfireActions();
 
             _state.Ore -= 1;
-            _state.PlayerBaseDamage += 1;
-            _state.PlayerBaseMagicDamage += 1;
+            // P2-доп: бонус заточки — в SharpenBonus (устойчив к пересчёту производных статов)
+            _state.SharpenBonus += 1;
+            _state.RecalculateDerivedStats();
 
             ResultText.Text = "⚔️ Вы наточили клинки на вулканической руде (+1 к Базовому Урону и Магии навсегда, −1 ⛏️)!";
             UpdateDisplay();

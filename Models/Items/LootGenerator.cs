@@ -18,6 +18,18 @@ namespace EpicBattle.Models.Items
             return 1;
         }
 
+        /// <summary>Этап 3.2 (часть 2): шанс выпадения рунического камня с боя.</summary>
+        public static bool RollRuneDrop(bool isBoss, out string runeId, out string runeName, out string runeIcon)
+        {
+            // обычный бой — почти без рун; элита ~35%; босс гарантированно + шанс на Титана
+            int chance = isBoss ? 100 : 35;
+            runeId = runeName = runeIcon = "";
+            if (rand.Next(100) >= chance) return false;
+            var stone = RuneDatabase.RollRandomDrop(isBoss);
+            runeId = stone.Id; runeName = stone.Name; runeIcon = stone.Icon;
+            return true;
+        }
+
         public static List<Item> GenerateBattleLoot(int playerLevel, bool isBossFight, out int goldReward)
         {
             var loot = new List<Item>();

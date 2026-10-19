@@ -79,6 +79,9 @@ namespace EpicBattle.ViewModels
             set { if (_gameState != null) { _gameState.Ore = value; OnPropertyChanged(); } }
         }
 
+        // Всего рунических камней на складе (для HUD карты)
+        public int RuneStockCount => _gameState?.RuneStock?.Values.Sum() ?? 0;
+
         public int HpPotions
         {
             get => _gameState?.HpPotions ?? 0;
@@ -163,6 +166,7 @@ namespace EpicBattle.ViewModels
             OnPropertyChanged(nameof(PlayerMaxMp));
             OnPropertyChanged(nameof(Gold));
             OnPropertyChanged(nameof(OreStock));
+            OnPropertyChanged(nameof(RuneStockCount));
             OnPropertyChanged(nameof(HpPotions));
             OnPropertyChanged(nameof(MpPotions));
             OnPropertyChanged(nameof(StatPoints));
@@ -204,6 +208,10 @@ namespace EpicBattle.ViewModels
 
                     case MapNodeType.Blacksmith:
                         NavigationManager.NavigateTo(new BlacksmithView(OnNodeCompleted));
+                        break;
+
+                    case MapNodeType.Tavern:
+                        NavigationManager.NavigateTo(new TavernView(OnNodeCompleted));
                         break;
 
                     case MapNodeType.Boss:

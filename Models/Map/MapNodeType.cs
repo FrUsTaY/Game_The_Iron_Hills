@@ -8,6 +8,7 @@ namespace EpicBattle.Models.Map
         Merchant,     // 💰 Торговец
         Campfire,     // ⛺ Привал / Лагерь
         Blacksmith,   // 🔨 Кузница (Этап 3.2: улучшение экипировки)
+        Tavern,       // 🍺 Таверна (Этап 3.2: отдых за золото, слухи, продажа рун)
         Boss          // 👑 Босс
     }
 }

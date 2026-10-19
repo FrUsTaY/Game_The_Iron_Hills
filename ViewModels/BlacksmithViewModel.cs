@@ -36,6 +36,18 @@ namespace EpicBattle.ViewModels
             ? "⭐ Максимум"
             : $"⛏️ {OreCount} + 💰 {GoldCost}";
 
+        // Этап 3.2 (часть 2): рунические слоты
+        public bool HasRuneSlots => Item.RuneSlots > 0;
+        public string RuneSlotsText => HasRuneSlots
+            ? $"💠 Слоты рун: {Item.InsertedRunes?.Count ?? 0}/{Item.RuneSlots}"
+            : "";
+        public void RefreshRuneInfo()
+        {
+            OnPropertyChanged(nameof(CurrentStats));
+            OnPropertyChanged(nameof(RuneSlotsText));
+            OnPropertyChanged(nameof(HasRuneSlots));
+        }
+
         /// <summary>Предпросмотр: как изменятся ключевые бонусы после +1 уровня.</summary>
         public string PreviewText
         {
@@ -103,7 +115,45 @@ namespace EpicBattle.ViewModels
             set { _reforgePreview = value; OnPropertyChanged(); }
         }
 
+        // --- Этап 3.2 (часть 2): руны ---
+        public int InsertRuneCost => 60; // 💰 работа кузнеца по огранке и вставке камня
+
+        private string _selectedRuneId = "";
+        public string SelectedRuneId
+        {
+            get => _selectedRuneId;
+            set { _selectedRuneId = value; OnPropertyChanged(); OnPropertyChanged(nameof(SelectedRuneInfo)); }
+        }
+
+        public string SelectedRuneInfo
+        {
+            get
+            {
+                var r = RuneDatabase.Find(_selectedRuneId);
+                return r == null ? "" : $"{r.Icon} {r.Name}: {r.FormattedBonus}";
+            }
+        }
+
+        /// <summary>Ключ списка склада: "id|count".</summary>
+        public List<string> OwnedRuneKeys => _gameState.RuneStock
+            .OrderByDescending(kv => kv.Value).ThenBy(kv => kv.Key)
+            .Select(kv => $"{kv.Key}|{kv.Value}")
+            .ToList();
+
+        public bool CanInsertRune => !string.IsNullOrEmpty(SelectedRuneId)
+                                     && _gameState.GetRuneCount(SelectedRuneId) > 0
+                                     && _gameState.Gold >= InsertRuneCost;
+
         public ICommand UpgradeItemCommand => new Command(param => UpgradeItem(param as ForgeItemCard));
+        public ICommand SelectRuneCommand => new Command(param =>
+        {
+            if (param is string key && key.Contains('|'))
+            {
+                SelectedRuneId = key.Split('|')[0];
+                StatusMessage = $"💠 Выбран камень: {SelectedRuneInfo}. Нажмите «Вставить руну» на карточке снаряжения со свободным слотом.";
+            }
+        });
+        public ICommand InsertRuneCommand => new Command(param => InsertRune(param as ForgeItemCard));
         public ICommand BuyOreCommand => new Command(_ => BuyOre());
         public ICommand ReforgeCommand => new Command(_ => ReforgeStats());
         public ICommand SharpenCommand => new Command(_ => SharpenBlades());
@@ -274,14 +324,40 @@ namespace EpicBattle.ViewModels
                 return;
             }
             _gameState.Gold -= SharpenCost;
-            _gameState.PlayerBaseDamage += 1;
-            _gameState.PlayerBaseMagicDamage += 1;
+            // P2-доп: заточка хранится в SharpenBonus, иначе RecalculateDerivedStats() её сбрасывает
+            _gameState.SharpenBonus += 1;
+            _gameState.RecalculateDerivedStats();
             StatusMessage = "⚔️ Клинок и посох наточены на вулканическом камне: +1 к базовому урону и магии (навсегда).";
+            RefreshForgeList();
+        }
+
+        /// <summary>Этап 3.2 (часть 2): вставка выбранного рунического камня в свободный слот предмета.</summary>
+        private void InsertRune(ForgeItemCard? card)
+        {
+            if (card == null) return;
+            var item = card.Item;
+            if (item.RuneSlots <= 0) { StatusMessage = "❌ У этого предмета нет рунных слотов."; return; }
+            if (item.FreeRuneSlots <= 0) { StatusMessage = "❌ Все рунные слоты предмета заняты."; return; }
+            if (string.IsNullOrEmpty(SelectedRuneId) || _gameState.GetRuneCount(SelectedRuneId) <= 0)
+            { StatusMessage = "❌ Сначала выберите камень на складе слева внизу."; return; }
+            if (_gameState.Gold < InsertRuneCost) { StatusMessage = $"❌ Огранка и вставка стоят {InsertRuneCost} 💰!"; return; }
+
+            if (!_gameState.TryTakeRune(SelectedRuneId)) { StatusMessage = "❌ Камня больше нет в складе."; return; }
+            _gameState.Gold -= InsertRuneCost;
+            item.InsertedRunes.Add(SelectedRuneId);
+            _gameState.RecalculateDerivedStats();
+
+            var stone = RuneDatabase.Find(SelectedRuneId);
+            StatusMessage = $"💠 {stone?.Icon} «{stone?.Name}» вставлен в «{item.DisplayName}»: +[{stone?.FormattedBonus}] ({item.InsertedRunes.Count}/{item.RuneSlots} слотов).";
+            SelectedRuneId = _gameState.GetRuneCount(SelectedRuneId) > 0 ? SelectedRuneId : "";
             RefreshForgeList();
         }
 
         private void UpdateDerivedFlags()
         {
+            OnPropertyChanged(nameof(OwnedRuneKeys));
+            OnPropertyChanged(nameof(CanInsertRune));
+            OnPropertyChanged(nameof(SelectedRuneInfo));
             OnPropertyChanged(nameof(PlayerGold));
             OnPropertyChanged(nameof(OreStock));
             OnPropertyChanged(nameof(UpgradeCount));
