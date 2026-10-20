@@ -328,30 +328,45 @@ namespace EpicBattle.ViewModels
                     StatusMessage = "Победа!";
                     _engine.Player.UpdateGameState(_gameState);
 
-                    _gameState.PlayerLevel += 1;
-                    _gameState.StatPoints += 2;
-                    _gameState.SkillPoints += 1;
-
-                    // Генерация лута после победы
-                    int goldEarned = 0;
                     bool isBoss = _returnNodeId == "PostBattle_Scene4" || _returnNodeId == "Act2_Ending_Decisions" 
-                                  || (_isArcade && _arcadeLevel % 3 == 0) || _battleModifier == "Elite" || _battleModifier == "Boss";
-                    var dropped = LootGenerator.GenerateBattleLoot(_gameState.PlayerLevel, isBoss, out goldEarned);
+                                  || (_isArcade && _arcadeLevel % 3 == 0) || _battleModifier == "Boss";
+                    bool isElite = _battleModifier == "Elite";
 
-                    if (_battleModifier == "Elite") goldEarned = (int)(goldEarned * 1.5);
-                    if (_battleModifier == "Boss") goldEarned = goldEarned * 2;
+                    // P0-баланс: Начисление опыта вместо плоского +1 уровня за бой
+                    int expEarned = isBoss ? (160 + _gameState.PlayerLevel * 15)
+                                  : (isElite ? (90 + _gameState.PlayerLevel * 8)
+                                             : (45 + _gameState.PlayerLevel * 5));
+                    _gameState.PlayerExperience += expEarned;
 
+                    int levelsGained = 0;
+                    while (_gameState.PlayerExperience >= _gameState.ExperienceToNextLevel)
+                    {
+                        _gameState.PlayerExperience -= _gameState.ExperienceToNextLevel;
+                        _gameState.PlayerLevel += 1;
+                        _gameState.StatPoints += 2;
+                        // Навык выдаётся на каждом 2-м уровне (2, 4, 6, 8, 10...)
+                        if (_gameState.PlayerLevel % 2 == 0)
+                        {
+                            _gameState.SkillPoints += 1;
+                        }
+                        _gameState.ExperienceToNextLevel = 100 + (_gameState.PlayerLevel - 1) * 75;
+                        levelsGained++;
+                    }
+
+                    // Генерация лута после победы (однократное умножение золота)
+                    int goldEarned = 0;
+                    var dropped = LootGenerator.GenerateBattleLoot(_gameState.PlayerLevel, isBoss, isElite, out goldEarned);
                     _gameState.Gold += goldEarned;
 
                     // Этап 3.2: руда для кузнеца падает с врагов в горах Кряжа
-                    int oreFound = LootGenerator.RollOreDrop(isBoss);
+                    int oreFound = LootGenerator.RollOreDrop(isBoss || isElite);
                     _gameState.Ore += oreFound;
 
                     // Этап 3.2 (часть 2): рунические камни — дроп с элит/боссов
                     bool runeDropped = false; string runeName = "", runeIcon = "";
-                    if (_battleModifier == "Elite" || _battleModifier == "Boss" || isBoss)
+                    if (isElite || isBoss)
                     {
-                        if (LootGenerator.RollRuneDrop(_battleModifier == "Boss" || isBoss, out string rid, out runeName, out runeIcon))
+                        if (LootGenerator.RollRuneDrop(isBoss, out string rid, out runeName, out runeIcon))
                         {
                             _gameState.AddRune(rid);
                             runeDropped = true;
@@ -365,7 +380,10 @@ namespace EpicBattle.ViewModels
                         DroppedLoot.Add(item);
                     }
 
-                    LootSummaryText = $"💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})"
+                    string levelUpNotice = levelsGained > 0 ? $"\n🎉 НОВЫЙ УРОВЕНЬ: {_gameState.PlayerLevel}! (+{levelsGained * 2} характеристик)" : "";
+                    LootSummaryText = $"✨ Опыт: +{expEarned} ({_gameState.PlayerExperience}/{_gameState.ExperienceToNextLevel} XP)"
+                        + levelUpNotice
+                        + $"\n💰 Золото: +{goldEarned} (Всего: {_gameState.Gold})"
                         + (dropped.Count > 0 ? $", Найдено предметов: +{dropped.Count}" : "")
                         + (oreFound > 0 ? $", ⛏️ Руда: +{oreFound} (Всего: {_gameState.Ore})" : "")
                         + (runeDropped ? $"\n💠 Найден рунический камень: {runeIcon} {runeName}!" : "");

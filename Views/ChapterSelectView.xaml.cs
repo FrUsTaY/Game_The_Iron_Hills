@@ -15,6 +15,10 @@ namespace EpicBattle.Views
             {
                 ContinueCurrentToAct2Btn.Visibility = Visibility.Collapsed;
             }
+            if (state == null || (state.PlayerLevel < 4 && !state.Act2Completed))
+            {
+                ContinueCurrentToAct3Btn.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void StartAct1Btn_Click(object sender, RoutedEventArgs e)
@@ -42,6 +46,25 @@ namespace EpicBattle.Views
                 state.RecalculateDerivedStats();
                 state.PlayerHp = state.PlayerMaxHp;
                 state.PlayerMp = state.PlayerMaxMp;
+                NavigationManager.NavigateTo(new DialogueView());
+            }
+        }
+
+        private void StartAct3NewBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // Создаем героя 6-го уровня с готовым билдом и отправляем в Акт 3
+            var state = new GameState();
+            state.SetupForAct3("Ветеран");
+            SaveManager.CurrentState = state;
+            NavigationManager.NavigateTo(new DialogueView());
+        }
+
+        private void ContinueToAct3CurrentBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var state = SaveManager.CurrentState;
+            if (state != null)
+            {
+                state.SetupForAct3(state.PlayerClass);
                 NavigationManager.NavigateTo(new DialogueView());
             }
         }

@@ -259,6 +259,8 @@ namespace EpicBattle.Views
                 else if (choice.Action == "SetupAct3")
                 {
                     state.SetupForAct3();
+                    LoadNode(string.IsNullOrEmpty(choice.NextNodeId) ? state.CurrentNodeId : choice.NextNodeId);
+                    return;
                 }
                 else if (choice.Action == "Act3_Ending_Seal")
                 {

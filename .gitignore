@@ -16,6 +16,8 @@ TestResults/
 [Tt]est[Rr]esult*/
 
 # Бинарники и дампы отладки (если сгенерированы вне bin/obj)
+/EpicBattle.exe
+_build_out/
 *.pdb
 *.dmp
 *.crash

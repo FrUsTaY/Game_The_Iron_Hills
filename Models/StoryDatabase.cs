@@ -1258,6 +1258,12 @@ namespace EpicBattle.Models
                     {
                         new DialogueChoice
                         {
+                            Text = "🌋 Продолжить кампанию: Акт 3 «Сердце Титана»",
+                            NextNodeId = "Act3_Start",
+                            Action = "SetupAct3"
+                        },
+                        new DialogueChoice
+                        {
                             Text = "🏆 Завершить кампанию и вернуться в Главное Меню",
                             Action = "MainMenu"
                         }
@@ -1272,6 +1278,12 @@ namespace EpicBattle.Models
                     Text = "Вы возлагаете руки на Сердце Кряжа. Бескрайняя мощь Бездны наполняет ваш разум. Черные знамена вздымаются над башнями. Отныне никто не посмеет бросить вызов новому Владыке Железного Кряжа!\n\nПолучено легендарное одеяние: Мантия Первородной Тьмы!",
                     Choices = new List<DialogueChoice>
                     {
+                        new DialogueChoice
+                        {
+                            Text = "🌋 Продолжить кампанию: Акт 3 «Сердце Титана»",
+                            NextNodeId = "Act3_Start",
+                            Action = "SetupAct3"
+                        },
                         new DialogueChoice
                         {
                             Text = "🏆 Завершить кампанию и вернуться в Главное Меню",
@@ -1291,6 +1303,7 @@ namespace EpicBattle.Models
                         new DialogueChoice
                         {
                             Text = "🌋 Продолжить кампанию: Акт 3 «Сердце Титана»",
+                            NextNodeId = "Act3_Start",
                             Action = "SetupAct3"
                         },
                         new DialogueChoice

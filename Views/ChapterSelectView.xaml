@@ -73,6 +73,35 @@
                     </Grid>
                 </Border>
 
+                <!-- Акт 3 -->
+                <Border Background="#242424" BorderBrush="#AA4422" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Text="🌋" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="АКТ 3: СЕРДЦЕ ТИТАНА" FontSize="18" FontWeight="Bold" Foreground="#FF6633" VerticalAlignment="Center"/>
+                            <Border Background="#553322" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Уровень 6+ | Финал трилогии" FontSize="12" Foreground="#FFAA66" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1" Text="Спуск в пылающие недра Железного Кряжа через Зал Древних Королей. Пробуждение Первородного Титана, схватка за обнажённое Сердце горы и решающий финал трилогии, определяющий судьбу всего Севера."
+                                   FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                            <Button Content="▶️ Начать Акт 3 (Новый герой 6 уровня)" Height="40" FontSize="15" FontWeight="Bold"
+                                    Background="#883311" Margin="0,0,15,0" Padding="15,0" Click="StartAct3NewBtn_Click"/>
+                            <Button Name="ContinueCurrentToAct3Btn" Content="⚔️ Начать Акт 3 текущим героем" Height="40" FontSize="15"
+                                    Background="#552211" Padding="15,0" Click="ContinueToAct3CurrentBtn_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
             </StackPanel>
 
             <!-- Нижняя кнопка возврата -->
