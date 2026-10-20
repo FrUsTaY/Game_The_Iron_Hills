@@ -70,6 +70,7 @@ namespace EpicBattle.Views
 
                 if (success)
                 {
+                    EpicBattle.Services.AudioEngine.Play("chest_open");
                     ResultText.Foreground = System.Windows.Media.Brushes.LightGreen;
                     ResultText.Text = "✅ УСПЕХ: " + choice.SuccessText;
 
@@ -95,6 +96,7 @@ namespace EpicBattle.Views
                 }
                 else
                 {
+                    EpicBattle.Services.AudioEngine.Play("gate_close");
                     ResultText.Foreground = System.Windows.Media.Brushes.Tomato;
                     ResultText.Text = "❌ НЕУДАЧА: " + choice.FailText;
                     if (choice.HpDamage > 0) state.PlayerHp = Math.Max(1, state.PlayerHp - choice.HpDamage);
@@ -107,6 +109,7 @@ namespace EpicBattle.Views
 
         private void ContinueBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             _onCompleted?.Invoke();
         }
     }

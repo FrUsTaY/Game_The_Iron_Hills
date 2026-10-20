@@ -1,3 +1,4 @@
+using EpicBattle.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -186,35 +187,43 @@ namespace EpicBattle.ViewModels
                 switch (node.Type)
                 {
                     case MapNodeType.NormalBattle:
+                        AudioEngine.Play("footsteps");
                         NavigationManager.NavigateTo(new BattleView(isArcade: true, returnNodeId: null, battleModifier: null, arcadeLevel: node.Floor + 1, onCompletedFromMap: OnNodeCompleted));
                         break;
 
                     case MapNodeType.EliteBattle:
+                        AudioEngine.Play("sword_unsheath");
                         NavigationManager.NavigateTo(new BattleView(isArcade: true, returnNodeId: null, battleModifier: "Elite", arcadeLevel: node.Floor + 2, onCompletedFromMap: OnNodeCompleted));
                         break;
 
                     case MapNodeType.Encounter:
+                        AudioEngine.Play("footsteps");
                         var encounter = EncountersDatabase.GetRandomEncounter();
                         NavigationManager.NavigateTo(new EncounterView(encounter, OnNodeCompleted));
                         break;
 
                     case MapNodeType.Merchant:
+                        AudioEngine.Play("door_wood");
                         NavigationManager.NavigateTo(new MerchantView(OnNodeCompleted));
                         break;
 
                     case MapNodeType.Campfire:
+                        AudioEngine.Play("torch");
                         NavigationManager.NavigateTo(new CampfireView(OnNodeCompleted));
                         break;
 
                     case MapNodeType.Blacksmith:
+                        AudioEngine.Play("hammer");
                         NavigationManager.NavigateTo(new BlacksmithView(OnNodeCompleted));
                         break;
 
                     case MapNodeType.Tavern:
+                        AudioEngine.Play("door_wood");
                         NavigationManager.NavigateTo(new TavernView(OnNodeCompleted));
                         break;
 
                     case MapNodeType.Boss:
+                        AudioEngine.Play("gate_open");
                         NavigationManager.NavigateTo(new BattleView(isArcade: true, returnNodeId: null, battleModifier: "Boss", arcadeLevel: node.Floor + 3, onCompletedFromMap: OnBossCompleted));
                         break;
                 }
@@ -261,6 +270,7 @@ namespace EpicBattle.ViewModels
 
         public void ProceedToNextAct()
         {
+            AudioEngine.Play("gate_open");
             _isVictoryVisible = false;
             // P2-фикс (П7): раньше переход был только до Акта 2 (условие < 2),
             // карта Акта 3 не открывалась, несмотря на поддержку в MapGenerator.
@@ -277,6 +287,7 @@ namespace EpicBattle.ViewModels
 
         private void OpenInventory()
         {
+            AudioEngine.Play("chest_open");
             NavigationManager.NavigateTo(new InventoryView(() =>
             {
                 NavigationManager.NavigateTo(new MapView());
@@ -285,6 +296,7 @@ namespace EpicBattle.ViewModels
 
         private void OpenSkillTree()
         {
+            AudioEngine.Play("spell_impact");
             NavigationManager.NavigateTo(new SkillTreeView(() =>
             {
                 NavigationManager.NavigateTo(new MapView());
@@ -293,6 +305,7 @@ namespace EpicBattle.ViewModels
 
         private void SaveGame()
         {
+            AudioEngine.Play("click");
             NavigationManager.NavigateTo(new SaveLoadView(isSaving: true));
         }
 

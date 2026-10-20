@@ -23,11 +23,13 @@ namespace EpicBattle.Views
 
         private void StartAct1Btn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             NavigationManager.NavigateTo(new CharacterCreationView(isArcade: false));
         }
 
         private void StartAct2NewBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             // Создаем героя 3-го уровня с готовым билдом и отправляем в Акт 2
             var state = new GameState();
             state.SetupForAct2("Ветеран");
@@ -37,6 +39,7 @@ namespace EpicBattle.Views
 
         private void ContinueToAct2CurrentBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             var state = SaveManager.CurrentState;
             if (state != null)
             {
@@ -52,6 +55,7 @@ namespace EpicBattle.Views
 
         private void StartAct3NewBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             // Создаем героя 6-го уровня с готовым билдом и отправляем в Акт 3
             var state = new GameState();
             state.SetupForAct3("Ветеран");
@@ -61,6 +65,7 @@ namespace EpicBattle.Views
 
         private void ContinueToAct3CurrentBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             var state = SaveManager.CurrentState;
             if (state != null)
             {
@@ -71,6 +76,7 @@ namespace EpicBattle.Views
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             NavigationManager.NavigateTo(new MainMenu());
         }
     }

@@ -102,7 +102,7 @@ namespace EpicBattle.ViewModels
         public ICommand RestCommand => new Command(_ => Rest());
         public ICommand RumorCommand => new Command(_ => HearRumor());
         public ICommand SellRuneCommand => new Command(param => SellRune(param as string));
-        public ICommand LeaveTavernCommand => new Command(_ => _onLeave?.Invoke());
+        public ICommand LeaveTavernCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("door_wood"); _onLeave?.Invoke(); });
 
         public TavernViewModel(Action onLeave)
         {
@@ -113,6 +113,7 @@ namespace EpicBattle.ViewModels
         private void Rest()
         {
             if (_restUsed) return;
+            EpicBattle.Services.AudioEngine.Play("waterspray");
             int cost = RestCost;
             if (_gameState.Gold < cost)
             {
@@ -137,6 +138,7 @@ namespace EpicBattle.ViewModels
         private void HearRumor()
         {
             if (_rumorUsed) return;
+            EpicBattle.Services.AudioEngine.Play("click");
             if (_gameState.Gold < RumorCost)
             {
                 StatusMessage = "❌ Кружка эля стоит 15 💰! Без эля трактирщик молчит как рыба.";
@@ -189,6 +191,7 @@ namespace EpicBattle.ViewModels
                 return;
             }
             int price = Math.Max(10, rune.GoldValue * RuneSellDiscount / 100);
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             _gameState.Gold += price;
             StatusMessage = $"💰 Трактирщик с недоумением рассматривает {rune.Icon} «{rune.Name}» и отсчитывает {price} 💰. \"На подстаканники пойдёт...\"";
             RefreshAll();

@@ -40,6 +40,7 @@ namespace EpicBattle.Views
         {
             if (_actionUsed) return;
             DisableCampfireActions();
+            EpicBattle.Services.AudioEngine.Play("firebuff");
 
             int healHp = (int)(_state.PlayerMaxHp * 0.40);
             int healMp = (int)(_state.PlayerMaxMp * 0.50);
@@ -56,6 +57,7 @@ namespace EpicBattle.Views
         {
             if (_actionUsed) return;
             DisableCampfireActions();
+            EpicBattle.Services.AudioEngine.Play("spell_impact");
 
             _state.StatPoints += 1;
             _state.SkillPoints += 1;
@@ -82,6 +84,7 @@ namespace EpicBattle.Views
             _state.Ore -= 1;
             // P2-доп: бонус заточки — в SharpenBonus (устойчив к пересчёту производных статов)
             _state.SharpenBonus += 1;
+            EpicBattle.Services.AudioEngine.Play("sword_parry");
             _state.RecalculateDerivedStats();
 
             ResultText.Text = "⚔️ Вы наточили клинки на вулканической руде (+1 к Базовому Урону и Магии навсегда, −1 ⛏️)!";
@@ -90,6 +93,7 @@ namespace EpicBattle.Views
 
         private void OpenInventory_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("chest_open");
             NavigationManager.NavigateTo(new InventoryView(() =>
             {
                 NavigationManager.NavigateTo(this);
@@ -99,6 +103,7 @@ namespace EpicBattle.Views
 
         private void OpenSkillTree_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("spell_impact");
             NavigationManager.NavigateTo(new SkillTreeView(() =>
             {
                 NavigationManager.NavigateTo(this);
@@ -108,6 +113,7 @@ namespace EpicBattle.Views
 
         private void ContinueBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             _onCompleted?.Invoke();
         }
     }

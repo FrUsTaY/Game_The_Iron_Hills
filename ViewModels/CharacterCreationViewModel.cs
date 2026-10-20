@@ -44,8 +44,8 @@ namespace EpicBattle.ViewModels
             _isArcade = isArcade;
             _isMapMode = isMapMode;
 
-            // Устанавливаем дефолтный класс и его статы
-            SelectClass("Ветеран");
+            // Устанавливаем дефолтный класс и его статы (без звука при создании окна)
+            SelectClass("Ветеран", playSound: false);
         }
 
         private string _playerName = "Элрик";
@@ -128,15 +128,21 @@ namespace EpicBattle.ViewModels
 
         private Command _startGameCommand;
         public Command StartGameCommand => _startGameCommand ??= new Command(StartGame, _ => AvailablePoints == 0);
-        public ICommand BackCommand => new Command(_ => NavigationManager.NavigateTo(new MainMenu()));
+        public ICommand BackCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("click_alt"); NavigationManager.NavigateTo(new MainMenu()); });
 
-        private void SelectClass(string className)
+        private void SelectClass(string className, bool playSound = true)
         {
             // При повторном выборе того же класса очки и статы трогать не нужно
             // (иначе можно терять распределённые очки, кликая по уже выбранному классу)
             if (string.Equals(SelectedClass, className, StringComparison.Ordinal)) return;
 
             SelectedClass = className;
+            if (playSound)
+            {
+                if (className == "Ветеран") EpicBattle.Services.AudioEngine.Play("sword_unsheath");
+                else if (className == "Изгой-маг") EpicBattle.Services.AudioEngine.Play("fireball");
+                else EpicBattle.Services.AudioEngine.Play("sword_attack");
+            }
             // Сбрасываем очки при смене класса, даем базовые статы класса
             AvailablePoints = 5;
 
@@ -159,6 +165,7 @@ namespace EpicBattle.ViewModels
 
         private void IncreaseStat(object param)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (AvailablePoints <= 0 || param == null) return;
             string stat = param.ToString();
             if (stat == "STR") Strength++;
@@ -173,6 +180,7 @@ namespace EpicBattle.ViewModels
 
         private void DecreaseStat(object param)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             string stat = param.ToString();
 
             // Не даем опустить стат ниже базового значения класса (упрощенная логика)
@@ -215,6 +223,7 @@ namespace EpicBattle.ViewModels
 
         private void StartGame(object param)
         {
+            EpicBattle.Services.AudioEngine.Play("gate_open");
             // Формируем GameState
             var state = new GameState
             {

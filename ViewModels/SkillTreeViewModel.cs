@@ -27,7 +27,7 @@ namespace EpicBattle.ViewModels
         public ObservableCollection<SkillNodeViewModel> ArcaneArtsSkills { get; set; } = new ObservableCollection<SkillNodeViewModel>();
         public ObservableCollection<SkillNodeViewModel> SurvivalSkills { get; set; } = new ObservableCollection<SkillNodeViewModel>();
 
-        public ICommand CloseCommand => new Command(_ => CloseAction?.Invoke());
+        public ICommand CloseCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("click_alt"); CloseAction?.Invoke(); });
         public Action CloseAction { get; set; }
 
         private void LoadSkills()
@@ -53,6 +53,7 @@ namespace EpicBattle.ViewModels
 
         private void OnSkillLearned()
         {
+            EpicBattle.Services.AudioEngine.Play("spell_impact");
             OnPropertyChanged(nameof(SkillPoints));
 
             // Обновляем доступность всех скиллов

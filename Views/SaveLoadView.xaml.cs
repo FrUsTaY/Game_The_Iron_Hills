@@ -45,6 +45,7 @@ namespace EpicBattle.Views
 
         private void CreateSaveBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (string.IsNullOrWhiteSpace(SaveNameInput.Text)) return;
             if (SaveManager.SaveGame(SaveNameInput.Text))
             {
@@ -60,6 +61,7 @@ namespace EpicBattle.Views
 
         private void ActionBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (SavesList.SelectedItem is FileInfo file)
             {
                 if (_isSaving)
@@ -105,6 +107,7 @@ namespace EpicBattle.Views
 
         private void DeleteBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             if (SavesList.SelectedItem is FileInfo file)
             {
                 SaveManager.DeleteSave(file.FullName);
@@ -114,6 +117,7 @@ namespace EpicBattle.Views
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             // Выход из окна сохранений — всегда в главное меню.
             // rememberInHistory: false — чтобы в стеке не оставалось устаревшее окно SaveLoadView.
             NavigationManager.NavigateTo(new MainMenu(), rememberInHistory: false);

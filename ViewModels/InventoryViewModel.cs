@@ -123,6 +123,7 @@ namespace EpicBattle.ViewModels
 
             if (healed)
             {
+                EpicBattle.Services.AudioEngine.Play("waterspray");
                 _gameState.Inventory.Remove(item);
                 RefreshInventory();
             }
@@ -234,6 +235,8 @@ public string EquippedWeaponName => _gameState.EquippedWeapon?.Name ?? "[Ору�
             if (SelectedItem != null && CanEquipSelected)
             {
                 var item = SelectedItem;
+                if (item.Slot == ItemSlot.Weapon) EpicBattle.Services.AudioEngine.Play("sword_unsheath");
+                else EpicBattle.Services.AudioEngine.Play("sword_sheath");
                 _gameState.EquipItem(item);
                 RefreshInventory();
                 SelectedItem = item;
@@ -244,6 +247,7 @@ public string EquippedWeaponName => _gameState.EquippedWeapon?.Name ?? "[Ору�
         {
             if (SelectedItem != null && CanUnequipSelected)
             {
+                EpicBattle.Services.AudioEngine.Play("click_alt");
                 var item = SelectedItem;
                 _gameState.UnequipSlot(item.Slot);
                 RefreshInventory();

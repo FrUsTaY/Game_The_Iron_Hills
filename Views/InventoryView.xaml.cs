@@ -18,6 +18,7 @@ namespace EpicBattle.Views
 
         private void SlotBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (sender is Button btn && btn.Tag is string slotName && DataContext is InventoryViewModel vm)
             {
                 vm.SelectSlot(slotName);
@@ -26,6 +27,7 @@ namespace EpicBattle.Views
 
         private void ItemBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (sender is Button btn && btn.Tag is Item item && DataContext is InventoryViewModel vm)
             {
                 vm.SelectedItem = item;
@@ -58,6 +60,7 @@ namespace EpicBattle.Views
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("chest_close");
             if (DataContext is InventoryViewModel vm)
             {
                 vm.CloseAction?.Invoke();

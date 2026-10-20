@@ -23,6 +23,18 @@ namespace EpicBattle.Views
             if (StoryDatabase.Nodes.TryGetValue(nodeId, out var node))
             {
                 SaveManager.CurrentState.CurrentNodeId = nodeId;
+                if (nodeId.StartsWith("Act2_") || nodeId.Contains("Citadel"))
+                {
+                    EpicBattle.Services.AudioEngine.PlayMusic("StoryCitadel");
+                }
+                else if (nodeId.StartsWith("Scene2_") || nodeId.Contains("Gorge") || nodeId.Contains("Ambush"))
+                {
+                    EpicBattle.Services.AudioEngine.PlayMusic("StoryGorge");
+                }
+                else
+                {
+                    EpicBattle.Services.AudioEngine.PlayMusic("StoryAshCreek");
+                }
 
                 SpeakerText.Text = node.SpeakerName;
                 DialogueText.Text = node.Text;
@@ -98,6 +110,7 @@ namespace EpicBattle.Views
             if (sender is Button btn && btn.Tag is DialogueChoice choice)
             {
                 var state = SaveManager.CurrentState;
+                if (choice.Action != "StartBattle") EpicBattle.Services.AudioEngine.Play("click");
 
                 // ==========================================
                 // === ДЕЙСТВИЯ АКТА 1 ===
@@ -290,6 +303,7 @@ namespace EpicBattle.Views
                 // ==========================================
                 if (choice.Action == "StartBattle")
                 {
+                    EpicBattle.Services.AudioEngine.Play("sword_unsheath");
                     if (choice.ActionParam == "Gromgar_Honor")
                     {
                         state.HonorGromgar = true;
@@ -328,17 +342,20 @@ namespace EpicBattle.Views
 
         private void ResumeBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             PauseOverlay.Visibility = Visibility.Collapsed;
             this.Focus();
         }
 
         private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             NavigationManager.NavigateTo(new SaveLoadView(isSaving: true));
         }
 
         private void MainMenuBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             NavigationManager.NavigateTo(new MainMenu());
         }
     }

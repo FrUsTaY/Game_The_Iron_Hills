@@ -16,17 +16,23 @@ namespace EpicBattle.Views
         private void MusicSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (SaveManager.Settings != null)
+            {
                 SaveManager.Settings.MusicVolume = e.NewValue;
+                EpicBattle.Services.AudioEngine.UpdateMusicVolume();
+            }
         }
 
         private void SfxSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (SaveManager.Settings != null)
+            {
                 SaveManager.Settings.SfxVolume = e.NewValue;
+            }
         }
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             SaveManager.SaveSettings();
             if (NavigationManager.CanGoBack) NavigationManager.GoBack(); else NavigationManager.NavigateTo(new MainMenu());
         }

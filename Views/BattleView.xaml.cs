@@ -22,10 +22,19 @@ namespace EpicBattle.Views
         public BattleView(bool isArcade = true, string returnNodeId = null, string battleModifier = null, int arcadeLevel = 1, Action onCompletedFromMap = null)
         {
             InitializeComponent();
+            if (battleModifier == "Boss" || battleModifier == "Elite")
+            {
+                EpicBattle.Services.AudioEngine.PlayMusic("BattleBoss");
+            }
+            else
+            {
+                EpicBattle.Services.AudioEngine.PlayMusic("BattleNormal");
+            }
             var vm = new BattleViewModel(isArcade, returnNodeId, battleModifier, arcadeLevel, onCompletedFromMap);
 
             vm.RequestOpenSkillTree = () =>
             {
+                EpicBattle.Services.AudioEngine.Play("spell_impact");
                 SkillTreeView skillTreeView = null;
                 skillTreeView = new SkillTreeView(() =>
                 {
@@ -43,6 +52,7 @@ namespace EpicBattle.Views
 
             vm.RequestOpenInventory = () =>
             {
+                EpicBattle.Services.AudioEngine.Play("chest_open");
                 Managers.NavigationManager.NavigateTo(new InventoryView(() =>
                 {
                     Managers.NavigationManager.NavigateTo(this);
@@ -265,6 +275,7 @@ namespace EpicBattle.Views
 
         private void ResumeBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             PauseOverlay.Visibility = Visibility.Collapsed;
             this.Focus();
         }
@@ -275,6 +286,7 @@ namespace EpicBattle.Views
 
         private void MainMenuBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             Managers.NavigationManager.NavigateTo(new MainMenu());
         }
     }

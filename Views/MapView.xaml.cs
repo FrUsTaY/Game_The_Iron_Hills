@@ -64,6 +64,7 @@ namespace EpicBattle.Views
 
         private void MainMenu_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             NavigationManager.NavigateTo(new MainMenu());
         }
 

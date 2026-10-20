@@ -326,6 +326,7 @@ namespace EpicBattle.ViewModels
                 {
                     Log("🏆 Вы победили во всех волнах!");
                     StatusMessage = "Победа!";
+                    AudioEngine.Play("victory");
                     _engine.Player.UpdateGameState(_gameState);
 
                     bool isBoss = _returnNodeId == "PostBattle_Scene4" || _returnNodeId == "Act2_Ending_Decisions" 
@@ -413,6 +414,7 @@ namespace EpicBattle.ViewModels
                 else
                 {
                     Log("💀 Вы погибли...");
+                    AudioEngine.Play("death");
                     StatusMessage = "Поражение";
                     IsPlayerDead = true;
 
@@ -449,7 +451,7 @@ namespace EpicBattle.ViewModels
         public ICommand EndTurnCommand => new Command(_ => EndTurn(), _ => IsPlayerTurn && !IsPlayerDead);
         public ICommand SelectTargetCommand => new Command(SelectTarget);
         public ICommand UseSkillCommand => new Command(UseSkill, CanUseSkill);
-        public ICommand ReturnToMenuCommand => new Command(_ => NavigationManager.NavigateTo(new MainMenu()));
+        public ICommand ReturnToMenuCommand => new Command(_ => { AudioEngine.Play("click_alt"); NavigationManager.NavigateTo(new MainMenu()); });
 
         public ICommand NextBattleCommand => new Command(_ => NextBattle());
         public ICommand ContinueStoryCommand => new Command(_ => ContinueStory());
@@ -472,6 +474,7 @@ namespace EpicBattle.ViewModels
 
         private void IncreaseStat(object param)
         {
+            AudioEngine.Play("click");
             if (_gameState.StatPoints <= 0) return;
             string stat = param?.ToString();
             if (stat == "STR") _gameState.Strength++;
@@ -522,6 +525,7 @@ namespace EpicBattle.ViewModels
 
         private void NextBattle()
         {
+            AudioEngine.Play("sword_unsheath");
             IsUpgradeOverlayVisible = false;
             _arcadeLevel++;
 
@@ -540,6 +544,7 @@ namespace EpicBattle.ViewModels
 
         private void ReturnToMap()
         {
+            AudioEngine.Play("footsteps");
             IsUpgradeOverlayVisible = false;
             if (_onCompletedFromMap != null)
             {
@@ -553,6 +558,7 @@ namespace EpicBattle.ViewModels
 
         private void ContinueStory()
         {
+            AudioEngine.Play("click");
             IsUpgradeOverlayVisible = false;
             if (!string.IsNullOrEmpty(_returnNodeId))
             {
@@ -568,6 +574,7 @@ namespace EpicBattle.ViewModels
 
         private void SelectTarget(object param)
         {
+            AudioEngine.Play("click");
             if (param is BattleEnemy enemy)
             {
                 TargetedEnemy = enemy;
@@ -590,6 +597,7 @@ namespace EpicBattle.ViewModels
 
         private void Defend()
         {
+            AudioEngine.Play("defend");
             _engine.PlayerDefend();
             UpdateProperties();
         }
@@ -603,6 +611,7 @@ namespace EpicBattle.ViewModels
             Player.CurrentAP -= 1;
             Player.Hp = Math.Min(Player.MaxHp, Player.Hp + 40);
             Log("🧪 Вы восстановили 40 HP.");
+            AudioEngine.Play("waterspray");
             UpdateProperties();
         }
 
@@ -615,6 +624,7 @@ namespace EpicBattle.ViewModels
             Player.CurrentAP -= 1;
             Player.Mp = Math.Min(Player.MaxMp, Player.Mp + 25);
             Log("💧 Вы восстановили 25 MP.");
+            AudioEngine.Play("firebuff");
             UpdateProperties();
         }
 
@@ -631,6 +641,13 @@ namespace EpicBattle.ViewModels
                     return;
                 }
 
+                string sName = (skill.Name ?? "").ToLowerInvariant();
+                if (sName.Contains("огн") || sName.Contains("плам") || sName.Contains("fire")) AudioEngine.Play("fireball");
+                else if (sName.Contains("лед") || sName.Contains("мороз") || sName.Contains("ice")) AudioEngine.Play("ice_freeze");
+                else if (sName.Contains("кам") || sName.Contains("метеор") || sName.Contains("rock")) AudioEngine.Play("rock_throw");
+                else if (sName.Contains("исцел") || sName.Contains("heal")) AudioEngine.Play("waterspray");
+                else if (sName.Contains("щит") || sName.Contains("блок")) AudioEngine.Play("defend");
+                else AudioEngine.Play("sword_attack");
                 _engine.ExecuteSkill(Player, skill, target);
                 UpdateProperties();
             }
@@ -652,6 +669,7 @@ namespace EpicBattle.ViewModels
 
         private void EndTurn()
         {
+            AudioEngine.Play("click");
             // P2-фикс (В9): если у игрока остались неподготовленные AP, предупреждаем —
             // они сгорят при завершении хода (раньше терялись молча).
             if (_engine != null && IsPlayerTurn && _engine.Player.CurrentAP > 0)
