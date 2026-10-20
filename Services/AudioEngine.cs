@@ -236,7 +236,7 @@ namespace EpicBattle.Services
             {
                 // UI
                 "click" => ResolveAssetPath("SFX/UI", "click.wav"),
-                "click_alt" => ResolveAssetPath("SFX/UI", "click_alt.wav"),
+                "click_alt" => ResolveAssetPath("SFX/UI", "click_alt.wav") ?? ResolveAssetPath("SFX/UI", "click.wav"),
                 "chest_open" => ResolveAssetPath("SFX/UI", "chest_open.wav"),
                 "chest_close" => ResolveAssetPath("SFX/UI", "chest_close.wav"),
                 "gate_open" => ResolveAssetPath("SFX/UI", "gate_open.wav"),

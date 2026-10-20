@@ -1,4 +1,4 @@
-<UserControl x:Class="EpicBattle.Views.InventoryView"
+﻿<UserControl x:Class="EpicBattle.Views.InventoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#181818" Foreground="White">
@@ -6,8 +6,8 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
     <Grid>
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
-        <Border Background="#C0181818"/>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
+        <Border Background="#35181818"/>
         <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

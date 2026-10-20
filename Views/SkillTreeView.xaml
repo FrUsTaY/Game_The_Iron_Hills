@@ -1,4 +1,4 @@
-<UserControl x:Class="EpicBattle.Views.SkillTreeView"
+﻿<UserControl x:Class="EpicBattle.Views.SkillTreeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#E6000000"
@@ -7,8 +7,8 @@
         <local:BoolToColorConverter xmlns:local="clr-namespace:EpicBattle.ViewModels" x:Key="BoolToColorConverter"/>
     </UserControl.Resources>
     <Grid>
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
-        <Border Background="#C0100E14"/>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
+        <Border Background="#35100E14"/>
         <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

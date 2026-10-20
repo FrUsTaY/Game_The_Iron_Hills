@@ -1,11 +1,11 @@
-<UserControl x:Class="EpicBattle.Views.ChapterSelectView"
+﻿<UserControl x:Class="EpicBattle.Views.ChapterSelectView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#100F12" Foreground="White">
     <Grid>
         <!-- Фоновое изображение -->
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
-        <Border Background="#C4121118"/>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
+        <Border Background="#35121118"/>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid Margin="30">

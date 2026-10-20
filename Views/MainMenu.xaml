@@ -1,11 +1,11 @@
-<UserControl x:Class="EpicBattle.Views.MainMenu"
+﻿<UserControl x:Class="EpicBattle.Views.MainMenu"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#0E0D0C">
     <Grid>
         <!-- Фоновое изображение -->
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
-        <Border Background="#B80E0D10"/>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.90"/>
+        <Border Background="#300E0D10"/>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid>

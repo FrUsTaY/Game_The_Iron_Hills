@@ -1,4 +1,4 @@
-<UserControl x:Class="EpicBattle.Views.MapView"
+﻿<UserControl x:Class="EpicBattle.Views.MapView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#121212" Foreground="White">
@@ -74,8 +74,8 @@
 
         <!-- ЦЕНТРАЛЬНАЯ КАРТА МИРА (ИНТЕРАКТИВНАЯ ЛЕСТНИЦА ЭТАЖЕЙ) -->
         <Grid Grid.Row="1">
-            <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
-            <Border Background="#C8101016"/>
+            <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
+            <Border Background="#35101016"/>
 
             <ScrollViewer x:Name="MapScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Background="Transparent">
                 <StackPanel HorizontalAlignment="Center" Width="860" Margin="0,25">

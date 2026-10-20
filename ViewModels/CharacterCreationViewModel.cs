@@ -128,7 +128,7 @@ namespace EpicBattle.ViewModels
 
         private Command _startGameCommand;
         public Command StartGameCommand => _startGameCommand ??= new Command(StartGame, _ => AvailablePoints == 0);
-        public ICommand BackCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("click_alt"); NavigationManager.NavigateTo(new MainMenu()); });
+        public ICommand BackCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("click"); NavigationManager.NavigateTo(new MainMenu()); });
 
         private void SelectClass(string className, bool playSound = true)
         {
@@ -180,7 +180,7 @@ namespace EpicBattle.ViewModels
 
         private void DecreaseStat(object param)
         {
-            EpicBattle.Services.AudioEngine.Play("click_alt");
+            EpicBattle.Services.AudioEngine.Play("click");
             string stat = param.ToString();
 
             // Не даем опустить стат ниже базового значения класса (упрощенная логика)

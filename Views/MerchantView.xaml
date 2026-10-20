@@ -1,4 +1,4 @@
-<UserControl x:Class="EpicBattle.Views.MerchantView"
+﻿<UserControl x:Class="EpicBattle.Views.MerchantView"
 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 
@@ -7,8 +7,8 @@
              Background="#161616" Foreground="White">
 
     <Grid>
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
-        <Border Background="#C0161616"/>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
+        <Border Background="#35161616"/>
         <Grid Margin="20">
 
         <Grid.RowDefinitions>

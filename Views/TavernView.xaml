@@ -1,4 +1,4 @@
-<UserControl x:Class="EpicBattle.Views.TavernView"
+﻿<UserControl x:Class="EpicBattle.Views.TavernView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#171210" Foreground="White"
@@ -7,8 +7,8 @@
         <vm:InverseBoolToVisibilityConverter x:Key="InverseBoolVis"/>
     </UserControl.Resources>
     <Grid>
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
-        <Border Background="#C0171210"/>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
+        <Border Background="#35171210"/>
         <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
