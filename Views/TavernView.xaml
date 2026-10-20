@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="EpicBattle.Views.TavernView"
+<UserControl x:Class="EpicBattle.Views.TavernView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#171210" Foreground="White"
@@ -7,114 +7,143 @@
         <vm:InverseBoolToVisibilityConverter x:Key="InverseBoolVis"/>
     </UserControl.Resources>
     <Grid>
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
-        <Border Background="#35171210"/>
-        <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <!-- Фоновый арт таверны (камин, зал, теплое освещение) -->
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.95"/>
+        <Border Background="#20150F0A"/>
 
-        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-        <Border Grid.Row="0" Background="#2A1E14" BorderBrush="#8D6E63" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🍺" FontSize="30" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                    <StackPanel>
-                        <TextBlock Text="ТАВЕРНА КРЯЖА" FontSize="20" FontWeight="Bold" Foreground="#DDAA88"/>
-                        <TextBlock Text="{Binding StatusMessage}" FontSize="13" Foreground="LightGray" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#2D2410" BorderBrush="#FFAA00" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,10,0">
-                        <TextBlock Text="{Binding PlayerGold, StringFormat='💰 {0}'}" Foreground="#FFCC00" FontWeight="Bold" FontSize="15"/>
-                    </Border>
-                    <Border Background="#351E1E" BorderBrush="#C05050" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,10,0">
-                        <TextBlock Foreground="#FF8888" FontWeight="Bold" FontSize="14">
-                            <Run Text="❤️ "/><Run Text="{Binding PlayerHp, Mode=OneWay}"/><Run Text="/"/><Run Text="{Binding PlayerMaxHp, Mode=OneWay}"/>
-                        </TextBlock>
-                    </Border>
-                    <Border Background="#1E2E4A" BorderBrush="#5599DD" BorderThickness="1" CornerRadius="6" Padding="12,6">
-                        <TextBlock Foreground="#77BBFF" FontWeight="Bold" FontSize="14">
-                            <Run Text="🔷 "/><Run Text="{Binding PlayerMp, Mode=OneWay}"/><Run Text="/"/><Run Text="{Binding PlayerMaxMp, Mode=OneWay}"/>
-                        </TextBlock>
-                    </Border>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- ЦЕНТР: УСЛУГИ И СКЛАД РУН -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="3*"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                <TextBlock Text="📜 Услуги трактирщика:" FontSize="16" FontWeight="Bold" Foreground="#DDAA88" Margin="0,0,0,10"/>
-
-                <Button Padding="12,10" Margin="0,0,0,8" Background="#4A3728" Click="Rest_Click"
-                        IsEnabled="{Binding CanRest}">
-                    <StackPanel>
-                        <TextBlock Text="{Binding RestButtonLabel}" Foreground="White" FontWeight="Bold" FontSize="14"/>
-                        <TextBlock Text="+45% HP и +60% MP. Цена растёт при частых визитах." Foreground="Gray" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Button>
-
-                <Button Padding="12,10" Margin="0,0,0,8" Background="#3A2E5A" Click="Rumor_Click"
-                        IsEnabled="{Binding CanHearRumor}">
-                    <StackPanel>
-                        <TextBlock Text="🗣️ Кружка эля и слух (💰 15)" Foreground="White" FontWeight="Bold" FontSize="14"/>
-                        <TextBlock Text="Трактирщик шепнёт кое-что полезное. Или нет." Foreground="Gray" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Button>
-
-                <Border Background="#221C12" BorderBrush="#554422" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,0">
-                    <TextBlock Text="{Binding RumorText}" FontSize="12" Foreground="#FFCC88" TextWrapping="Wrap"/>
-                </Border>
-            </StackPanel>
-
-            <Border Grid.Column="1" Background="#1A1510" BorderBrush="#3A2E1E" BorderThickness="1" CornerRadius="8" Padding="15">
+            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+            <Border Grid.Row="0" Background="#C81E150E" BorderBrush="#5E432A" BorderThickness="1.5" CornerRadius="8" Padding="12,8" Margin="0,0,0,10">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="💠 Скупка рунических камней (70% от цены):" FontSize="16" FontWeight="Bold" Foreground="#88CCEE" Margin="0,0,0,10"/>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding RuneSaleList}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="#241E14" BorderBrush="#446688" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="13" Foreground="#BBDDFF" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
-                                            <Button Grid.Column="1" Content="Продать" Padding="12,6" FontSize="12" FontWeight="Bold" Background="#2E5A4A"
-                                                    Tag="{Binding}" Click="SellRune_Click" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding SellPriceEach, StringFormat='+{0} 💰'}" FontSize="11" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,26,0,0"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                    <TextBlock Grid.Row="1" Text="Склад пуст. Руны выпадают с элитных боёв и боссов." FontSize="13" Foreground="Gray"
-                               Visibility="{Binding HasRunesToSell, Converter={StaticResource InverseBoolVis}}"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🍺" FontSize="26" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="ТАВЕРНА КРЯЖА" FontSize="18" FontWeight="Bold" Foreground="#FFAA00"/>
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#D5C5B5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#2E2412" BorderBrush="#FFAA00" BorderThickness="1" CornerRadius="5" Padding="10,5" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding PlayerGold, StringFormat='💰 {0}'}" Foreground="#FFCC00" FontWeight="Bold" FontSize="14"/>
+                        </Border>
+                        <Border Background="#351C1C" BorderBrush="#C05050" BorderThickness="1" CornerRadius="5" Padding="10,5" Margin="0,0,8,0">
+                            <TextBlock Foreground="#FF8888" FontWeight="Bold" FontSize="13">
+                                <Run Text="❤️ "/><Run Text="{Binding PlayerHp, Mode=OneWay}"/><Run Text="/"/><Run Text="{Binding PlayerMaxHp, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Border>
+                        <Border Background="#1C283E" BorderBrush="#5588DD" BorderThickness="1" CornerRadius="5" Padding="10,5">
+                            <TextBlock Foreground="#77AAFF" FontWeight="Bold" FontSize="13">
+                                <Run Text="🔷 "/><Run Text="{Binding PlayerMp, Mode=OneWay}"/><Run Text="/"/><Run Text="{Binding PlayerMaxMp, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Border>
-        </Grid>
 
-        <!-- НИЗ: ВЫХОД -->
-        <Button Grid.Row="2" Content="🗺️ Покинуть таверну и продолжить путь" Height="45" Width="340" FontSize="15" FontWeight="Bold"
-                Background="#443366" HorizontalAlignment="Center" Margin="0,15,0,0" Click="LeaveTavern_Click"/>
+            <!-- ЦЕНТР: СТОЙКА ТРАКТИРЩИКА СЛЕВА + ОТКРЫТЫЙ ЗАЛ ТАВЕРНЫ СПРАВА -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Левая стойка трактирщика: все опции в одном аккуратном меню -->
+                <Border Grid.Column="0" Background="#D017110A" BorderBrush="#5E432A" BorderThickness="1.5" CornerRadius="8" Padding="14,12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Заголовок услуг -->
+                        <TextBlock Grid.Row="0" Text="📜 Услуги трактирщика:" FontSize="15" FontWeight="Bold" Foreground="#E2BD9A" Margin="0,0,0,8"/>
+
+                        <!-- Кнопка Отдыха -->
+                        <Button Grid.Row="1" Padding="10,8" Margin="0,0,0,6" Background="#3E2C1E" Click="Rest_Click"
+                                IsEnabled="{Binding CanRest}" Cursor="Hand">
+                            <StackPanel HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding RestButtonLabel}" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Text="+45% HP и +60% MP. Цена растёт при частых визитах." Foreground="#AAA" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Кнопка Слухов -->
+                        <Button Grid.Row="2" Padding="10,8" Margin="0,0,0,6" Background="#34284A" Click="Rumor_Click"
+                                IsEnabled="{Binding CanHearRumor}" Cursor="Hand">
+                            <StackPanel HorizontalAlignment="Left">
+                                <TextBlock Text="🗣️ Кружка эля и слух (💰 15)" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Text="Трактирщик шепнёт кое-что полезное." Foreground="#AAA" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Окно текста слуха -->
+                        <Border Grid.Row="3" Background="#1E1710" BorderBrush="#4A3822" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,0,0,10">
+                            <TextBlock Text="{Binding RumorText, FallbackValue='Трактирщик протирает кружки и прислушивается к гостям...'}"
+                                       FontSize="11" Foreground="#FFCC88" TextWrapping="Wrap" FontStyle="Italic"/>
+                        </Border>
+
+                        <!-- Разделитель и заголовок скупки рун -->
+                        <Border Grid.Row="4" BorderBrush="#4A3822" BorderThickness="0,1,0,0" Padding="0,8,0,0" Margin="0,2,0,6">
+                            <TextBlock Text="💠 Скупка рунических камней (70%):" FontSize="13" FontWeight="Bold" Foreground="#88CCEE"/>
+                        </Border>
+
+                        <!-- Список рун на продажу (если есть) или компактная плашка (если пусто) -->
+                        <Grid Grid.Row="5">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding RuneSaleList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#221C14" BorderBrush="#3D5066" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="12" Foreground="#BBDDFF" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0"/>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <Button Content="Продать" Padding="10,4" FontSize="11" FontWeight="Bold" Background="#285042"
+                                                                Tag="{Binding}" Click="SellRune_Click" Cursor="Hand"/>
+                                                        <TextBlock Text="{Binding SellPriceEach, StringFormat='+{0} 💰'}" FontSize="10" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- Когда склад пуст: компактное сообщение вместо мертвого черного блока -->
+                            <Border Background="#18151E" BorderBrush="#332D3E" BorderThickness="1" CornerRadius="5" Padding="10,8" VerticalAlignment="Top"
+                                    Visibility="{Binding HasRunesToSell, Converter={StaticResource InverseBoolVis}}">
+                                <TextBlock Text="Склад пуст. Рунические камни выпадают с элитных противников и боссов." FontSize="11" Foreground="#8E8599" TextWrapping="Wrap"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Кнопка Покинуть таверну -->
+                        <Button Grid.Row="6" Content="🗺️ Покинуть таверну и продолжить путь" Height="38" FontSize="13" FontWeight="Bold"
+                                Background="#403058" Margin="0,10,0,0" Click="LeaveTavern_Click" Cursor="Hand"/>
+                    </Grid>
+                </Border>
+
+                <!-- Правая зона: открытый обзор уютной таверны (камин, зал, гости) -->
+                <Grid Grid.Column="1"/>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

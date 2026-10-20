@@ -272,6 +272,8 @@ namespace EpicBattle.ViewModels
 
 
 
+        public bool HasRunes => _gameState.RuneStock.Count > 0;
+
         /// <summary>Ключ списка склада: "id|count".</summary>
 
         public List<string> OwnedRuneKeys => _gameState.RuneStock
@@ -717,6 +719,7 @@ namespace EpicBattle.ViewModels
         {
 
             OnPropertyChanged(nameof(OwnedRuneKeys));
+            OnPropertyChanged(nameof(HasRunes));
 
             OnPropertyChanged(nameof(CanInsertRune));
 

@@ -65,6 +65,7 @@ namespace EpicBattle.Views
                 Dispatcher.InvokeAsync(() =>
                 {
                     LogScroller?.ScrollToEnd();
+                    FullLogScroller?.ScrollToEnd();
                 });
             };
 
@@ -264,11 +265,31 @@ namespace EpicBattle.Views
             public IEasingFunction Ease() => new QuadraticEase { EasingMode = EasingMode.EaseOut };
         }
 
-        // Пауза
+        private void OpenFullLog_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            FullLogOverlay.Visibility = Visibility.Visible;
+            Dispatcher.InvokeAsync(() => FullLogScroller?.ScrollToEnd());
+        }
+
+        private void CloseFullLog_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            FullLogOverlay.Visibility = Visibility.Collapsed;
+            this.Focus();
+        }
+
+        // Пауза и управление клавишами
         private void UserControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
+                if (FullLogOverlay.Visibility == Visibility.Visible)
+                {
+                    FullLogOverlay.Visibility = Visibility.Collapsed;
+                    e.Handled = true;
+                    return;
+                }
                 PauseOverlay.Visibility = PauseOverlay.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             }
         }

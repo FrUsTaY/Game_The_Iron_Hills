@@ -1,166 +1,184 @@
-﻿<UserControl x:Class="EpicBattle.Views.BlacksmithView"
+<UserControl x:Class="EpicBattle.Views.BlacksmithView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EpicBattle.ViewModels"
              Background="#141008" Foreground="White">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <vm:InverseBoolToVisibilityConverter x:Key="InverseBoolVis"/>
     </UserControl.Resources>
     <Grid>
-        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
-        <Border Background="#35141008"/>
-        <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <!-- Фоновый арт кузницы (пылающий горн, искры, наковальня) -->
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.93"/>
+        <Border Background="#20140D08"/>
 
-        <!-- ВЕРХНЯЯ ПАНЕЛЬ: ЗАГОЛОВОК КУЗНЕЦА И РЕСУРСЫ -->
-        <Border Grid.Row="0" Background="#241A0C" BorderBrush="#B8860B" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🔨" FontSize="30" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                    <StackPanel>
-                        <TextBlock Text="КУЗНИЦА КРЯЖА" FontSize="20" FontWeight="Bold" Foreground="#FFAA00"/>
-                        <TextBlock Text="{Binding StatusMessage}" FontSize="13" Foreground="LightGray" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#2D2410" BorderBrush="#FFAA00" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="💰 Золото: " Foreground="#FFCC00" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock Text="{Binding PlayerGold}" Foreground="#FFFFFF" FontWeight="Bold" FontSize="15"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="#2A2A35" BorderBrush="#8D6E63" BorderThickness="1" CornerRadius="6" Padding="12,6" Margin="0,0,10,0">
-                        <TextBlock Text="{Binding OreStock, StringFormat='⛏️ Руда: {0}'}" Foreground="#DDAA88" FontWeight="Bold" FontSize="14"/>
-                    </Border>
-                    <Border Background="#1E2E4A" CornerRadius="6" Padding="10,6">
-                        <TextBlock Text="{Binding UpgradeCount, StringFormat='⭐ Ковок: {0}'}" Foreground="#55AAFF" FontWeight="Bold" FontSize="14"/>
-                    </Border>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: НАКОВальня (список предметов) и услуги кузнеца -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="2*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- ЛЕВАЯ КОЛОНКА: ПРЕДМЕТЫ ДЛЯ УЛУЧШЕНИЯ -->
-            <Border Grid.Column="0" Background="#1A1510" BorderBrush="#3A2E1E" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+            <!-- ВЕРХНЯЯ ПАНЕЛЬ: ЗАГОЛОВОК КУЗНЕЦА И РЕСУРСЫ -->
+            <Border Grid.Row="0" Background="#C81C140C" BorderBrush="#6E4D25" BorderThickness="1.5" CornerRadius="8" Padding="12,8" Margin="0,0,0,10">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="⚒️ Снаряжение для улучшения (+25% свойств за ковку):" FontSize="16" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,10"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🔨" FontSize="26" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="КУЗНИЦА КРЯЖА" FontSize="18" FontWeight="Bold" Foreground="#FFAA00"/>
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#D5C5B5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding ForgeableItems}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="#241E14" BorderBrush="{Binding RarityColor}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
-                                                <TextBlock Text="{Binding Icon}" FontSize="24"/>
-                                                <TextBlock Text="{Binding SourceLabel}" FontSize="10" Foreground="Gray" HorizontalAlignment="Center"/>
-                                            </StackPanel>
-
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="Bold" Foreground="{Binding RarityColor}"/>
-                                                <TextBlock Text="{Binding SlotName}" FontSize="11" Foreground="Gray"/>
-                                                <TextBlock Text="{Binding CurrentStats}" FontSize="12" Foreground="#55FF55" FontWeight="Bold" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                                <TextBlock Text="{Binding PreviewText}" FontSize="11" Foreground="#FFCC88" FontStyle="Italic" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                            </StackPanel>
-
-                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                                <Button Content="🔨 Улучшить" Padding="14,8" FontSize="13" FontWeight="Bold" Background="#8D4E1A"
-                                                        Tag="{Binding}" Click="UpgradeItem_Click" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding CostText}" FontSize="12" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                                <Button Content="💠 Вставить руну" Padding="10,5" FontSize="11" FontWeight="Bold" Background="#2E5A6A" Foreground="#BBDDFF"
-                                                        Tag="{Binding}" Click="InsertRune_Click" VerticalAlignment="Center" Margin="0,5,0,0"
-                                                        Visibility="{Binding HasRuneSlots, Converter={StaticResource BoolToVis}}"/>
-                                                <TextBlock Text="{Binding RuneSlotsText}" FontSize="10" Foreground="#88CCEE" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#2E2410" BorderBrush="#FFAA00" BorderThickness="1" CornerRadius="5" Padding="10,5" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💰 Золото: " Foreground="#FFCC00" FontWeight="Bold" FontSize="14"/>
+                                <TextBlock Text="{Binding PlayerGold}" Foreground="#FFFFFF" FontWeight="Bold" FontSize="14"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#2D2218" BorderBrush="#8D6E63" BorderThickness="1" CornerRadius="5" Padding="10,5" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding OreStock, StringFormat='⛏️ Руда: {0}'}" Foreground="#DDAA88" FontWeight="Bold" FontSize="13"/>
+                        </Border>
+                        <Border Background="#1A2840" BorderBrush="#3D5678" BorderThickness="1" CornerRadius="5" Padding="10,5">
+                            <TextBlock Text="{Binding UpgradeCount, StringFormat='⭐ Ковок: {0}'}" Foreground="#55AAFF" FontWeight="Bold" FontSize="13"/>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- ПРАВАЯ КОЛОНКА: УСЛУГИ КУЗНЕЦА -->
-            <Border Grid.Column="1" Background="#1A1510" BorderBrush="#3A2E1E" BorderThickness="1" CornerRadius="8" Padding="15">
-                <StackPanel>
-                    <TextBlock Text="📜 Услуги мастера:" FontSize="16" FontWeight="Bold" Foreground="#DDAA88" Margin="0,0,0,12"/>
+            <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: АРСЕНАЛ (список предметов) И ВЕРСТАК МАСТЕРА -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
 
-                    <Button Padding="12,10" Margin="0,0,0,8" Background="#4A3728" Click="BuyOre_Click">
+                <!-- ЛЕВАЯ КОЛОНКА: СНАРЯЖЕНИЕ ДЛЯ УЛУЧШЕНИЯ -->
+                <Border Grid.Column="0" Background="#C815110A" BorderBrush="#5E432A" BorderThickness="1.5" CornerRadius="8" Padding="12,10" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="⚒️ Снаряжение для улучшения (+25% свойств за ковку):" FontSize="15" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,8"/>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ForgeableItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#C01E1812" BorderBrush="{Binding RarityColor}" BorderThickness="1.5" CornerRadius="6" Padding="10,8" Margin="0,0,0,6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0">
+                                                    <TextBlock Text="{Binding Icon}" FontSize="24"/>
+                                                    <TextBlock Text="{Binding SourceLabel}" FontSize="9" Foreground="Gray" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="Bold" Foreground="{Binding RarityColor}"/>
+                                                    <TextBlock Text="{Binding SlotName}" FontSize="10" Foreground="Gray"/>
+                                                    <TextBlock Text="{Binding CurrentStats}" FontSize="11" Foreground="#55FF55" FontWeight="Bold" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding PreviewText}" FontSize="10" Foreground="#FFCC88" FontStyle="Italic" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <Button Content="🔨 Улучшить" Padding="12,6" FontSize="12" FontWeight="Bold" Background="#8D4E1A"
+                                                            Tag="{Binding}" Click="UpgradeItem_Click" VerticalAlignment="Center" Cursor="Hand"/>
+                                                    <TextBlock Text="{Binding CostText}" FontSize="11" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                                    <Button Content="💠 Вставить руну" Padding="8,4" FontSize="10" FontWeight="Bold" Background="#264A58" Foreground="#BBDDFF"
+                                                            Tag="{Binding}" Click="InsertRune_Click" VerticalAlignment="Center" Margin="0,4,0,0"
+                                                            Visibility="{Binding HasRuneSlots, Converter={StaticResource BoolToVis}}" Cursor="Hand"/>
+                                                    <TextBlock Text="{Binding RuneSlotsText}" FontSize="9" Foreground="#88CCEE" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- ПРАВАЯ КОЛОНКА: ВЕРСТАК И УСЛУГИ КУЗНЕЦА -->
+                <Border Grid.Column="1" Background="#C815110A" BorderBrush="#5E432A" BorderThickness="1.5" CornerRadius="8" Padding="12,10">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <TextBlock Text="⛏️ Купить Железную Руду (💰 30)" Foreground="White" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="Материал, необходимый для каждой ковки." Foreground="Gray" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="📜 Услуги мастера:" FontSize="15" FontWeight="Bold" Foreground="#E2BD9A" Margin="0,0,0,8"/>
+
+                            <Button Padding="10,8" Margin="0,0,0,6" Background="#3E2E20" Click="BuyOre_Click" Cursor="Hand">
+                                <StackPanel HorizontalAlignment="Left">
+                                    <TextBlock Text="⛏️ Купить Железную Руду (💰 30)" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                                    <TextBlock Text="Материал, необходимый для каждой ковки." Foreground="#AAA" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Padding="10,8" Margin="0,0,0,6" Background="#32264C" Click="Sharpen_Click" Cursor="Hand">
+                                <StackPanel HorizontalAlignment="Left">
+                                    <TextBlock Text="⚔️ Заточить оружие (💰 40)" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                                    <TextBlock Text="+1 к базовому и магическому урону навсегда." Foreground="#AAA" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Padding="10,8" Margin="0,0,0,6" Background="#4C2430" Click="Reforge_Click" Cursor="Hand">
+                                <StackPanel HorizontalAlignment="Left">
+                                    <TextBlock Text="⚗️ Перековка характеристик (💰 80...)" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                                    <TextBlock Text="Риск-дело: −1 к одной характеристике, +1 к другой (случайно)." Foreground="#AAA" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Border Background="#201A12" BorderBrush="#4A3822" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,0,0,8">
+                                <TextBlock Text="{Binding ReforgePreview, FallbackValue='Нажмите для перековки характеристик'}" FontSize="11" Foreground="#FFCC88" TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Разделитель и рунический склад -->
+                            <Border BorderBrush="#4A3822" BorderThickness="0,1,0,0" Padding="0,8,0,0" Margin="0,2,0,4">
+                                <TextBlock Text="💠 Рунический склад (💰 60 за работу):"
+                                           FontSize="12" FontWeight="Bold" Foreground="#88CCEE" TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Если рун нет: аккуратная компактная подсказка -->
+                            <Border Background="#161F26" BorderBrush="#2D4050" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,4,0,0"
+                                    Visibility="{Binding HasRunes, Converter={StaticResource InverseBoolVis}}">
+                                <TextBlock Text="В сумке нет свободных рун. Они выпадают с элитных врагов и боссов." FontSize="11" Foreground="#7A9AA8" TextWrapping="Wrap"/>
+                            </Border>
+
+                            <!-- Если руны есть: список камней и инфо -->
+                            <StackPanel Visibility="{Binding HasRunes, Converter={StaticResource BoolToVis}}">
+                                <ItemsControl ItemsSource="{Binding OwnedRuneKeys}" Margin="0,4,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Padding="7,4" Margin="0,0,0,4" Background="#1C3240" BorderBrush="#3D566E" BorderThickness="1"
+                                                    HorizontalAlignment="Stretch" Click="SelectRune_Click" Cursor="Hand">
+                                                <Button.Tag><Binding/></Button.Tag>
+                                                <TextBlock Text="{Binding}" Foreground="#BBDDFF" FontSize="11"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border Background="#122028" BorderBrush="#3D566E" BorderThickness="1" CornerRadius="5" Padding="8,6" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding SelectedRuneInfo, FallbackValue='Выберите руну для инкрустации'}" FontSize="11" Foreground="#88CCEE" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
-                    </Button>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
 
-                    <Button Padding="12,10" Margin="0,0,0,8" Background="#3A2E5A" Click="Sharpen_Click">
-                        <StackPanel>
-                            <TextBlock Text="⚔️ Заточить оружие (💰 40)" Foreground="White" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="+1 к базовому урону и магическому урону навсегда." Foreground="Gray" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Padding="12,10" Margin="0,0,0,8" Background="#5A2E3A" Click="Reforge_Click">
-                        <StackPanel>
-                            <TextBlock Text="⚗️ Перековка характеристик (💰 80, цена ×2 за каждую подряд!)" Foreground="White" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="Риск-дело: −1 к одной характеристике, +1 к другой (случайно)." Foreground="Gray" FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Border Background="#221C12" BorderBrush="#554422" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,6,0,0">
-                        <TextBlock Text="{Binding ReforgePreview}" FontSize="12" Foreground="#FFCC88" TextWrapping="Wrap"/>
-                    </Border>
-
-                    <!-- Этап 3.2 (часть 2): рунический склад и вставка -->
-                    <TextBlock Text="💠 Рунический склад (выберите камень, затем «Вставить руну» на карточке снаряжения, 💰 60 за работу):"
-                               FontSize="13" FontWeight="Bold" Foreground="#88CCEE" Margin="0,14,0,6" TextWrapping="Wrap"/>
-                    <ItemsControl ItemsSource="{Binding OwnedRuneKeys}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Padding="8,5" Margin="0,0,0,4" Background="#1E3A4A" BorderBrush="#446688" BorderThickness="1"
-                                        HorizontalAlignment="Stretch" Click="SelectRune_Click">
-                                    <Button.Tag><Binding/></Button.Tag>
-                                    <TextBlock Text="{Binding}" Foreground="#BBDDFF" FontSize="12"/>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Border Background="#12222A" BorderBrush="#446688" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,4,0,0">
-                        <TextBlock Text="{Binding SelectedRuneInfo}" FontSize="12" Foreground="#88CCEE" TextWrapping="Wrap"/>
-                    </Border>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- НИЖНЯЯ ПАНЕЛЬ: ВЫХОД ИЗ КУЗНИЦЫ -->
-        <Button Grid.Row="2" Content="🗺️ Покинуть кузницу и продолжить путь" Height="45" Width="340" FontSize="15" FontWeight="Bold"
-                Background="#443366" HorizontalAlignment="Center" Margin="0,15,0,0" Click="LeaveSmith_Click"/>
+            <!-- НИЖНЯЯ ПАНЕЛЬ: ВЫХОД ИЗ КУЗНИЦЫ -->
+            <Button Grid.Row="2" Content="🗺️ Покинуть кузницу и продолжить путь" Height="40" Width="340" FontSize="14" FontWeight="Bold"
+                    Background="#403058" HorizontalAlignment="Center" Margin="0,10,0,0" Click="LeaveSmith_Click" Cursor="Hand"/>
         </Grid>
     </Grid>
 </UserControl>
