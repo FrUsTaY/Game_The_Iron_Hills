@@ -5,7 +5,10 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
-    <Grid Margin="15">
+    <Grid>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
+        <Border Background="#C0181818"/>
+        <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -240,5 +243,6 @@
 
         <!-- Нижняя панель закрытия -->
         <Button Grid.Row="2" Content="⬅️ Закрыть инвентарь" Height="38" FontSize="15" FontWeight="Bold" Background="#3a3a3a" Click="CloseBtn_Click"/>
+        </Grid>
     </Grid>
 </UserControl>

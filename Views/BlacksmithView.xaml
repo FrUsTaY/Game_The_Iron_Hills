@@ -5,7 +5,10 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
-    <Grid Margin="20">
+    <Grid>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
+        <Border Background="#C0141008"/>
+        <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -158,5 +161,6 @@
         <!-- НИЖНЯЯ ПАНЕЛЬ: ВЫХОД ИЗ КУЗНИЦЫ -->
         <Button Grid.Row="2" Content="🗺️ Покинуть кузницу и продолжить путь" Height="45" Width="340" FontSize="15" FontWeight="Bold"
                 Background="#443366" HorizontalAlignment="Center" Margin="0,15,0,0" Click="LeaveSmith_Click"/>
+        </Grid>
     </Grid>
 </UserControl>

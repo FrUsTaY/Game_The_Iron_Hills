@@ -1,4 +1,4 @@
-using EpicBattle.Models.Encounters;
+﻿using EpicBattle.Models.Encounters;
 using System.Windows;
 using EpicBattle.Models.Items;
 using System;
@@ -176,6 +176,8 @@ namespace EpicBattle.ViewModels
         public double DodgeChance => _gameState.DodgeChance;
         public double CritChance => _gameState.CritChance;
 
+        public System.Windows.Media.Imaging.BitmapImage? BattleBackground { get; private set; }
+
         public BattleViewModel(bool isArcade, string returnNodeId = null, string battleModifier = null, int arcadeLevel = 1, Action onCompletedFromMap = null)
         {
             _isArcade = isArcade;
@@ -191,6 +193,8 @@ namespace EpicBattle.ViewModels
                 _gameState.PlayerMp = _gameState.PlayerMaxMp;
             }
 
+            int currentFloor = _gameState?.ActiveMap?.CurrentFloor ?? 0;
+            BattleBackground = EpicBattle.Services.ImageService.GetBattleBackground(_returnNodeId, _isArcade, _gameState?.IsMapMode == true, currentFloor);
             StartNewBattle();
         }
 

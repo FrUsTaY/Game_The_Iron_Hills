@@ -10,6 +10,7 @@ namespace EpicBattle.Views
         public ChapterSelectView()
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/chapter_select");
             var state = SaveManager.CurrentState;
             if (state == null || state.PlayerLevel < 2)
             {

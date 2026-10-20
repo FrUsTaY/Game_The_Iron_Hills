@@ -15,6 +15,7 @@ namespace EpicBattle.Views
         public BlacksmithView(Action onLeave)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/blacksmith");
             _vm = new BlacksmithViewModel(onLeave);
             DataContext = _vm;
         }

@@ -1,4 +1,4 @@
-<UserControl x:Class="EpicBattle.Views.DialogueView"
+﻿<UserControl x:Class="EpicBattle.Views.DialogueView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#111111" KeyDown="UserControl_KeyDown" Focusable="True">
@@ -6,23 +6,24 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid>
             <!-- Background Image Placeholder (Could be added later) -->
-            <Image Name="BgImage" Stretch="UniformToFill" Opacity="0.3"/>
+            <Image Name="BgImage" Stretch="UniformToFill" Opacity="0.55" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Border Background="#B80E0E12"/>
 
             <Grid Margin="40">
             <Grid.RowDefinitions>
-                <!-- Верхняя панель: Подсказки/Кнопки -->
+                <!-- Р’РµСЂС…РЅСЏСЏ РїР°РЅРµР»СЊ: РџРѕРґСЃРєР°Р·РєРё/РљРЅРѕРїРєРё -->
                 <RowDefinition Height="Auto"/>
-                <!-- Основное пространство -->
+                <!-- РћСЃРЅРѕРІРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ -->
                 <RowDefinition Height="*"/>
-                <!-- Кнопки выбора -->
+                <!-- РљРЅРѕРїРєРё РІС‹Р±РѕСЂР° -->
                 <RowDefinition Height="Auto"/>
-                <!-- Блок текста -->
+                <!-- Р‘Р»РѕРє С‚РµРєСЃС‚Р° -->
                 <RowDefinition Height="200"/>
             </Grid.RowDefinitions>
 
-            <!-- Кнопка меню паузы/сохранения -->
+            <!-- РљРЅРѕРїРєР° РјРµРЅСЋ РїР°СѓР·С‹/СЃРѕС…СЂР°РЅРµРЅРёСЏ -->
             <StackPanel Grid.Row="0" HorizontalAlignment="Right">
-                <TextBlock Text="ESC - Меню паузы" Foreground="Gray" FontSize="14"/>
+                <TextBlock Text="ESC - РњРµРЅСЋ РїР°СѓР·С‹" Foreground="Gray" FontSize="14"/>
             </StackPanel>
 
             <!-- Choices Panel -->
@@ -43,9 +44,9 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Name="SpeakerText" Grid.Row="0" Text="Имя" Foreground="#FFAA00" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Name="SpeakerText" Grid.Row="0" Text="РРјСЏ" Foreground="#FFAA00" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <TextBlock Name="DialogueText" Text="Текст диалога..." Foreground="White" FontSize="18" TextWrapping="Wrap"/>
+                        <TextBlock Name="DialogueText" Text="РўРµРєСЃС‚ РґРёР°Р»РѕРіР°..." Foreground="White" FontSize="18" TextWrapping="Wrap"/>
                     </ScrollViewer>
                 </Grid>
             </Border>
@@ -54,10 +55,10 @@
             <!-- Pause Menu Overlay -->
             <Border Name="PauseOverlay" Background="#CC000000" Visibility="Collapsed" Panel.ZIndex="100">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
-                    <TextBlock Text="ПАУЗА" Foreground="White" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
-                    <Button Content="Продолжить" Margin="0,10" Height="40" FontSize="18" Click="ResumeBtn_Click"/>
-                    <Button Content="Сохранить игру" Margin="0,10" Height="40" FontSize="18" Click="SaveBtn_Click"/>
-                    <Button Content="Главное меню" Margin="0,10" Height="40" FontSize="18" Click="MainMenuBtn_Click"/>
+                    <TextBlock Text="РџРђРЈР—Рђ" Foreground="White" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                    <Button Content="РџСЂРѕРґРѕР»Р¶РёС‚СЊ" Margin="0,10" Height="40" FontSize="18" Click="ResumeBtn_Click"/>
+                    <Button Content="РЎРѕС…СЂР°РЅРёС‚СЊ РёРіСЂСѓ" Margin="0,10" Height="40" FontSize="18" Click="SaveBtn_Click"/>
+                    <Button Content="Р“Р»Р°РІРЅРѕРµ РјРµРЅСЋ" Margin="0,10" Height="40" FontSize="18" Click="MainMenuBtn_Click"/>
                 </StackPanel>
             </Border>
         </Grid>

@@ -14,6 +14,7 @@ namespace EpicBattle.Views
         public MapView()
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/map_view");
             _vm = new MapViewModel();
             DataContext = _vm;
 

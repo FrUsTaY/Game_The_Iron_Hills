@@ -12,6 +12,7 @@ namespace EpicBattle.Views
         public MerchantView(Action onLeave)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/merchant");
             _vm = new MerchantViewModel(onLeave);
             DataContext = _vm;
         }

@@ -11,6 +11,7 @@ namespace EpicBattle.Views
         public InventoryView(Action closeAction = null)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/inventory");
             var vm = new InventoryViewModel();
             vm.CloseAction = closeAction;
             DataContext = vm;

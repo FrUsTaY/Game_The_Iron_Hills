@@ -15,6 +15,7 @@ namespace EpicBattle.Views
         public CampfireView(Action onCompleted)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/campfire");
             _onCompleted = onCompleted;
             _state = SaveManager.CurrentState;
             UpdateDisplay();

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.Managers;
+using EpicBattle.Services;
 
 namespace EpicBattle.Views
 {
@@ -9,6 +10,7 @@ namespace EpicBattle.Views
         public MainMenu()
         {
             InitializeComponent();
+            BgImage.Source = ImageService.GetImage("Backgrounds/main_menu");
         }
 
         private void StoryBtn_Click(object sender, RoutedEventArgs e)
@@ -66,8 +68,7 @@ namespace EpicBattle.Views
 
         private void ExitBtn_Click(object sender, RoutedEventArgs e)
         {
-            EpicBattle.Services.AudioEngine.Play("click_alt");
-            NavigationManager.ExitGame();
+            Application.Current.Shutdown();
         }
     }
 }

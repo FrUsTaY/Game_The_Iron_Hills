@@ -6,7 +6,10 @@
     <UserControl.Resources>
         <vm:InverseBoolToVisibilityConverter x:Key="InverseBoolVis"/>
     </UserControl.Resources>
-    <Grid Margin="20">
+    <Grid>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.45"/>
+        <Border Background="#C0171210"/>
+        <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -112,5 +115,6 @@
         <!-- НИЗ: ВЫХОД -->
         <Button Grid.Row="2" Content="🗺️ Покинуть таверну и продолжить путь" Height="45" Width="340" FontSize="15" FontWeight="Bold"
                 Background="#443366" HorizontalAlignment="Center" Margin="0,15,0,0" Click="LeaveTavern_Click"/>
+        </Grid>
     </Grid>
 </UserControl>

@@ -15,6 +15,7 @@ namespace EpicBattle.Views
         public TavernView(Action onLeave)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/tavern");
             _vm = new TavernViewModel(onLeave);
             DataContext = _vm;
         }

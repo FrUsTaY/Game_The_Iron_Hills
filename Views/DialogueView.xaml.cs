@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,6 +35,9 @@ namespace EpicBattle.Views
                 {
                     EpicBattle.Services.AudioEngine.PlayMusic("StoryAshCreek");
                 }
+
+                var storyImg = EpicBattle.Services.ImageService.GetStoryImage(nodeId);
+                if (storyImg != null) BgImage.Source = storyImg;
 
                 SpeakerText.Text = node.SpeakerName;
                 DialogueText.Text = node.Text;
