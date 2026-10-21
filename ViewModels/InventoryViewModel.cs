@@ -130,14 +130,14 @@ namespace EpicBattle.ViewModels
         }
 
         // Слоты экипировки
-                public string EquippedWeaponIcon => _gameState?.EquippedWeapon?.IconPath ?? "🗡️";
+        public string EquippedWeaponIcon => _gameState?.EquippedWeapon?.IconPath ?? "🗡️";
         public string EquippedHelmetIcon => _gameState?.EquippedHelmet?.IconPath ?? "👑";
         public string EquippedChestIcon => _gameState?.EquippedChest?.IconPath ?? "🛡️";
         public string EquippedBootsIcon => _gameState?.EquippedBoots?.IconPath ?? "👢";
         public string EquippedRingIcon => _gameState?.EquippedRing?.IconPath ?? "💍";
         public string EquippedAmuletIcon => _gameState?.EquippedAmulet?.IconPath ?? "📿";
 
-public string EquippedWeaponName => _gameState.EquippedWeapon?.Name ?? "[Оружие: пусто]";
+        public string EquippedWeaponName => _gameState.EquippedWeapon?.Name ?? "[Оружие: пусто]";
         public SolidColorBrush EquippedWeaponBrush => _gameState.EquippedWeapon?.RarityBrush ?? GrayBrush;
 
         public string EquippedHelmetName => _gameState.EquippedHelmet?.Name ?? "[Шлем: пусто]";
@@ -160,6 +160,15 @@ public string EquippedWeaponName => _gameState.EquippedWeapon?.Name ?? "[Ору�
         public string PlayerClass => _gameState.PlayerClass ?? "Ветеран";
         public int PlayerLevel => _gameState.PlayerLevel;
         public int Gold => _gameState.Gold;
+
+        public ImageSource? PlayerAvatar => EpicBattle.Services.ImageService.GetCharacterImage(
+            _gameState?.PlayerClass == "Изгой-маг" ? "hero_mage" :
+            _gameState?.PlayerClass == "Наемник" ? "hero_mercenary" : "hero_veteran");
+
+        public bool HasItems => InventoryItems != null && InventoryItems.Count > 0;
+        public Visibility EmptyBackpackVisibility => HasItems ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility ItemsListVisibility => HasItems ? Visibility.Visible : Visibility.Collapsed;
+        public string BackpackTitle => $"РЮКЗАК (ПРЕДМЕТОВ: {InventoryItems?.Count ?? 0})";
 
         public int HP => _gameState.PlayerMaxHp;
         public int MP => _gameState.PlayerMaxMp;
@@ -228,6 +237,10 @@ public string EquippedWeaponName => _gameState.EquippedWeapon?.Name ?? "[Ору�
             OnPropertyChanged(nameof(DetailsVisibility));
             OnPropertyChanged(nameof(CanEquipSelected));
             OnPropertyChanged(nameof(CanUnequipSelected));
+            OnPropertyChanged(nameof(HasItems));
+            OnPropertyChanged(nameof(EmptyBackpackVisibility));
+            OnPropertyChanged(nameof(ItemsListVisibility));
+            OnPropertyChanged(nameof(BackpackTitle));
         }
 
         public void EquipSelectedItem()

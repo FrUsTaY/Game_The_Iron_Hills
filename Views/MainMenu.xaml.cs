@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.Managers;
 using EpicBattle.Services;
@@ -54,7 +54,7 @@ namespace EpicBattle.Views
         private void InventoryBtn_Click(object sender, RoutedEventArgs e)
         {
             EpicBattle.Services.AudioEngine.Play("chest_open");
-            NavigationManager.NavigateTo(new InventoryView());
+            NavigationManager.NavigateTo(new InventoryView(() => NavigationManager.NavigateTo(new MainMenu())));
         }
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
