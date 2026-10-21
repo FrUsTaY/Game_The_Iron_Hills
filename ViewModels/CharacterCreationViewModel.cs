@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -127,6 +127,14 @@ namespace EpicBattle.ViewModels
         public ICommand DecreaseStatCommand => new Command(DecreaseStat, CanDecreaseStat);
 
         private Command _startGameCommand;
+        public string ClassTitleBadge => SelectedClass switch
+        {
+            "Ветеран" => "🛡️ ВЕТЕРАН КРЯЖА • Мастер стали",
+            "Изгой-маг" => "🔮 ИЗГОЙ-МАГ • Повелитель рун",
+            "Наемник" => "🗡️ НАЕМНИК • Мастер критов",
+            _ => ""
+        };
+
         public System.Windows.Media.Imaging.BitmapImage? HeroPortrait => SelectedClass switch
         {
             "Ветеран" => EpicBattle.Services.ImageService.GetCharacterImage("hero_veteran"),
@@ -146,6 +154,7 @@ namespace EpicBattle.ViewModels
 
             SelectedClass = className;
             OnPropertyChanged(nameof(HeroPortrait));
+            OnPropertyChanged(nameof(ClassTitleBadge));
             if (playSound)
             {
                 if (className == "Ветеран") EpicBattle.Services.AudioEngine.Play("sword_unsheath");
