@@ -317,6 +317,12 @@ namespace EpicBattle.Views
         {
         }
 
+        private void SettingsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            Managers.NavigationManager.NavigateTo(new SettingsView());
+        }
+
         private void MainMenuBtn_Click(object sender, RoutedEventArgs e)
         {
             EpicBattle.Services.AudioEngine.Play("click_alt");
