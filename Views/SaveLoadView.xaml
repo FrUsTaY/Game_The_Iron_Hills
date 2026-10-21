@@ -1,34 +1,50 @@
 <UserControl x:Class="EpicBattle.Views.SaveLoadView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#1a1a1a">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="500">
-            <TextBlock Name="TitleText" Text="СОХРАНЕНИЯ" Foreground="#FFAA00" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+             Background="#100E14">
+    <Grid>
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.88"/>
+        <Border Background="#40100E14"/>
 
-            <StackPanel Name="SaveInputPanel" Orientation="Horizontal" Margin="0,0,0,10" Visibility="Collapsed">
-                <TextBox Name="SaveNameInput" Width="300" Height="30" FontSize="16" Margin="0,0,10,0"/>
-                <Button Content="Сохранить" Width="100" Click="CreateSaveBtn_Click"/>
-            </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+                <Border Background="#E814121A" BorderBrush="#7E5C32" BorderThickness="1.5" CornerRadius="10" Width="540" Padding="28">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" BlurRadius="20" ShadowDepth="4" Opacity="0.85"/>
+                    </Border.Effect>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <TextBlock Name="TitleText" Text="СОХРАНЕНИЯ" Foreground="#FFAA00" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,18"/>
 
-            <ListBox Name="SavesList" Height="300" Background="#333333" Foreground="White" FontSize="16" SelectionChanged="SavesList_SelectionChanged">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Margin="5">
-                            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding LastWriteTime}" FontSize="12" Foreground="Gray"/>
+                        <StackPanel Name="SaveInputPanel" Orientation="Horizontal" Margin="0,0,0,12" Visibility="Collapsed">
+                            <TextBox Name="SaveNameInput" Width="360" Height="36" FontSize="15" Margin="0,0,10,0"
+                                     Background="#221C28" Foreground="White" BorderBrush="#6E5535" BorderThickness="1.5"
+                                     VerticalContentAlignment="Center" Padding="8,0"/>
+                            <Button Content="💾 Сохранить" Width="110" Height="36" FontSize="13" FontWeight="Bold" Background="#2E6B30" Click="CreateSaveBtn_Click" Cursor="Hand"/>
                         </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                <Button Name="ActionBtn" Content="Загрузить" Width="120" Height="40" Margin="10" Click="ActionBtn_Click" IsEnabled="False"/>
-                <Button Content="Удалить" Width="120" Height="40" Margin="10" Click="DeleteBtn_Click"/>
-                <Button Content="Назад" Width="120" Height="40" Margin="10" Click="BackBtn_Click"/>
-            </StackPanel>
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+                        <Border Background="#16121C" BorderBrush="#5E472D" BorderThickness="1.5" CornerRadius="6" Padding="4" Margin="0,0,0,16">
+                            <ListBox Name="SavesList" Height="260" Background="Transparent" Foreground="White" FontSize="15" BorderThickness="0" SelectionChanged="SavesList_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#201A26" BorderBrush="#4A3B4E" BorderThickness="1" CornerRadius="4" Padding="10,6" Margin="0,2">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="#FFAA00" FontSize="14"/>
+                                                <TextBlock Text="{Binding LastWriteTime}" FontSize="12" Foreground="#AAAAAA" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="ActionBtn" Content="📥 Загрузить" Width="130" Height="40" Margin="6" FontSize="14" FontWeight="Bold" Background="#286080" Click="ActionBtn_Click" IsEnabled="False" Cursor="Hand"/>
+                            <Button Content="🗑️ Удалить" Width="120" Height="40" Margin="6" FontSize="14" FontWeight="Bold" Background="#6B2C2C" Click="DeleteBtn_Click" Cursor="Hand"/>
+                            <Button Content="⬅️ Назад" Width="110" Height="40" Margin="6" FontSize="14" FontWeight="Bold" Background="#382E26" Click="BackBtn_Click" Cursor="Hand"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

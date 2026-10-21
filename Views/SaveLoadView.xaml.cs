@@ -14,6 +14,11 @@ namespace EpicBattle.Views
         {
             InitializeComponent();
             _isSaving = isSaving;
+            try
+            {
+                BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/main_menu");
+            }
+            catch { }
 
             if (_isSaving)
             {
@@ -50,11 +55,11 @@ namespace EpicBattle.Views
             if (SaveManager.SaveGame(SaveNameInput.Text))
             {
                 RefreshList();
-                MessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                RpgMessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                MessageBox.Show("Не удалось сохранить игру. Проверьте свободное место и права доступа.",
+                RpgMessageBox.Show("Не удалось сохранить игру. Проверьте свободное место и права доступа.",
                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -70,11 +75,11 @@ namespace EpicBattle.Views
                     if (SaveManager.SaveGame(Path.GetFileNameWithoutExtension(file.Name)))
                     {
                         RefreshList();
-                        MessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                        RpgMessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        MessageBox.Show("Не удалось сохранить игру.", "Ошибка",
+                        RpgMessageBox.Show("Не удалось сохранить игру.", "Ошибка",
                             MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
@@ -83,7 +88,7 @@ namespace EpicBattle.Views
                     // Загрузка
                     if (!SaveManager.LoadGame(file.FullName))
                     {
-                        MessageBox.Show("Файл сохранения повреждён или несовместим.", "Ошибка загрузки",
+                        RpgMessageBox.Show("Файл сохранения повреждён или несовместим.", "Ошибка загрузки",
                             MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
