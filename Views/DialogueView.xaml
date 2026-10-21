@@ -5,51 +5,60 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid>
-            <!-- Background Image Placeholder (Could be added later) -->
-            <Image Name="BgImage" Stretch="UniformToFill" Opacity="0.3"/>
-
-            <Grid Margin="40">
-            <Grid.RowDefinitions>
-                <!-- Верхняя панель: Подсказки/Кнопки -->
-                <RowDefinition Height="Auto"/>
-                <!-- Основное пространство -->
-                <RowDefinition Height="*"/>
-                <!-- Кнопки выбора -->
-                <RowDefinition Height="Auto"/>
-                <!-- Блок текста -->
-                <RowDefinition Height="200"/>
-            </Grid.RowDefinitions>
-
-            <!-- Кнопка меню паузы/сохранения -->
-            <StackPanel Grid.Row="0" HorizontalAlignment="Right">
-                <TextBlock Text="ESC - Меню паузы" Foreground="Gray" FontSize="14"/>
-            </StackPanel>
-
-            <!-- Choices Panel -->
-            <ItemsControl Name="ChoicesControl" Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,20">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Tag="{Binding}" Margin="0,5" Padding="20,10" Background="#333333" Foreground="White" BorderBrush="#555555" Click="ChoiceBtn_Click" MaxWidth="700">
-                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" TextAlignment="Left"/>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <!-- Text Box -->
-            <Border Grid.Row="3" Background="#AA000000" BorderBrush="#444444" BorderThickness="2" CornerRadius="5" Padding="20">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Name="SpeakerText" Grid.Row="0" Text="Имя" Foreground="#FFAA00" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <TextBlock Name="DialogueText" Text="Текст диалога..." Foreground="White" FontSize="18" TextWrapping="Wrap"/>
-                    </ScrollViewer>
-                </Grid>
+            <!-- Фоновая сюжетная иллюстрация сцены -->
+            <Image Name="BgImage" Stretch="UniformToFill" Opacity="0.95" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Border>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#100E0E12" Offset="0.0"/>
+                        <GradientStop Color="#300E0E12" Offset="0.55"/>
+                        <GradientStop Color="#850E0E12" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
             </Border>
-        </Grid>
+
+            <Grid Margin="30,20,30,25" MaxWidth="1140" HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <!-- Верхняя панель: Подсказки/Кнопки -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Основное пространство -->
+                    <RowDefinition Height="*"/>
+                    <!-- Кнопки выбора -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Блок текста -->
+                    <RowDefinition Height="220"/>
+                </Grid.RowDefinitions>
+
+                <!-- Кнопка меню паузы/сохранения -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Right">
+                    <TextBlock Text="ESC - Меню паузы" Foreground="#CCCCCC" FontSize="14" FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- Choices Panel -->
+                <ItemsControl Name="ChoicesControl" Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Tag="{Binding}" Margin="0,5" Padding="24,12" Background="#E624242A" Foreground="White" BorderBrush="#777788" BorderThickness="1.5" Click="ChoiceBtn_Click" MaxWidth="900" Cursor="Hand">
+                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" TextAlignment="Left" FontWeight="Medium"/>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Text Box -->
+                <Border Grid.Row="3" Background="#E60F0F14" BorderBrush="#555566" BorderThickness="2" CornerRadius="8" Padding="20">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Name="SpeakerText" Grid.Row="0" Text="Имя" Foreground="#FFAA00" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Name="DialogueText" Text="Текст диалога..." Foreground="White" FontSize="19" TextWrapping="Wrap" LineHeight="28"/>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
 
             <!-- Pause Menu Overlay -->
             <Border Name="PauseOverlay" Background="#CC000000" Visibility="Collapsed" Panel.ZIndex="100">

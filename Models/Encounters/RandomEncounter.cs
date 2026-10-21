@@ -1,3 +1,4 @@
+﻿using EpicBattle.Models.Combat;
 using System;
 using System.Collections.Generic;
 using EpicBattle.Models.Items;
@@ -36,6 +37,16 @@ namespace EpicBattle.Models.Encounters
         public string Icon { get; set; } = "📜";
         public string Description { get; set; } = string.Empty;
         public List<EncounterChoice> Choices { get; set; } = new List<EncounterChoice>();
+        public System.Windows.Media.Imaging.BitmapImage? Image => EpicBattle.Services.ImageService.GetEncounterImage(
+            Id switch
+            {
+                "BloodAltar" => "encounter_blood_altar",
+                "GoblinMerchant" => "encounter_merchant_grix",
+                "CampfireRest" => "encounter_abandoned_camp",
+                "AncientChest" => "encounter_iron_chest",
+                _ => "encounter_blood_altar"
+            }
+        );
     }
 
     public static class EncountersDatabase
@@ -205,7 +216,7 @@ namespace EpicBattle.Models.Encounters
             }
         };
 
-        private static readonly Random _rnd = new Random();
+        private static readonly RngProxy _rnd = new RngProxy();
 
         public static RandomEncounter GetRandomEncounter()
         {

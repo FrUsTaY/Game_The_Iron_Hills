@@ -1,238 +1,295 @@
 <UserControl x:Class="EpicBattle.Views.InventoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#181818" Foreground="White">
-    <Grid Margin="15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- Шапка: заголовок, персонаж и золото -->
-        <Border Grid.Row="0" Background="#242424" BorderBrush="#444444" BorderThickness="1" CornerRadius="5" Padding="12,8" Margin="0,0,0,10">
-            <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock Text="🎒 ИНВЕНТАРЬ И ЭКИПИРОВКА" FontSize="18" FontWeight="Bold" Foreground="#FFAA00"/>
-                    <TextBlock Text=" | " Foreground="Gray" FontSize="16" Margin="8,0"/>
-                    <TextBlock Text="{Binding PlayerName}" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Text=" (" Foreground="Gray" FontSize="13" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding PlayerClass}" Foreground="LightGray" FontSize="13" VerticalAlignment="Center"/>
-                    <TextBlock Text=", Ур. " Foreground="Gray" FontSize="13" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding PlayerLevel}" Foreground="#55FF55" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Text=")" Foreground="Gray" FontSize="13" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock Text="💰 Золото: " FontSize="15" FontWeight="Bold" Foreground="#FFDD44"/>
-                    <TextBlock Text="{Binding Gold}" FontSize="15" FontWeight="Bold" Foreground="#FFDD44"/>
-                </StackPanel>
-            </Grid>
+             Background="#101216" Foreground="White"
+             Loaded="UserControl_Loaded"
+             KeyDown="UserControl_KeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+    
+    <Grid MouseDown="RootGrid_MouseDown">
+        <!-- Красивый полноэкранный арт стола снаряжения -->
+        <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1.0"/>
+        
+        <!-- Мягкая виньетка по краям: сохраняет подсветку стола и свечи в центре, затемняя периметр для контраста интерфейса -->
+        <Border IsHitTestVisible="False">
+            <Border.Background>
+                <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.9" RadiusY="0.9">
+                    <GradientStop Color="#00000000" Offset="0.25"/>
+                    <GradientStop Color="#40090A0D" Offset="0.75"/>
+                    <GradientStop Color="#AA050608" Offset="1.0"/>
+                </RadialGradientBrush>
+            </Border.Background>
         </Border>
 
-        <!-- 3 Колонки: Снаряжение и статы (220) | Рюкзак (*) | Карточка предмета (220) -->
-        <Grid Grid.Row="1" Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="220"/>
-            </Grid.ColumnDefinitions>
+        <!-- Плавающий баннер режима осмотра стола (активен при скрытии панелей) -->
+        <Border x:Name="ArtInspectionBar" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,30,0,0">
+            <Button Click="ArtModeBanner_Click"
+                    Background="#D8141720" BorderBrush="#FFAA00" BorderThickness="1.5"
+                    Padding="22,10" Cursor="Hand" ToolTip="Нажмите, чтобы вернуться к инвентарю">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="👁️" FontSize="16" Margin="0,0,8,0"/>
+                    <TextBlock Text="Осмотр стола снаряжения" FontWeight="Bold" FontSize="14" Foreground="#FFAA00"/>
+                    <TextBlock Text=" • Нажмите здесь или Esc, чтобы вернуть панели" Foreground="#CCCCCC" FontSize="13" Margin="8,0,0,0"/>
+                </StackPanel>
+            </Button>
+        </Border>
 
-            <!-- Левая колонка: Слоты и параметры -->
-            <Border Grid.Column="0" Background="#1E1E1E" BorderBrush="#333333" BorderThickness="1" CornerRadius="5" Padding="8" Margin="0,0,8,0">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <TextBlock Text="СНАРЯЖЕНИЕ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,6" HorizontalAlignment="Center"/>
+        <!-- Основной интерфейс инвентаря с полупрозрачными панелями в стиле Dark Fantasy -->
+        <Grid x:Name="MainPanelsGrid" Margin="15" MaxWidth="1200" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Weapon" Background="#282828">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding EquippedWeaponIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedWeaponName}" Foreground="{Binding EquippedWeaponBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+            <!-- Шапка: заголовок, герой, ресурсы и кнопка быстрого осмотра стола -->
+            <Border Grid.Row="0" Background="#C813161D" BorderBrush="#44AA7722" BorderThickness="1.2" CornerRadius="8" Padding="14,8" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Портрет героя -->
+                        <Border Width="40" Height="40" CornerRadius="20" BorderBrush="#FFAA00" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,12,0" VerticalAlignment="Center">
+                            <Image Source="{Binding PlayerAvatar}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="🎒 ИНВЕНТАРЬ И ЭКИПИРОВКА" FontSize="17" FontWeight="Bold" Foreground="#FFAA00"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                <TextBlock Text="{Binding PlayerName}" FontSize="13" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock Text=" • " Foreground="#666666" FontSize="12"/>
+                                <TextBlock Text="{Binding PlayerClass}" Foreground="#BBBBBB" FontSize="12"/>
+                                <TextBlock Text=", Ур. " Foreground="#666666" FontSize="12"/>
+                                <TextBlock Text="{Binding PlayerLevel}" Foreground="#55FF55" FontSize="12" FontWeight="Bold"/>
                             </StackPanel>
-                        </Button>
-
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Helmet" Background="#282828">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding EquippedHelmetIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedHelmetName}" Foreground="{Binding EquippedHelmetBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Chest" Background="#282828">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding EquippedChestIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedChestName}" Foreground="{Binding EquippedChestBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Boots" Background="#282828">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding EquippedBootsIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedBootsName}" Foreground="{Binding EquippedBootsBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Ring" Background="#282828">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding EquippedRingIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedRingName}" Foreground="{Binding EquippedRingBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Amulet" Background="#282828">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding EquippedAmuletIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedAmuletName}" Foreground="{Binding EquippedAmuletBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Separator Margin="0,6" Background="#333333"/>
-                        <TextBlock Text="ХАРАКТЕРИСТИКИ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,4" HorizontalAlignment="Center"/>
-
-                        <Grid Margin="4,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Здоровье / Мана:" Foreground="Gray" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding FormattedHpMp}" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                        </Grid>
-
-                        <Grid Margin="4,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Урон:" Foreground="Gray" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding FormattedDamage}" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                        </Grid>
-
-                        <Grid Margin="4,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Броня:" Foreground="Gray" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Armor}" Foreground="#FFAA00" FontSize="12" FontWeight="Bold"/>
-                        </Grid>
-
-                        <Grid Margin="4,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Крит / Уклон:" Foreground="Gray" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding FormattedCritDodge}" FontSize="12" FontWeight="Bold" Foreground="White"/>
-                        </Grid>
-
-                        <Grid Margin="4,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Сила / Ловкость:" Foreground="Gray" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding FormattedStrDex}" FontSize="12" FontWeight="Bold" Foreground="LightGreen"/>
-                        </Grid>
-
-                        <Grid Margin="4,1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Интеллект / Выносливость:" Foreground="Gray" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding FormattedIntEnd}" FontSize="12" FontWeight="Bold" Foreground="LightBlue"/>
-                        </Grid>
+                        </StackPanel>
                     </StackPanel>
-                </ScrollViewer>
-            </Border>
 
-            <!-- Центральная колонка: Рюкзак -->
-            <Border Grid.Column="1" Background="#1E1E1E" BorderBrush="#333333" BorderThickness="1" CornerRadius="5" Padding="8" Margin="0,0,8,0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Row="0" Text="РЮКЗАК (ПРЕДМЕТЫ)" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,6" HorizontalAlignment="Center"/>
-
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl ItemsSource="{Binding InventoryItems}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Margin="0,2" Padding="6,4" Background="#282828" BorderBrush="{Binding RarityBrush}" BorderThickness="1"
-                                            HorizontalContentAlignment="Stretch"
-                                            Click="ItemBtn_Click"
-                                            Tag="{Binding}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="26"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <TextBlock Grid.Column="0" Text="{Binding IconPath}" FontSize="14" VerticalAlignment="Center"/>
-                                            
-                                            <StackPanel Grid.Column="1" Margin="4,0" HorizontalAlignment="Left">
-                                                <TextBlock Text="{Binding Name}" Foreground="{Binding RarityBrush}" FontSize="13" FontWeight="Bold" TextAlignment="Left"/>
-                                                <TextBlock Text="{Binding FormattedStats}" Foreground="LightGray" FontSize="11" TextTrimming="CharacterEllipsis" TextAlignment="Left"/>
-                                            </StackPanel>
-
-                                            <TextBlock Grid.Column="2" Text="{Binding SlotDisplayName}" Foreground="Gray" FontSize="11" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                                        </Grid>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-
-            <!-- Правая колонка: Инспектор выбранного предмета -->
-            <Border Grid.Column="2" Background="#1E1E1E" BorderBrush="#333333" BorderThickness="1" CornerRadius="5" Padding="8">
-                <Grid>
-                    <!-- Заглушка, если ничего не выбрано -->
-                    <Border Background="#252525" BorderBrush="#333333" BorderThickness="1" CornerRadius="4" Padding="10" VerticalAlignment="Center" Visibility="{Binding PlaceholderVisibility}">
-                        <TextBlock Text="Нажмите на предмет в рюкзаке или слот экипировки слева для просмотра параметров." Foreground="Gray" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
-                    </Border>
-
-                    <!-- Карточка предмета -->
-                    <StackPanel Visibility="{Binding DetailsVisibility}">
-                        <TextBlock Text="ИНФОРМАЦИЯ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,6" HorizontalAlignment="Center"/>
-
-                        <Border Background="#252525" BorderBrush="{Binding SelectedItemBrush}" BorderThickness="1.5" CornerRadius="5" Padding="8" Margin="0,0,0,8">
-                            <StackPanel>
-                                <TextBlock Text="{Binding SelectedItemName}" Foreground="{Binding SelectedItemBrush}" FontSize="14" FontWeight="Bold" TextWrapping="Wrap" Margin="0,0,0,3"/>
-                                
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                                    <TextBlock Text="{Binding SelectedItemRarityName}" Foreground="{Binding SelectedItemBrush}" FontSize="11" FontWeight="Bold"/>
-                                    <TextBlock Text=" • " Foreground="Gray" FontSize="11"/>
-                                    <TextBlock Text="{Binding SelectedItemSlotName}" Foreground="LightGray" FontSize="11"/>
-                                </StackPanel>
-
-                                <Separator Background="#444" Margin="0,3"/>
-                                
-                                <TextBlock Text="{Binding SelectedItemStats}" Foreground="#55FF55" FontSize="12" FontWeight="Bold" TextWrapping="Wrap" Margin="0,3"/>
-                                <TextBlock Text="{Binding SelectedItemDesc}" Foreground="LightGray" FontSize="11" TextWrapping="Wrap" Margin="0,3"/>
-
-                                <Separator Background="#444" Margin="0,3"/>
-
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Цена: " Foreground="Gray" FontSize="11"/>
-                                    <TextBlock Text="{Binding SelectedItemGold}" Foreground="#FFDD44" FontWeight="Bold" FontSize="11"/>
-                                    <TextBlock Text=" 💰" FontSize="11"/>
-                                </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Золото -->
+                        <Border Background="#40000000" BorderBrush="#33FFAA00" BorderThickness="1" CornerRadius="6" Padding="12,5" Margin="0,0,12,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="💰 Золото: " FontSize="14" FontWeight="Bold" Foreground="#FFDD44"/>
+                                <TextBlock Text="{Binding Gold}" FontSize="14" FontWeight="Bold" Foreground="#FFDD44"/>
                             </StackPanel>
                         </Border>
 
-                        <Button Content="🛡️ Надеть" Height="34" FontSize="13" FontWeight="Bold" Background="#28a745" Click="EquipBtn_Click" Margin="0,3" IsEnabled="{Binding CanEquipSelected}"/>
-                        <Button Content="📦 Снять" Height="34" FontSize="13" FontWeight="Bold" Background="#aa5500" Click="UnequipBtn_Click" Margin="0,3" IsEnabled="{Binding CanUnequipSelected}"/>
+                        <!-- Кнопка осмотра арта стола -->
+                        <Button Click="ToggleArtMode_Click"
+                                Background="#60252835" BorderBrush="#AAFFAA00" BorderThickness="1"
+                                Height="34" Padding="12,0" ToolTip="Скрыть панели интерфейса и рассмотреть стол снаряжения">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="👁️" FontSize="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Осмотреть стол" FontSize="12" FontWeight="SemiBold" Foreground="#FFD700"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>
-        </Grid>
 
-        <!-- Нижняя панель закрытия -->
-        <Button Grid.Row="2" Content="⬅️ Закрыть инвентарь" Height="38" FontSize="15" FontWeight="Bold" Background="#3a3a3a" Click="CloseBtn_Click"/>
+            <!-- 3 Колонки: Снаряжение и статы (310) | Рюкзак (*) | Карточка предмета (330) -->
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="310"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="330"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Левая колонка: Слоты экипировки и параметры -->
+                <Border Grid.Column="0" Background="#C812151B" BorderBrush="#44AA7722" BorderThickness="1.2" CornerRadius="8" Padding="10" Margin="0,0,8,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <TextBlock Text="СНАРЯЖЕНИЕ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,8" HorizontalAlignment="Center"/>
+
+                            <Button Margin="0,2" Height="38" HorizontalContentAlignment="Left" Padding="10,0" Click="SlotBtn_Click" Tag="Weapon" Background="#60202532" BorderBrush="#33667788" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding EquippedWeaponIcon, StringFormat='{}{0} '}" FontSize="14"/>
+                                    <TextBlock Text="{Binding EquippedWeaponName}" Foreground="{Binding EquippedWeaponBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="0,2" Height="38" HorizontalContentAlignment="Left" Padding="10,0" Click="SlotBtn_Click" Tag="Helmet" Background="#60202532" BorderBrush="#33667788" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding EquippedHelmetIcon, StringFormat='{}{0} '}" FontSize="14"/>
+                                    <TextBlock Text="{Binding EquippedHelmetName}" Foreground="{Binding EquippedHelmetBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="0,2" Height="38" HorizontalContentAlignment="Left" Padding="10,0" Click="SlotBtn_Click" Tag="Chest" Background="#60202532" BorderBrush="#33667788" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding EquippedChestIcon, StringFormat='{}{0} '}" FontSize="14"/>
+                                    <TextBlock Text="{Binding EquippedChestName}" Foreground="{Binding EquippedChestBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="0,2" Height="38" HorizontalContentAlignment="Left" Padding="10,0" Click="SlotBtn_Click" Tag="Boots" Background="#60202532" BorderBrush="#33667788" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding EquippedBootsIcon, StringFormat='{}{0} '}" FontSize="14"/>
+                                    <TextBlock Text="{Binding EquippedBootsName}" Foreground="{Binding EquippedBootsBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="0,2" Height="38" HorizontalContentAlignment="Left" Padding="10,0" Click="SlotBtn_Click" Tag="Ring" Background="#60202532" BorderBrush="#33667788" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding EquippedRingIcon, StringFormat='{}{0} '}" FontSize="14"/>
+                                    <TextBlock Text="{Binding EquippedRingName}" Foreground="{Binding EquippedRingBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="0,2" Height="38" HorizontalContentAlignment="Left" Padding="10,0" Click="SlotBtn_Click" Tag="Amulet" Background="#60202532" BorderBrush="#33667788" BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding EquippedAmuletIcon, StringFormat='{}{0} '}" FontSize="14"/>
+                                    <TextBlock Text="{Binding EquippedAmuletName}" Foreground="{Binding EquippedAmuletBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220" FontSize="13"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Border Height="1" Background="#33FFAA00" Margin="0,10,0,8"/>
+                            <TextBlock Text="ХАРАКТЕРИСТИКИ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,6" HorizontalAlignment="Center"/>
+
+                            <Border Background="#40101218" CornerRadius="6" Padding="8,6" Margin="0,2">
+                                <StackPanel>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="Здоровье / Мана:" Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding FormattedHpMp}" FontSize="12" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="Урон (Физ / Маг):" Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding FormattedDamage}" FontSize="12" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="Броня:" Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding Armor}" Foreground="#FFAA00" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="Крит / Уклонение:" Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding FormattedCritDodge}" FontSize="12" FontWeight="Bold" Foreground="#FFAA00" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="Сила / Ловкость:" Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding FormattedStrDex}" FontSize="12" FontWeight="Bold" Foreground="#66FF66" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2">
+                                        <TextBlock Text="Интеллект / Выносл.:" Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding FormattedIntEnd}" FontSize="12" FontWeight="Bold" Foreground="#66CCFF" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Центральная колонка: Рюкзак (повышенная прозрачность ~55%, открывающая стол снаряжения) -->
+                <Border Grid.Column="1" Background="#88101319" BorderBrush="#44AA7722" BorderThickness="1.2" CornerRadius="8" Padding="12" Margin="0,0,8,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="{Binding BackpackTitle}" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,8" HorizontalAlignment="Center"/>
+
+                        <!-- Состояние пустого рюкзака: позволяет видеть арт стола и дает подсказку -->
+                        <Border Grid.Row="1" Background="#40141822" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="8" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="25,20" Visibility="{Binding EmptyBackpackVisibility}">
+                            <StackPanel MaxWidth="340" HorizontalAlignment="Center">
+                                <TextBlock Text="🎒" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,8" Opacity="0.8"/>
+                                <TextBlock Text="Рюкзак пуст" FontSize="16" FontWeight="Bold" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                                <TextBlock Text="Находите новую экипировку, свитки и зелья в битвах, подземельях и лавках торговцев." Foreground="#AAAAAA" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" LineHeight="16"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Список предметов в рюкзаке -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="{Binding ItemsListVisibility}">
+                            <ItemsControl ItemsSource="{Binding InventoryItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="0,2" Padding="8,6" Background="#751E232E" BorderBrush="{Binding RarityBrush}" BorderThickness="1"
+                                                HorizontalContentAlignment="Stretch"
+                                                Click="ItemBtn_Click"
+                                                Tag="{Binding}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0" Text="{Binding IconPath}" FontSize="16" VerticalAlignment="Center"/>
+                                                
+                                                <StackPanel Grid.Column="1" Margin="6,0" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding Name}" Foreground="{Binding RarityBrush}" FontSize="13" FontWeight="Bold" TextAlignment="Left"/>
+                                                    <TextBlock Text="{Binding FormattedStats}" Foreground="#CCCCCC" FontSize="11" TextTrimming="CharacterEllipsis" TextAlignment="Left"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="2" Text="{Binding SlotDisplayName}" Foreground="#888888" FontSize="11" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Правая колонка: Инспектор выбранного предмета -->
+                <Border Grid.Column="2" Background="#C812151B" BorderBrush="#44AA7722" BorderThickness="1.2" CornerRadius="8" Padding="12">
+                    <Grid>
+                        <!-- Заглушка, если ничего не выбрано -->
+                        <Border Background="#60181C24" BorderBrush="#33556677" BorderThickness="1" CornerRadius="8" Padding="16,20" VerticalAlignment="Center" Visibility="{Binding PlaceholderVisibility}">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="🔍" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,10" Opacity="0.8"/>
+                                <TextBlock Text="ОСМОТР ПРЕДМЕТА" FontSize="14" FontWeight="Bold" Foreground="#FFAA00" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                                <TextBlock Text="Выберите предмет в рюкзаке или слот экипировки слева для просмотра параметров и управления." Foreground="#999999" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" LineHeight="16"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Карточка предмета -->
+                        <StackPanel Visibility="{Binding DetailsVisibility}">
+                            <TextBlock Text="ИНФОРМАЦИЯ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,8" HorizontalAlignment="Center"/>
+
+                            <Border Background="#801C212B" BorderBrush="{Binding SelectedItemBrush}" BorderThickness="1.5" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedItemName}" Foreground="{Binding SelectedItemBrush}" FontSize="15" FontWeight="Bold" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBlock Text="{Binding SelectedItemRarityName}" Foreground="{Binding SelectedItemBrush}" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text=" • " Foreground="#666666" FontSize="11"/>
+                                        <TextBlock Text="{Binding SelectedItemSlotName}" Foreground="LightGray" FontSize="11"/>
+                                    </StackPanel>
+
+                                    <Separator Background="#444" Margin="0,4"/>
+                                    
+                                    <TextBlock Text="{Binding SelectedItemStats}" Foreground="#55FF55" FontSize="12" FontWeight="Bold" TextWrapping="Wrap" Margin="0,4"/>
+                                    <TextBlock Text="{Binding SelectedItemDesc}" Foreground="#CCCCCC" FontSize="11" TextWrapping="Wrap" Margin="0,4" LineHeight="15"/>
+
+                                    <Separator Background="#444" Margin="0,4"/>
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <TextBlock Text="Цена: " Foreground="#888888" FontSize="12"/>
+                                        <TextBlock Text="{Binding SelectedItemGold}" Foreground="#FFDD44" FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text=" 💰" FontSize="12"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Button Content="🛡️ Надеть" Height="36" FontSize="13" FontWeight="Bold" Background="#28a745" Click="EquipBtn_Click" Margin="0,3" IsEnabled="{Binding CanEquipSelected}"/>
+                            <Button Content="📦 Снять" Height="36" FontSize="13" FontWeight="Bold" Background="#aa5500" Click="UnequipBtn_Click" Margin="0,3" IsEnabled="{Binding CanUnequipSelected}"/>
+                            <Button Content="{Binding UseButtonText}" Height="36" FontSize="13" FontWeight="Bold" Background="#6a1b9a" Click="UseBtn_Click" Margin="0,3" IsEnabled="{Binding CanUseSelected}"
+                                    Visibility="{Binding CanUseSelected, Converter={StaticResource BoolToVis}}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Нижняя панель закрытия: стильная центрированная кнопка -->
+            <Button Grid.Row="2" Content="⬅️ Закрыть инвентарь"
+                    Width="280" Height="42" FontSize="14" FontWeight="Bold"
+                    Background="#D01E222A" BorderBrush="#FFAA00" BorderThickness="1.2"
+                    HorizontalAlignment="Center" Click="CloseBtn_Click"/>
+        </Grid>
     </Grid>
 </UserControl>

@@ -14,6 +14,11 @@ namespace EpicBattle.Views
         {
             InitializeComponent();
             _isSaving = isSaving;
+            try
+            {
+                BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/main_menu");
+            }
+            catch { }
 
             if (_isSaving)
             {
@@ -45,28 +50,55 @@ namespace EpicBattle.Views
 
         private void CreateSaveBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (string.IsNullOrWhiteSpace(SaveNameInput.Text)) return;
-            SaveManager.SaveGame(SaveNameInput.Text);
-            RefreshList();
-            MessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (SaveManager.SaveGame(SaveNameInput.Text))
+            {
+                RefreshList();
+                RpgMessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                RpgMessageBox.Show("Не удалось сохранить игру. Проверьте свободное место и права доступа.",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ActionBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             if (SavesList.SelectedItem is FileInfo file)
             {
                 if (_isSaving)
                 {
                     // Перезапись
-                    SaveManager.SaveGame(Path.GetFileNameWithoutExtension(file.Name));
-                    RefreshList();
-                    MessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (SaveManager.SaveGame(Path.GetFileNameWithoutExtension(file.Name)))
+                    {
+                        RefreshList();
+                        RpgMessageBox.Show("Игра сохранена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        RpgMessageBox.Show("Не удалось сохранить игру.", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
                 else
                 {
                     // Загрузка
-                    SaveManager.LoadGame(file.FullName);
-                    if (SaveManager.CurrentState.IsStoryMode)
+                    if (!SaveManager.LoadGame(file.FullName))
+                    {
+                        RpgMessageBox.Show("Файл сохранения повреждён или несовместим.", "Ошибка загрузки",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    var state = SaveManager.CurrentState;
+                    if (state.IsMapMode && state.ActiveMap != null)
+                    {
+                        NavigationManager.NavigateTo(new MapView());
+                    }
+                    else if (state.IsStoryMode)
                     {
                         NavigationManager.NavigateTo(new DialogueView());
                     }
@@ -80,6 +112,7 @@ namespace EpicBattle.Views
 
         private void DeleteBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             if (SavesList.SelectedItem is FileInfo file)
             {
                 SaveManager.DeleteSave(file.FullName);
@@ -89,10 +122,10 @@ namespace EpicBattle.Views
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Возвращаемся в игру или в меню в зависимости от контекста
-            // Простейший вариант - если мы из игры, надо бы вернуться в игру.
-            // Для упрощения пока всегда возвращаем в главное меню, если не настроить стек навигации.
-            if (NavigationManager.CanGoBack) NavigationManager.GoBack(); else NavigationManager.NavigateTo(new MainMenu());
+            EpicBattle.Services.AudioEngine.Play("click");
+            // Выход из окна сохранений — всегда в главное меню.
+            // rememberInHistory: false — чтобы в стеке не оставалось устаревшее окно SaveLoadView.
+            NavigationManager.NavigateTo(new MainMenu(), rememberInHistory: false);
         }
     }
 }

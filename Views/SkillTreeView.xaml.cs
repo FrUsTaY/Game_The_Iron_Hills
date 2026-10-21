@@ -8,6 +8,7 @@ namespace EpicBattle.Views
         public SkillTreeView(System.Action closeAction)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/skill_tree");
             var vm = new SkillTreeViewModel();
             vm.CloseAction = closeAction;
             DataContext = vm;

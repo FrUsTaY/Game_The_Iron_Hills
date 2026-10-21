@@ -14,6 +14,7 @@ namespace EpicBattle.Views
         public MapView()
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/map_view");
             _vm = new MapViewModel();
             DataContext = _vm;
 
@@ -64,6 +65,7 @@ namespace EpicBattle.Views
 
         private void MainMenu_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             NavigationManager.NavigateTo(new MainMenu());
         }
 

@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using EpicBattle.Services;
 using EpicBattle.ViewModels;
 
 namespace EpicBattle.Views
@@ -8,6 +9,7 @@ namespace EpicBattle.Views
         public CharacterCreationView(bool isArcade, bool isMapMode = false)
         {
             InitializeComponent();
+            BgImage.Source = ImageService.GetImage("Backgrounds/char_creation");
             DataContext = new CharacterCreationViewModel(isArcade, isMapMode);
         }
     }

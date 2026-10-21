@@ -1258,6 +1258,12 @@ namespace EpicBattle.Models
                     {
                         new DialogueChoice
                         {
+                            Text = "🌋 Продолжить кампанию: Акт 3 «Сердце Титана»",
+                            NextNodeId = "Act3_Start",
+                            Action = "SetupAct3"
+                        },
+                        new DialogueChoice
+                        {
                             Text = "🏆 Завершить кампанию и вернуться в Главное Меню",
                             Action = "MainMenu"
                         }
@@ -1272,6 +1278,12 @@ namespace EpicBattle.Models
                     Text = "Вы возлагаете руки на Сердце Кряжа. Бескрайняя мощь Бездны наполняет ваш разум. Черные знамена вздымаются над башнями. Отныне никто не посмеет бросить вызов новому Владыке Железного Кряжа!\n\nПолучено легендарное одеяние: Мантия Первородной Тьмы!",
                     Choices = new List<DialogueChoice>
                     {
+                        new DialogueChoice
+                        {
+                            Text = "🌋 Продолжить кампанию: Акт 3 «Сердце Титана»",
+                            NextNodeId = "Act3_Start",
+                            Action = "SetupAct3"
+                        },
                         new DialogueChoice
                         {
                             Text = "🏆 Завершить кампанию и вернуться в Главное Меню",
@@ -1290,12 +1302,183 @@ namespace EpicBattle.Models
                     {
                         new DialogueChoice
                         {
+                            Text = "🌋 Продолжить кампанию: Акт 3 «Сердце Титана»",
+                            NextNodeId = "Act3_Start",
+                            Action = "SetupAct3"
+                        },
+                        new DialogueChoice
+                        {
                             Text = "🏆 Завершить кампанию и вернуться в Главное Меню",
                             Action = "MainMenu"
                         }
                     }
                 }
+            },
+
+            // ==========================================
+            // === ЭТАП 3.4: АКТ 3 «СЕРДЦЕ ТИТАНА» ===
+            // ==========================================
+            {
+                "Act3_Start", new DialogueNode
+                {
+                    Id = "Act3_Start",
+                    SpeakerName = "Автор",
+                    Text = "Минула луна после гибели Архимага Малкора. Земля Железного Кряжа дрожит без перерыва: трескаются перевалы, из кратеров поднимается пепел древних костров. Старики шепчут, что Сердце Кряжа было лишь засовом — а за ним веками спал ПЕРВОРОДНЫЙ ТИТАН, первый король гор. И теперь засов сорван вашей победой.",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "Собрать отряд и спуститься в недра Кряжа",
+                            NextNodeId = "Act3_Ascent"
+                        }
+                    }
+                }
+            },
+            {
+                "Act3_Ascent", new DialogueNode
+                {
+                    Id = "Act3_Ascent",
+                    SpeakerName = "Голос Кряжа",
+                    Text = "Тропа вниз проходит через Зал Древних Королей — колоннаду черных базальтовых статуй правителей, когда-то заковавших Титана. На постаментах тлеют руны последней печати. Чтобы удержать Титана во сне, нужен новый якорь — живое сердце с родством к камню, тени или свету.",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "[СВЕТ] «Я очищу Сердце вторично — пусть Титан уснет вечным спокойным сном камня!»",
+                            NextNodeId = "Act3_Boss_Entry",
+                            RequiredFlag = "Act2LightEnding"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "[ТЕНЬ] «Корона Древних Королей моя по праву силы. Я подчиню Титана, как подчинил Тень!»",
+                            NextNodeId = "Act3_Boss_Entry",
+                            RequiredFlag = "Act2DarkEnding"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "[РАВНОВЕСИЕ] «Я дал слово Стража. Закую Титана в новую печать — и останусь его тюремщиком навечно».",
+                            NextNodeId = "Act3_Boss_Entry",
+                            RequiredFlag = "Act2NeutralEnding"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "«Что бы там ни спало — мой меч решит, проснется ли оно» (спускаться без клятвы)",
+                            NextNodeId = "Act3_Boss_Entry"
+                        }
+                    }
+                }
+            },
+            {
+                "Act3_Boss_Entry", new DialogueNode
+                {
+                    Id = "Act3_Boss_Entry",
+                    SpeakerName = "Автор",
+                    Text = "Дно мира. Озеро магмы озаряет купол пещеры, равный небу. В центре, опутанный ржавыми цепями печатей, поднимается коленопреклоненный исполин — Первородный Титан Кряжа. Камень его кожи лопается, из трещин брызжет белый жар. «СМЕРТНЫЕ... ВЫ СНОВА ПРИШЛИ БУДИТЬ МЕНЯ?»",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "[ЩИТ КОРОЛЕЙ] Восстать против Титана под защитой рун Зала Древних Королей!",
+                            NextNodeId = "Act3_Ending_Decisions",
+                            Action = "StartBattle",
+                            ActionParam = "Act3_Titan_Shield"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "[СЕРДЦЕ ГОЛЕМА] Ударить, питая снаряжение кристаллом Рунного Голема!",
+                            NextNodeId = "Act3_Ending_Decisions",
+                            Action = "StartBattle",
+                            ActionParam = "Act3_Crystal_Empowered",
+                            RequiredFlag = "GolemAllied"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "«Вставай, древний. Мы закончим то, что начали твои короли!» (Честный бой)",
+                            NextNodeId = "Act3_Ending_Decisions",
+                            Action = "StartBattle",
+                            ActionParam = "Act3_Titan"
+                        }
+                    }
+                }
+            },
+            {
+                "Act3_Ending_Decisions", new DialogueNode
+                {
+                    Id = "Act3_Ending_Decisions",
+                    SpeakerName = "Автор",
+                    Text = "Грохот падшего Титана сотрясает основание мира. Перед Элриком парит обнажённое Сердце — пульсирующий узел всех судеб Кряжа. Три дороги расходятся от него, как три акта вашей истории. Финальный выбор свершится сейчас.",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "🌅 [СВЕТЛЫЕ ГОРЫ] Усыпить Сердце песней рассвета — горы свободны от всякой власти",
+                            NextNodeId = "Act3_Ending_Light",
+                            Action = "Act3_Ending_Dawn"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "🌑 [ВЛАДЫКА СЕРДЦА] Поглотить силу Титана и взойти на Трон Древних Королей",
+                            NextNodeId = "Act3_Ending_Dark",
+                            Action = "Act3_Ending_Heart"
+                        },
+                        new DialogueChoice
+                        {
+                            Text = "⚖️ [ХРАНИТЕЛЬ] Запечатать Сердце печатью трех актов и остаться его стражем",
+                            NextNodeId = "Act3_Ending_Neutral",
+                            Action = "Act3_Ending_Seal"
+                        }
+                    }
+                }
+            },
+            {
+                "Act3_Ending_Light", new DialogueNode
+                {
+                    Id = "Act3_Ending_Light",
+                    SpeakerName = "🌅 Эпилог Светлых Гор",
+                    Text = "Первый луч солнца входит в подземный мир, и Сердце, словно услышав колыбельную, гаснет мягким янтарным светом. Титан засыпает спокойным сном камня — и горы впервые за тысячелетие замолкают. Песни о Легенде Железного Кряжа будут звучать в тавернах Севера вечно.\n\nПолучен легендарный меч: Рассеятель Утра!",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "🏆 Завершить трилогию и вернуться в Главное Меню",
+                            Action = "MainMenu"
+                        }
+                    }
+                }
+            },
+            {
+                "Act3_Ending_Dark", new DialogueNode
+                {
+                    Id = "Act3_Ending_Dark",
+                    SpeakerName = "🌑 Эпилог Владыки Сердца",
+                    Text = "Вы сжимаете Сердце в кулаке. Раскалённая сила Титана втекает в жилы — и вы становитесь тем, кем были Древние Короли: властелином камня, лавы и самих гор. С вершин Железного Кряжа видны все королевства, склонившие знамена.\n\nПолучен легендарный амулет: Сердце Титана в Дланях!",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "🏆 Завершить трилогию и вернуться в Главное Меню",
+                            Action = "MainMenu"
+                        }
+                    }
+                }
+            },
+            {
+                "Act3_Ending_Neutral", new DialogueNode
+                {
+                    Id = "Act3_Ending_Neutral",
+                    SpeakerName = "⚖️ Эпилог Хранителя",
+                    Text = "Печать трех актов — крови орочьих кланов, света архимагов и слова Стража — ложится на Сердце. Врата недрам затворяются навсегда. Кто-то должен остаться по эту сторону. Это будете вы — вечный хранитель равновесия Кряжа, о котором помнят только горы.",
+                    Choices = new List<DialogueChoice>
+                    {
+                        new DialogueChoice
+                        {
+                            Text = "🏆 Завершить трилогию и вернуться в Главное Меню",
+                            Action = "MainMenu"
+                        }
+                    }
+                }
             }
+
         };
     }
 }

@@ -26,6 +26,8 @@ namespace EpicBattle.Models.Map
             MapNodeType.Encounter => "📜 Событие",
             MapNodeType.Merchant => "💰 Торговец",
             MapNodeType.Campfire => "⛺ Привал",
+            MapNodeType.Blacksmith => "🔨 Кузница",
+            MapNodeType.Tavern => "🍺 Таверна",
             MapNodeType.Boss => "👑 Босс",
             _ => "Узел"
         };
@@ -45,6 +47,8 @@ namespace EpicBattle.Models.Map
             MapNodeType.Encounter => "#1565C0",
             MapNodeType.Merchant => "#E65100",
             MapNodeType.Campfire => "#2E7D32",
+            MapNodeType.Blacksmith => "#8D6E63",
+            MapNodeType.Tavern => "#A1887F",
             MapNodeType.Boss => "#B71C1C",
             _ => "#333333"
         };

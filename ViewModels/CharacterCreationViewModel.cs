@@ -1,4 +1,4 @@
-using System;
+﻿﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -44,8 +44,8 @@ namespace EpicBattle.ViewModels
             _isArcade = isArcade;
             _isMapMode = isMapMode;
 
-            // Устанавливаем дефолтный класс и его статы
-            SelectClass("Ветеран");
+            // Устанавливаем дефолтный класс и его статы (без звука при создании окна)
+            SelectClass("Ветеран", playSound: false);
         }
 
         private string _playerName = "Элрик";
@@ -127,12 +127,40 @@ namespace EpicBattle.ViewModels
         public ICommand DecreaseStatCommand => new Command(DecreaseStat, CanDecreaseStat);
 
         private Command _startGameCommand;
-        public Command StartGameCommand => _startGameCommand ??= new Command(StartGame, _ => AvailablePoints == 0);
-        public ICommand BackCommand => new Command(_ => NavigationManager.NavigateTo(new MainMenu()));
-
-        private void SelectClass(string className)
+        public string ClassTitleBadge => SelectedClass switch
         {
+            "Ветеран" => "🛡️ ВЕТЕРАН КРЯЖА • Мастер стали",
+            "Изгой-маг" => "🔮 ИЗГОЙ-МАГ • Повелитель рун",
+            "Наемник" => "🗡️ НАЕМНИК • Мастер критов",
+            _ => ""
+        };
+
+        public System.Windows.Media.Imaging.BitmapImage? HeroPortrait => SelectedClass switch
+        {
+            "Ветеран" => EpicBattle.Services.ImageService.GetCharacterImage("hero_veteran"),
+            "Изгой-маг" => EpicBattle.Services.ImageService.GetCharacterImage("hero_mage"),
+            "Наемник" => EpicBattle.Services.ImageService.GetCharacterImage("hero_mercenary"),
+            _ => EpicBattle.Services.ImageService.GetCharacterImage("hero_veteran")
+        };
+
+        public Command StartGameCommand => _startGameCommand ??= new Command(StartGame, _ => AvailablePoints == 0);
+        public ICommand BackCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("click"); NavigationManager.NavigateTo(new MainMenu()); });
+
+        private void SelectClass(string className, bool playSound = true)
+        {
+            // При повторном выборе того же класса очки и статы трогать не нужно
+            // (иначе можно терять распределённые очки, кликая по уже выбранному классу)
+            if (string.Equals(SelectedClass, className, StringComparison.Ordinal)) return;
+
             SelectedClass = className;
+            OnPropertyChanged(nameof(HeroPortrait));
+            OnPropertyChanged(nameof(ClassTitleBadge));
+            if (playSound)
+            {
+                if (className == "Ветеран") EpicBattle.Services.AudioEngine.Play("sword_unsheath");
+                else if (className == "Изгой-маг") EpicBattle.Services.AudioEngine.Play("fireball");
+                else EpicBattle.Services.AudioEngine.Play("sword_attack");
+            }
             // Сбрасываем очки при смене класса, даем базовые статы класса
             AvailablePoints = 5;
 
@@ -155,7 +183,8 @@ namespace EpicBattle.ViewModels
 
         private void IncreaseStat(object param)
         {
-            if (AvailablePoints <= 0) return;
+            EpicBattle.Services.AudioEngine.Play("click");
+            if (AvailablePoints <= 0 || param == null) return;
             string stat = param.ToString();
             if (stat == "STR") Strength++;
             else if (stat == "DEX") Dexterity++;
@@ -169,6 +198,7 @@ namespace EpicBattle.ViewModels
 
         private void DecreaseStat(object param)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             string stat = param.ToString();
 
             // Не даем опустить стат ниже базового значения класса (упрощенная логика)
@@ -211,6 +241,7 @@ namespace EpicBattle.ViewModels
 
         private void StartGame(object param)
         {
+            EpicBattle.Services.AudioEngine.Play("gate_open");
             // Формируем GameState
             var state = new GameState
             {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using EpicBattle.Models.RPG;
@@ -28,12 +28,15 @@ namespace EpicBattle.Models.Combat
         public int EstimatedValue { get; set; }
         public string IconPath { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        // P2: семантический вид намерения — движок реагирует на него, а не на текст Description
+        public IntentKind Kind { get; set; } = IntentKind.None;
     }
 
     public class BattleEnemy : CombatEntity
     {
-        private static readonly Random rand = new Random();
+        private static readonly RngProxy rand = new RngProxy();
 
+        public System.Windows.Media.Imaging.BitmapImage? Avatar => EpicBattle.Services.ImageService.GetEnemyAvatar(Name, Id);
         public EnemyRole Role { get; set; }
         public EnemyIntent CurrentIntent { get; set; } = new EnemyIntent();
         public List<Skill> AvailableSkills { get; set; } = new List<Skill>();
@@ -43,6 +46,30 @@ namespace EpicBattle.Models.Combat
         {
             get => _isTargeted;
             set { _isTargeted = value; OnPropertyChanged(); }
+        }
+
+        // P1-фикс (В4): перезарядка вражеских навыков. Ключ — Id навыка.
+        // Лечилки/баффы без КД делали элитных Инквизиторов и боссов «стеной» (бессмертный FirstAid).
+        private readonly Dictionary<string, int> _skillCooldowns = new Dictionary<string, int>();
+
+        /// <summary>Тик перезарядок — вызывать в начале хода существа.</summary>
+        public void TickSkillCooldowns()
+        {
+            var ready = new List<string>();
+            foreach (var kv in _skillCooldowns)
+            {
+                if (kv.Value > 1) _skillCooldowns[kv.Key] = kv.Value - 1;
+                else ready.Add(kv.Key);
+            }
+            foreach (var id in ready) _skillCooldowns.Remove(id);
+        }
+
+        public bool IsSkillOnCooldown(string skillId) =>
+            _skillCooldowns.TryGetValue(skillId, out int cd) && cd > 0;
+
+        public void StartSkillCooldown(string skillId, int turns)
+        {
+            if (turns > 0) _skillCooldowns[skillId] = turns;
         }
 
         public void DetermineIntent(List<BattleEnemy> activeEnemies, BattlePlayer player)
@@ -59,30 +86,35 @@ namespace EpicBattle.Models.Combat
                 return;
             }
 
-            // 1. Уникальная логика босса Громгара
-            if (Name.Contains("Громгар"))
-            {
-                if (!ActiveEffects.Any(e => e.Id == "Rage") && ((float)Hp / MaxHp <= 0.35f))
-                {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "😡", Description = "Впасть в ярость" };
-                    return;
-                }
+            // P1-фикс (В6): Тактик больше не «вечный ослепитель». Ослепление — с перезарядкой
+            // и реальным расходом ресурсов (MP/AP списываются в ExecuteEnemyTurn).
+            bool tacticianCanBlind = Role == EnemyRole.Tactician
+                && !IsSkillOnCooldown("T_Blind")
+                && Mp >= 8 && CurrentAP >= 2
+                && !player.ActiveEffects.Any(e => e.Id == "Blind");
 
+            // P0-фикс (В1): фаза Ярости Громгара — единый источник истины в BattleEngine.ProcessTurnStart
+            // (GromgarRageThreshold). Здесь больше нет дублирующей проверки 35%, включавшей ярость дважды.
+
+            // 1. Уникальная логика босса Громгара
+            // P2: хук по стабильному Id вместо имени
+            if (Id == "boss_gromgar" || Name.Contains("Громгар"))
+            {
                 var cleaveSkill = AvailableSkills.FirstOrDefault(s => s.Id == "S2_Cleave");
                 if (cleaveSkill != null && CurrentAP >= cleaveSkill.APCost && rand.Next(100) < 40)
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Рассекающий удар" };
+                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, EstimatedValue = BaseDamage, IconPath = "⚔️", Kind = IntentKind.CleaveCast, Description = "Рассекающий удар" };
                     return;
                 }
 
                 var strikeSkill = AvailableSkills.FirstOrDefault(s => s.Id == "S1_PowerStrike");
                 if (strikeSkill != null && CurrentAP >= strikeSkill.APCost && rand.Next(100) < 50)
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = (int)(BaseDamage * 1.5), IconPath = "💥", Description = "Сокрушительный удар" };
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.HeavyAttack, Type = IntentType.Attack, EstimatedValue = (int)(BaseDamage * 1.5), IconPath = "💥", Description = "Сокрушительный удар" };
                     return;
                 }
 
-                CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Тяжелый удар топором" };
+                CurrentIntent = new EnemyIntent { Kind = IntentKind.Attack, Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Тяжелый удар топором" };
                 return;
             }
 
@@ -97,21 +129,22 @@ namespace EpicBattle.Models.Combat
                 var healSkill = AvailableSkills.FirstOrDefault(s => s.Id == "V1_FirstAid");
                 var fireSkill = AvailableSkills.FirstOrDefault(s => s.Id == "M1_Fireball");
 
-                if (injuredAlly != null && healSkill != null && Mp >= healSkill.ManaCost && CurrentAP >= healSkill.APCost)
+                // P1-фикс (В4): лечение с перезарядкой — иначе шаман «бессмертен» для группы
+                if (injuredAlly != null && healSkill != null && Mp >= healSkill.ManaCost && CurrentAP >= healSkill.APCost && !IsSkillOnCooldown("V1_FirstAid"))
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Heal, EstimatedValue = 30, IconPath = "🌿", Description = $"Исцеление ({injuredAlly.Name})" };
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.Heal, Type = IntentType.Heal, EstimatedValue = 30, IconPath = "🌿", Description = $"Исцеление ({injuredAlly.Name})" };
                 }
-                else if (fireSkill != null && Mp >= fireSkill.ManaCost && CurrentAP >= fireSkill.APCost && rand.Next(100) < 70)
+                else if (fireSkill != null && Mp >= fireSkill.ManaCost && CurrentAP >= fireSkill.APCost && !IsSkillOnCooldown("M1_Fireball") && rand.Next(100) < 70)
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, EstimatedValue = BaseMagicDamage, IconPath = "🔥", Description = "Огненный шар (Магия/AoE)" };
+                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, EstimatedValue = BaseMagicDamage, IconPath = "🔥", Kind = IntentKind.FireballCast, Description = "Огненный шар (Магия/AoE)" };
                 }
-                else if (!player.ActiveEffects.Any(e => e.Id == "Blind") && Mp >= 8 && rand.Next(100) < 40)
+                else if (!player.ActiveEffects.Any(e => e.Id == "Blind") && Mp >= 8 && CurrentAP >= 2 && !IsSkillOnCooldown("T_Blind") && rand.Next(100) < 40)
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "👁️", Description = "Ослепление" };
+                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "👁️", Kind = IntentKind.BlindCast, Description = "Ослепление" };
                 }
                 else
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "🪄", Description = "Удар посохом" };
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.Attack, Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "🪄", Description = "Удар посохом" };
                 }
                 return;
             }
@@ -122,11 +155,11 @@ namespace EpicBattle.Models.Combat
                 bool allyInDanger = activeEnemies.Any(e => e != this && e.Hp > 0 && (float)e.Hp / e.MaxHp < 0.5f);
                 if ((allyInDanger || (float)Hp / MaxHp < 0.4f) && !IsDefending)
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Defend, IconPath = "🛡️", Description = "Глухая защита" };
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.Defend, Type = IntentType.Defend, IconPath = "🛡️", Description = "Глухая защита" };
                 }
                 else
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Атака щитом" };
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.Attack, Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Атака щитом" };
                 }
                 return;
             }
@@ -136,31 +169,39 @@ namespace EpicBattle.Models.Combat
             {
                 if ((float)Hp / MaxHp < 0.35f && !ActiveEffects.Any(e => e.Id == "Rage"))
                 {
-                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "😡", Description = "Впасть в ярость" };
+                    CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "😡", Kind = IntentKind.RageCast, Description = "Впасть в ярость" };
                 }
                 else
                 {
                     var strikeSkill = AvailableSkills.FirstOrDefault(s => s.Id == "S1_PowerStrike");
-                    if (strikeSkill != null && CurrentAP >= strikeSkill.APCost && rand.Next(100) < 45)
+                    if (strikeSkill != null && CurrentAP >= strikeSkill.APCost && !IsSkillOnCooldown("S1_PowerStrike") && rand.Next(100) < 45)
                     {
-                        CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = (int)(BaseDamage * 1.5), IconPath = "💥", Description = "Мощный удар" };
+                        CurrentIntent = new EnemyIntent { Kind = IntentKind.HeavyAttack, Type = IntentType.Attack, EstimatedValue = (int)(BaseDamage * 1.5), IconPath = "💥", Description = "Мощный удар" };
                     }
                     else
                     {
-                        CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Яростная атака" };
+                        CurrentIntent = new EnemyIntent { Kind = IntentKind.Attack, Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Яростная атака" };
                     }
                 }
                 return;
             }
 
             // 5. Логика Тактика
-            if (!player.ActiveEffects.Any(e => e.Id == "Blind"))
+            if (tacticianCanBlind)
             {
-                CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "👁️", Description = "Ослепление" };
+                CurrentIntent = new EnemyIntent { Type = IntentType.Cast, IconPath = "👁️", Kind = IntentKind.BlindCast, Description = "Ослепление" };
             }
             else
             {
-                CurrentIntent = new EnemyIntent { Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Точный удар" };
+                var tactStrike = AvailableSkills.FirstOrDefault(s => s.Id == "S1_PowerStrike");
+                if (tactStrike != null && CurrentAP >= tactStrike.APCost && Mp >= tactStrike.ManaCost && !IsSkillOnCooldown("S1_PowerStrike") && rand.Next(100) < 35)
+                {
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.HeavyAttack, Type = IntentType.Attack, EstimatedValue = (int)(BaseDamage * 1.5), IconPath = "💥", Description = "Мощный удар" };
+                }
+                else
+                {
+                    CurrentIntent = new EnemyIntent { Kind = IntentKind.Attack, Type = IntentType.Attack, EstimatedValue = BaseDamage, IconPath = "⚔️", Description = "Точный удар" };
+                }
             }
         }
     }
@@ -182,13 +223,15 @@ namespace EpicBattle.Models.Combat
             Mp = Math.Min(state.PlayerMp, state.PlayerMaxMp);
             MaxAP = 4;
             CurrentAP = 4;
-            Agility = state.Dexterity;
+            // P1-баланс: Инициатива рассчитывается из полной ловкости (включая экипировку)
+            // плюс бонус от половины уровня героя, чтобы боец с опытом не отставал от скейлинга врагов.
+            Agility = state.TotalDexterity + (state.PlayerLevel / 2);
             BaseDamage = state.PlayerBaseDamage;
             BaseMagicDamage = state.PlayerBaseMagicDamage;
             Armor = state.Defense;
             DodgeChance = state.DodgeChance;
             CritChance = state.CritChance;
-            CritMultiplier = state.PlayerClass == "Наемник" ? 1.75 : 1.5;
+            CritMultiplier = state.PlayerClass == "Наемник" ? 1.6 : 1.5; // P1-баланс: нерф критика Наёмника (было 1.75)
             HpPotions = state.HpPotions;
             MpPotions = state.MpPotions;
 

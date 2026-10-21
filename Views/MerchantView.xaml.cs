@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.ViewModels;
@@ -12,6 +12,8 @@ namespace EpicBattle.Views
         public MerchantView(Action onLeave)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/merchant");
+            NpcAvatar.Source = EpicBattle.Services.ImageService.GetCharacterImage("npc_merchant");
             _vm = new MerchantViewModel(onLeave);
             DataContext = _vm;
         }
@@ -50,6 +52,11 @@ namespace EpicBattle.Views
         private void BuySkillTome_Click(object sender, RoutedEventArgs e)
         {
             _vm.BuySkillTomeCommand.Execute(null);
+        }
+
+        private void SellOre_Click(object sender, RoutedEventArgs e)
+        {
+            _vm.SellOreCommand.Execute(null);
         }
 
         private void LeaveShop_Click(object sender, RoutedEventArgs e)

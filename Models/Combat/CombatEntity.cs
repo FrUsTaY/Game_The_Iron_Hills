@@ -10,6 +10,7 @@ namespace EpicBattle.Models.Combat
     public abstract class CombatEntity : INotifyPropertyChanged
     {
         public string Name { get; set; } = string.Empty;
+        public string Id { get; set; } = string.Empty; // P0-фикс (В1): стабильный идентификатор врага вместо магических строк в Name
 
         private int _hp;
         public int Hp
@@ -64,6 +65,9 @@ namespace EpicBattle.Models.Combat
             get => _isDefending;
             set { _isDefending = value; OnPropertyChanged(); }
         }
+
+        // P2-фикс (В8): защита от повторного объявления смерти в CheckEnemyDeaths
+        public bool DeathAnnounced { get; set; } = false;
 
         // Эффекты
         public ObservableCollection<StatusEffect> ActiveEffects { get; set; } = new ObservableCollection<StatusEffect>();

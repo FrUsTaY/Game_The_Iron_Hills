@@ -15,6 +15,7 @@ namespace EpicBattle.Views
         public CampfireView(Action onCompleted)
         {
             InitializeComponent();
+            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/campfire");
             _onCompleted = onCompleted;
             _state = SaveManager.CurrentState;
             UpdateDisplay();
@@ -40,6 +41,7 @@ namespace EpicBattle.Views
         {
             if (_actionUsed) return;
             DisableCampfireActions();
+            EpicBattle.Services.AudioEngine.Play("firebuff");
 
             int healHp = (int)(_state.PlayerMaxHp * 0.40);
             int healMp = (int)(_state.PlayerMaxMp * 0.50);
@@ -56,6 +58,7 @@ namespace EpicBattle.Views
         {
             if (_actionUsed) return;
             DisableCampfireActions();
+            EpicBattle.Services.AudioEngine.Play("spell_impact");
 
             _state.StatPoints += 1;
             _state.SkillPoints += 1;
@@ -67,17 +70,31 @@ namespace EpicBattle.Views
         private void SharpenBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_actionUsed) return;
+
+            // P1-фикс (баланс): бесплатная перманентная заточка +2 за каждый костёр была
+            // доминирующей стратегией (за акт — до +8..+12 урона). Теперь заточка требует
+            // руду (1 ⛏️) и даёт умеренный бонус +1. Без руды кнопка не сработает.
+            if (_state.Ore < 1)
+            {
+                ResultText.Text = "⚒️ Для заточки нужна Железная Руда Кряжа (⛏️ 1 шт.)! Добудьте её в бою или купите у кузнеца.";
+                return; // действие НЕ расходуется — можно выбрать другое
+            }
+
             DisableCampfireActions();
 
-            _state.PlayerBaseDamage += 2;
-            _state.PlayerBaseMagicDamage += 2;
+            _state.Ore -= 1;
+            // P2-доп: бонус заточки — в SharpenBonus (устойчив к пересчёту производных статов)
+            _state.SharpenBonus += 1;
+            EpicBattle.Services.AudioEngine.Play("sword_parry");
+            _state.RecalculateDerivedStats();
 
-            ResultText.Text = "⚔️ Вы тщательно отполировали клинки и посохи (+2 к Базовому Урону навсегда)!";
+            ResultText.Text = "⚔️ Вы наточили клинки на вулканической руде (+1 к Базовому Урону и Магии навсегда, −1 ⛏️)!";
             UpdateDisplay();
         }
 
         private void OpenInventory_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("chest_open");
             NavigationManager.NavigateTo(new InventoryView(() =>
             {
                 NavigationManager.NavigateTo(this);
@@ -87,6 +104,7 @@ namespace EpicBattle.Views
 
         private void OpenSkillTree_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("spell_impact");
             NavigationManager.NavigateTo(new SkillTreeView(() =>
             {
                 NavigationManager.NavigateTo(this);
@@ -96,6 +114,7 @@ namespace EpicBattle.Views
 
         private void ContinueBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click");
             _onCompleted?.Invoke();
         }
     }
