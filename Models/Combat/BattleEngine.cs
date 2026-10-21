@@ -805,7 +805,8 @@ namespace EpicBattle.Models.Combat
                             {
                                 adj.Hp -= adjDmg;
                                 OnLogEvent($"⚔️ {adj.Name} получает {adjDmg} урона от рассечения.");
-                                ApplyVampirismIfPlayer(caster, adjDmg);
+                                // P1-баланс: вампиризм срабатывает только от основной цели (mainTarget),
+                                // вторичные цели рассечения вампиризм не триггерят.
                             }
                         }
                     }
@@ -852,7 +853,9 @@ namespace EpicBattle.Models.Combat
         {
             if (caster is BattlePlayer bp && bp.UnlockedSkills.Any(s => s.Id == "V3_Vampirism") && damageDealt > 0)
             {
-                int heal = Math.Max(1, (int)(damageDealt * 0.20));
+                // P1-баланс: вампиризм восстанавливает 20% урона, но не более 18 HP за атаку.
+                int rawHeal = Math.Max(1, (int)(damageDealt * 0.20));
+                int heal = Math.Min(18, rawHeal);
                 bp.Hp = Math.Min(bp.MaxHp, bp.Hp + heal);
                 OnLogEvent($"🩸 [Вампиризм] восстанавливает {heal} HP.");
             }

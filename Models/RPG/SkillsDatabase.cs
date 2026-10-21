@@ -79,7 +79,7 @@ namespace EpicBattle.Models.RPG
             // --- Выживание ---
             new Skill { Id = "V1_FirstAid", Name = "Первая Помощь", Description = "Восстанавливает 30 HP. Не тратит зелья.", Branch = SkillBranch.Survival, Type = SkillType.Active, APCost = 2, ManaCost = 10, Cooldown = 3, TargetType = TargetType.SingleTarget },
             new Skill { Id = "V2_ThickSkin", Name = "Толстая Кожа", Description = "Пассивно увеличивает защиту на 5.", Branch = SkillBranch.Survival, Type = SkillType.Passive, RequiredLevel = 3, RequiredSkillId = "V1_FirstAid" },
-            new Skill { Id = "V3_Vampirism", Name = "Вампиризм", Description = "Ваши физические атаки восстанавливают здоровье в размере 20% от нанесенного урона.", Branch = SkillBranch.Survival, Type = SkillType.Passive, RequiredLevel = 5, RequiredSkillId = "V2_ThickSkin" }
+            new Skill { Id = "V3_Vampirism", Name = "Вампиризм", Description = "Прямые физические атаки восстанавливают 20% урона (не более 18 HP за удар).", Branch = SkillBranch.Survival, Type = SkillType.Passive, RequiredLevel = 5, RequiredSkillId = "V2_ThickSkin" }
         };
     }
 }
