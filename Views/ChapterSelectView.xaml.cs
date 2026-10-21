@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.Managers;
 using EpicBattle.Models;
@@ -24,6 +24,11 @@ namespace EpicBattle.Views
             if (state == null || (state.PlayerLevel < 4 && !state.Act2Completed))
             {
                 ContinueCurrentToAct3Btn.Visibility = Visibility.Collapsed;
+            }
+
+            if (!VideoService.HasVideo("intro_story.mp4"))
+            {
+                WatchPrologueBtn.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -83,6 +88,12 @@ namespace EpicBattle.Views
                 state.PlayerMp = state.PlayerMaxMp;
                 NavigationManager.NavigateTo(new DialogueView());
             }
+        }
+
+        private void WatchPrologueBtn_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            NavigationManager.NavigateTo(new IntroVideoView(() => NavigationManager.NavigateTo(new ChapterSelectView()), playOnlyStory: true));
         }
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="EpicBattle.Views.ChapterSelectView"
+<UserControl x:Class="EpicBattle.Views.ChapterSelectView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#100F12" Foreground="White">
@@ -154,9 +154,13 @@
 
                 </StackPanel>
 
-                <!-- Нижняя кнопка возврата -->
-                <Button Grid.Row="2" Content="⬅️ Назад в Главное Меню" Height="42" Width="250" FontSize="15"
-                        HorizontalAlignment="Center" Background="#2A2930" Margin="0,15,0,0" Click="BackBtn_Click"/>
+                <!-- Нижняя панель действий -->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+                    <Button Name="WatchPrologueBtn" Content="🎬 Смотреть пролог (Лор)" Height="42" FontSize="14" FontWeight="SemiBold"
+                            Background="#3D2918" Margin="0,0,15,0" Padding="18,0" Click="WatchPrologueBtn_Click"/>
+                    <Button Content="⬅️ Назад в Главное Меню" Height="42" Width="230" FontSize="15"
+                            Background="#2A2930" Click="BackBtn_Click"/>
+                </StackPanel>
             </Grid>
         </ScrollViewer>
     </Grid>

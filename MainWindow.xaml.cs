@@ -20,7 +20,18 @@ namespace EpicBattle
                 DisplayManager.ApplySettings(this, SaveManager.Settings);
             }
 
-            NavigationManager.NavigateTo(new MainMenu());
+            if (VideoService.HasIntroVideos())
+            {
+                NavigationManager.NavigateTo(new IntroVideoView(() =>
+                {
+                    NavigationManager.ClearHistory();
+                    NavigationManager.NavigateTo(new MainMenu(), rememberInHistory: false);
+                }), rememberInHistory: false);
+            }
+            else
+            {
+                NavigationManager.NavigateTo(new MainMenu());
+            }
         }
     }
 }
