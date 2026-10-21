@@ -167,11 +167,10 @@
 
                     <StackPanel HorizontalAlignment="Center" Width="370">
                         <!-- Металлический логотип игры -->
-                        <Border CornerRadius="8" ClipToBounds="True" Margin="0,0,0,8" HorizontalAlignment="Center">
-                            <Image Name="LogoImage" Stretch="Uniform" MaxHeight="125" HorizontalAlignment="Center"/>
+                        <Border CornerRadius="8" ClipToBounds="True" Margin="0,0,0,18" HorizontalAlignment="Center">
+                            <Image Name="LogoImage" Stretch="Uniform" MaxHeight="190" HorizontalAlignment="Center"/>
                         </Border>
-                        <TextBlock Name="TitleText" Text="⚔️ ЖЕЛЕЗНЫЙ КРЯЖ ⚔️" Foreground="#FFAA00" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Эпическая пошаговая RPG (v3.1)" Foreground="#8E8578" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Name="TitleText" Text="⚔️ ЖЕЛЕЗНЫЙ КРЯЖ ⚔️" Foreground="#FFAA00" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,18"/>
 
                         <!-- ========================================== -->
                         <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ                     -->
