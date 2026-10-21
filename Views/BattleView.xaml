@@ -559,7 +559,7 @@
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="Ловкость" Foreground="White" FontWeight="Bold"/>
                                     <TextBlock Text="{Binding Dexterity, StringFormat='Значение: {0}'}" Foreground="LightGray" FontSize="12"/>
-                                    <TextBlock Text="{Binding CritChance, StringFormat='Крит / Уклон: {0:F0}%'}" Foreground="Gray" FontSize="11"/>
+                                    <TextBlock Text="{Binding CritChance, StringFormat='Крит/Уклон: {0:F0}% • Инициатива'}" Foreground="Gray" FontSize="11"/>
                                 </StackPanel>
                                 <Button Content="+" Width="32" Height="32" HorizontalAlignment="Right" VerticalAlignment="Center"
                                         FontSize="18" FontWeight="Bold" Background="#2E6B30" Command="{Binding IncreaseStatCommand}" CommandParameter="DEX"/>

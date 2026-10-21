@@ -138,7 +138,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                         <TextBlock Text="🎯 Ловкость" FontSize="15" FontWeight="Bold" Foreground="#66CC88"/>
-                                        <TextBlock Text="+1.5% крит и уворот" FontSize="10" Foreground="#888"/>
+                                        <TextBlock Text="Ход первым (Инициатива), крит/уворот" FontSize="10" Foreground="#888"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="-" Height="34" FontSize="18" FontWeight="Bold" Background="#332A38" Command="{Binding DecreaseStatCommand}" CommandParameter="DEX"/>
                                     <TextBlock Grid.Column="2" Text="{Binding Dexterity}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17" FontWeight="Bold" Foreground="White"/>

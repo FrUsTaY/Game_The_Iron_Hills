@@ -223,7 +223,9 @@ namespace EpicBattle.Models.Combat
             Mp = Math.Min(state.PlayerMp, state.PlayerMaxMp);
             MaxAP = 4;
             CurrentAP = 4;
-            Agility = state.Dexterity;
+            // P1-баланс: Инициатива рассчитывается из полной ловкости (включая экипировку)
+            // плюс бонус от половины уровня героя, чтобы боец с опытом не отставал от скейлинга врагов.
+            Agility = state.TotalDexterity + (state.PlayerLevel / 2);
             BaseDamage = state.PlayerBaseDamage;
             BaseMagicDamage = state.PlayerBaseMagicDamage;
             Armor = state.Defense;
