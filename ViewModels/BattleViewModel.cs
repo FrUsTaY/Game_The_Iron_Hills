@@ -188,7 +188,9 @@ namespace EpicBattle.ViewModels
             _onCompletedFromMap = onCompletedFromMap;
             _gameState = SaveManager.CurrentState;
 
-            if (_isArcade && returnNodeId == null && onCompletedFromMap == null && !_gameState.IsMapMode)
+            // P1-баланс: в Аркаде полное восстановление HP/MP происходит только на старте забега (1 этаж).
+            // Начиная со 2-го этажа здоровье и мана переносятся между боями, делая зелья и привалы осмысленными.
+            if (_isArcade && returnNodeId == null && onCompletedFromMap == null && !_gameState.IsMapMode && _arcadeLevel <= 1)
             {
                 _gameState.PlayerHp = _gameState.PlayerMaxHp;
                 _gameState.PlayerMp = _gameState.PlayerMaxMp;
