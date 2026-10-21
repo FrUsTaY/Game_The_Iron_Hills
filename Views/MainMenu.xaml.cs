@@ -57,6 +57,12 @@ namespace EpicBattle.Views
             NavigationManager.NavigateTo(new InventoryView(() => NavigationManager.NavigateTo(new MainMenu())));
         }
 
+        private void BestiaryBtn_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            NavigationManager.NavigateTo(new BestiaryView());
+        }
+
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
         {
             EpicBattle.Services.AudioEngine.Play("click");

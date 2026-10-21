@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="EpicBattle.Views.MainMenu"
+<UserControl x:Class="EpicBattle.Views.MainMenu"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#0E0D0C">
@@ -24,6 +24,7 @@
                         <Button Content="🗺️ Поход по Кряжу (Карта узлов)" Margin="0,4" Height="44" FontSize="15" FontWeight="Bold" Background="#205060" Click="MapModeBtn_Click"/>
                         <Button Content="🏆 Аркада (Бесконечная битва)" Margin="0,4" Height="44" FontSize="15" Background="#3A3A4A" Click="ArcadeBtn_Click"/>
                         <Button Content="🎒 Инвентарь и Персонаж" Margin="0,4" Height="44" FontSize="15" Click="InventoryBtn_Click"/>
+                        <Button Content="📖 Бестиарий и Хроники" Margin="0,4" Height="44" FontSize="15" Background="#3D2918" Click="BestiaryBtn_Click"/>
                         <Button Content="💾 Загрузить игру" Margin="0,4" Height="44" FontSize="15" Click="LoadBtn_Click"/>
                         <Button Content="⚙️ Настройки" Margin="0,4" Height="44" FontSize="15" Click="SettingsBtn_Click"/>
                         <Button Content="🚪 Выход" Margin="0,4" Height="44" FontSize="15" Background="#442222" Click="ExitBtn_Click"/>
