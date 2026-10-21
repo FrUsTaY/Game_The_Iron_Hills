@@ -168,6 +168,17 @@ namespace EpicBattle.ViewModels
 
     /// </summary>
 
+        public class RuneStockItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Icon { get; set; } = "💠";
+        public int Count { get; set; } = 1;
+        public string FormattedBonus { get; set; } = string.Empty;
+        public string FullDisplayName => $"{Icon} {Name} ({Count} шт.): {FormattedBonus}";
+        public string ShortDisplayName => $"{Icon} {Name} (x{Count})";
+    }
+
     public class BlacksmithViewModel : INotifyPropertyChanged
 
     {
@@ -274,42 +285,59 @@ namespace EpicBattle.ViewModels
 
         public bool HasRunes => _gameState.RuneStock.Count > 0;
 
-        /// <summary>Ключ списка склада: "id|count".</summary>
+        /// <summary>Список рун на складе с локализацией и бонусами.</summary>
+        public List<RuneStockItem> OwnedRunes
+        {
+            get
+            {
+                var list = new List<RuneStockItem>();
+                foreach (var kv in _gameState.RuneStock.OrderByDescending(kv => kv.Value).ThenBy(kv => kv.Key))
+                {
+                    if (kv.Value <= 0) continue;
+                    var r = RuneDatabase.Find(kv.Key);
+                    if (r != null)
+                    {
+                        list.Add(new RuneStockItem
+                        {
+                            Id = r.Id,
+                            Name = r.Name,
+                            Icon = r.Icon,
+                            Count = kv.Value,
+                            FormattedBonus = r.FormattedBonus
+                        });
+                    }
+                    else
+                    {
+                        list.Add(new RuneStockItem
+                        {
+                            Id = kv.Key,
+                            Name = kv.Key,
+                            Icon = "💠",
+                            Count = kv.Value,
+                            FormattedBonus = ""
+                        });
+                    }
+                }
+                return list;
+            }
+        }
 
-        public List<string> OwnedRuneKeys => _gameState.RuneStock
-
-            .OrderByDescending(kv => kv.Value).ThenBy(kv => kv.Key)
-
-            .Select(kv => $"{kv.Key}|{kv.Value}")
-
-            .ToList();
-
-
+        /// <summary>Ключ списка склада: "id|count" для совместимости.</summary>
+        public List<string> OwnedRuneKeys => OwnedRunes.Select(r => $"{r.Id}|{r.Count}").ToList();
 
         public bool CanInsertRune => !string.IsNullOrEmpty(SelectedRuneId)
-
                                      && _gameState.GetRuneCount(SelectedRuneId) > 0
-
                                      && _gameState.Gold >= InsertRuneCost;
-
-
 
         public ICommand UpgradeItemCommand => new Command(param => UpgradeItem(param as ForgeItemCard));
 
         public ICommand SelectRuneCommand => new Command(param =>
-
         {
-
-            if (param is string key && key.Contains('|'))
-
+            if (param is string id)
             {
-
-                SelectedRuneId = key.Split('|')[0];
-
+                SelectedRuneId = id.Contains('|') ? id.Split('|')[0] : id;
                 StatusMessage = $"💠 Выбран камень: {SelectedRuneInfo}. Нажмите «Вставить руну» на карточке снаряжения со свободным слотом.";
-
             }
-
         });
 
         public ICommand InsertRuneCommand => new Command(param => InsertRune(param as ForgeItemCard));
@@ -719,6 +747,7 @@ namespace EpicBattle.ViewModels
         {
 
             OnPropertyChanged(nameof(OwnedRuneKeys));
+            OnPropertyChanged(nameof(OwnedRunes));
             OnPropertyChanged(nameof(HasRunes));
 
             OnPropertyChanged(nameof(CanInsertRune));

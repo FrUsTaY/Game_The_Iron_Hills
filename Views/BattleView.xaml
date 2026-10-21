@@ -25,9 +25,21 @@
             <Border Background="#C014121A" BorderBrush="#4A3F54" BorderThickness="1.5" CornerRadius="6" Padding="14,5" HorizontalAlignment="Left">
                 <TextBlock Text="{Binding WaveText}" Foreground="#FFAA00" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
             </Border>
-            <Border Background="#9514121A" BorderBrush="#3A3344" BorderThickness="1.5" CornerRadius="6" Padding="12,5" HorizontalAlignment="Right">
-                <TextBlock Text="ESC - Пауза" Foreground="#BBBBBB" FontSize="12" VerticalAlignment="Center"/>
-            </Border>
+            <Button x:Name="PauseButton" Click="PauseBtn_Click" Cursor="Hand" Background="#9514121A" BorderBrush="#3A3344" BorderThickness="1.5" Padding="14,5" HorizontalAlignment="Right">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <TextBlock Text="ESC - Пауза" Foreground="#CCCCCC" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#BF24202C"/>
+                                <Setter Property="BorderBrush" Value="#6A5A7A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
         </Grid>
 
         <!-- Карточки бойцов (Игрок слева, Враги справа) - крупный Dark RPG лейаут -->
@@ -38,16 +50,16 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Карточка Игрока -->
-            <Border Grid.Column="0" Background="#D5121118" BorderBrush="#4A3F55" BorderThickness="1.5" CornerRadius="10" Padding="14,10">
+            <!-- Карточка Игрока (крупный внушительный формат) -->
+            <Border Grid.Column="0" Background="#D5121118" BorderBrush="#4A3F55" BorderThickness="1.5" CornerRadius="10" Padding="16,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Парадный аватар героя (крупный формат 82x104) -->
-                    <Border Grid.Column="0" Width="82" Height="104" CornerRadius="8" BorderBrush="#C89B3C" BorderThickness="2" ClipToBounds="True" Margin="0,0,14,0" VerticalAlignment="Center" Background="#1B1722">
+                    <!-- Парадный аватар героя (увеличенный формат 120x150) -->
+                    <Border Grid.Column="0" Width="120" Height="150" CornerRadius="8" BorderBrush="#C89B3C" BorderThickness="2" ClipToBounds="True" Margin="0,0,16,0" VerticalAlignment="Center" Background="#1B1722">
                         <Image Source="{Binding PlayerAvatar}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
@@ -72,11 +84,11 @@
                     </Border>
 
                     <!-- Шапка игрока: Имя слева, AP и Зелья справа -->
-                    <Grid Margin="0,0,0,6">
-                        <TextBlock Text="{Binding Player.Name}" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Grid Margin="0,0,0,8">
+                        <TextBlock Text="{Binding Player.Name}" Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <Border Background="#2E2414" BorderBrush="#775C28" BorderThickness="1" CornerRadius="5" Padding="8,3" Margin="0,0,8,0">
+                            <Border Background="#2E2414" BorderBrush="#775C28" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,0,8,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="⚡ AP: " Foreground="#FFFF77" FontWeight="Bold" FontSize="12"/>
                                     <TextBlock Text="{Binding Player.CurrentAP}" Foreground="#FFFF77" FontWeight="Bold" FontSize="12"/>
@@ -85,16 +97,18 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Background="#1C3020" BorderBrush="#35663A" BorderThickness="1" CornerRadius="5" Padding="7,3" Margin="0,0,6,0" ToolTip="Зелья здоровья (1 ОД)">
+                            <Border Background="#1C3020" BorderBrush="#35663A" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,0,6,0"
+                                    ToolTip="{Binding Player.HpPotions, StringFormat='Запас зелий здоровья: {0} шт. (Восстанавливает +40 HP, расходует 1 AP)'}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🧪 " FontSize="12"/>
+                                    <TextBlock Text="🧪 " FontSize="13" Foreground="#55FF77" FontFamily="Segoe UI Emoji, Segoe UI Symbol"/>
                                     <TextBlock Text="{Binding Player.HpPotions}" Foreground="#AAFFAA" FontSize="12" FontWeight="Bold"/>
                                 </StackPanel>
                             </Border>
 
-                            <Border Background="#1A2238" BorderBrush="#33487A" BorderThickness="1" CornerRadius="5" Padding="7,3" ToolTip="Зелья маны (1 ОД)">
+                            <Border Background="#1A2238" BorderBrush="#33487A" BorderThickness="1" CornerRadius="5" Padding="8,4"
+                                    ToolTip="{Binding Player.MpPotions, StringFormat='Запас зелий маны: {0} шт. (Восстанавливает +25 MP, расходует 1 AP)'}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="💧 " FontSize="12"/>
+                                    <TextBlock Text="💧 " FontSize="13" Foreground="#66B2FF" FontFamily="Segoe UI Emoji, Segoe UI Symbol"/>
                                     <TextBlock Text="{Binding Player.MpPotions}" Foreground="#AAAAFF" FontSize="12" FontWeight="Bold"/>
                                 </StackPanel>
                             </Border>
@@ -103,21 +117,21 @@
 
                     <!-- HP игрока -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                        <TextBlock Text="ЗДОРОВЬЕ: " Foreground="#FF6666" FontWeight="Bold" FontSize="11"/>
-                        <TextBlock Text="{Binding Player.Hp}" Foreground="#FF6666" FontWeight="Bold" FontSize="12"/>
-                        <TextBlock Text=" / " Foreground="#FF6666" FontSize="12"/>
-                        <TextBlock Text="{Binding Player.MaxHp}" Foreground="#FF6666" FontWeight="Bold" FontSize="12"/>
+                        <TextBlock Text="ЗДОРОВЬЕ: " Foreground="#FF6666" FontWeight="Bold" FontSize="12"/>
+                        <TextBlock Text="{Binding Player.Hp}" Foreground="#FF6666" FontWeight="Bold" FontSize="13"/>
+                        <TextBlock Text=" / " Foreground="#FF6666" FontSize="13"/>
+                        <TextBlock Text="{Binding Player.MaxHp}" Foreground="#FF6666" FontWeight="Bold" FontSize="13"/>
                     </StackPanel>
-                    <ProgressBar Value="{Binding Player.Hp}" Maximum="{Binding Player.MaxHp}" Height="16" Foreground="#E53935" Background="#26181B" BorderThickness="0" Margin="0,0,0,6"/>
+                    <ProgressBar Value="{Binding Player.Hp}" Maximum="{Binding Player.MaxHp}" Height="22" Foreground="#E53935" Background="#26181B" BorderThickness="0" Margin="0,0,0,8"/>
 
                     <!-- MP игрока -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                        <TextBlock Text="МАНА: " Foreground="#5599FF" FontWeight="Bold" FontSize="11"/>
-                        <TextBlock Text="{Binding Player.Mp}" Foreground="#5599FF" FontWeight="Bold" FontSize="12"/>
-                        <TextBlock Text=" / " Foreground="#5599FF" FontSize="12"/>
-                        <TextBlock Text="{Binding Player.MaxMp}" Foreground="#5599FF" FontWeight="Bold" FontSize="12"/>
+                        <TextBlock Text="МАНА: " Foreground="#5599FF" FontWeight="Bold" FontSize="12"/>
+                        <TextBlock Text="{Binding Player.Mp}" Foreground="#5599FF" FontWeight="Bold" FontSize="13"/>
+                        <TextBlock Text=" / " Foreground="#5599FF" FontSize="13"/>
+                        <TextBlock Text="{Binding Player.MaxMp}" Foreground="#5599FF" FontWeight="Bold" FontSize="13"/>
                     </StackPanel>
-                    <ProgressBar Value="{Binding Player.Mp}" Maximum="{Binding Player.MaxMp}" Height="10" Foreground="#1E88E5" Background="#161B2B" BorderThickness="0" Margin="0,0,0,6"/>
+                    <ProgressBar Value="{Binding Player.Mp}" Maximum="{Binding Player.MaxMp}" Height="14" Foreground="#1E88E5" Background="#161B2B" BorderThickness="0" Margin="0,0,0,6"/>
 
                     <!-- Статусы игрока -->
                     <ItemsControl ItemsSource="{Binding Player.ActiveEffects}">
@@ -255,8 +269,8 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Активные навыки игрока -->
-                    <ItemsControl ItemsSource="{Binding PlayerSkills}" Margin="0,0,0,6">
+                    <!-- Активные навыки игрока (с индикацией перезарядки Вариант 1) -->
+                    <ItemsControl ItemsSource="{Binding PlayerSkills}" Margin="0,0,0,8">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal"/>
@@ -264,14 +278,86 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Margin="0,0,8,6" Padding="10,5"
+                                <Button Margin="0,0,8,6" Padding="10,6"
                                         Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.UseSkillCommand}"
                                         CommandParameter="{Binding}"
-                                        Background="#2D3F5E" BorderBrush="#4A6A9D" BorderThickness="1" Cursor="Hand">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding IconPath}" FontSize="15" Margin="0,0,6,0"/>
-                                        <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="Bold" FontSize="13"/>
-                                        <TextBlock Text="{Binding ManaCost, StringFormat='{} • {0} 💧'}" Foreground="#66B2FF" Margin="6,0,0,0" ToolTip="{Binding APCost, StringFormat='Расход очков действий: {0} ОД'}" FontSize="12"/>
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#2D3F5E"/>
+                                            <Setter Property="BorderBrush" Value="#4A6A9D"/>
+                                            <Setter Property="BorderThickness" Value="1.5"/>
+                                            <Setter Property="ToolTip">
+                                                <Setter.Value>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
+                                                        <LineBreak/>
+                                                        <Run Text="{Binding Description, Mode=OneWay}"/>
+                                                        <LineBreak/>
+                                                        <Run Text="Расход: " Foreground="#AAAAAA"/>
+                                                        <Run Text="{Binding APCost, Mode=OneWay, StringFormat='{}{0} AP'}" Foreground="#FFFF77" FontWeight="Bold"/>
+                                                        <Run Text=", " Foreground="#AAAAAA"/>
+                                                        <Run Text="{Binding ManaCost, Mode=OneWay, StringFormat='{}{0} MP'}" Foreground="#66B2FF" FontWeight="Bold"/>
+                                                    </TextBlock>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
+                                                    <Setter Property="Background" Value="#1B1E26"/>
+                                                    <Setter Property="BorderBrush" Value="#3D4252"/>
+                                                    <Setter Property="Opacity" Value="0.82"/>
+                                                    <Setter Property="ToolTip">
+                                                        <Setter.Value>
+                                                            <TextBlock>
+                                                                <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
+                                                                <LineBreak/>
+                                                                <Run Text="⏳ Навык на перезарядке. Осталось ходов: " Foreground="#FFCC66"/>
+                                                                <Run Text="{Binding CooldownRemaining, Mode=OneWay}" Foreground="#FFCC66" FontWeight="Bold"/>
+                                                                <LineBreak/>
+                                                                <Run Text="Требуется: " Foreground="#AAAAAA"/>
+                                                                <Run Text="{Binding APCost, Mode=OneWay, StringFormat='{}{0} AP'}" Foreground="#FFFF77" FontWeight="Bold"/>
+                                                                <Run Text=", " Foreground="#AAAAAA"/>
+                                                                <Run Text="{Binding ManaCost, Mode=OneWay, StringFormat='{}{0} MP'}" Foreground="#66B2FF" FontWeight="Bold"/>
+                                                            </TextBlock>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding IconPath}" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                        
+                                        <!-- Когда навык ГОТОВ: показываем затраты AP и Маны -->
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <TextBlock Text="{Binding APCost, StringFormat='⚡{0}'}" Foreground="#FFFF77" FontWeight="Bold" FontSize="12" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding ManaCost, StringFormat='💧{0}'}" Foreground="#66B2FF" FontWeight="Bold" FontSize="12"/>
+                                        </StackPanel>
+
+                                        <!-- Когда навык НА ПЕРЕЗАРЯДКЕ: янтарный бейдж (Вариант 1) -->
+                                        <Border Background="#3D2B14" BorderBrush="#8A6020" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding CooldownRemaining, StringFormat='⏳ {0} ход.'}" Foreground="#FFCC66" FontWeight="Bold" FontSize="11"/>
+                                        </Border>
                                     </StackPanel>
                                 </Button>
                             </DataTemplate>
@@ -280,11 +366,11 @@
 
                     <!-- Основные кнопки действий -->
                     <WrapPanel Orientation="Horizontal">
-                        <Button Content="⚔️ Удар" ToolTip="Атака оружием (2 ОД)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#3E2E28" Command="{Binding AttackCommand}" Cursor="Hand"/>
-                        <Button Content="🛡️ Защита" ToolTip="Снижение получаемого урона (2 ОД)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#263A48" Command="{Binding DefendCommand}" Cursor="Hand"/>
-                        <Button Content="🧪 Зелье HP" ToolTip="Восстановить здоровье (1 ОД)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#223E26" Command="{Binding UsePotionHpCommand}" Cursor="Hand"/>
-                        <Button Content="💧 Зелье MP" ToolTip="Восстановить ману (1 ОД)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#212C48" Command="{Binding UsePotionMpCommand}" Cursor="Hand"/>
-                        <Button Content="⌛ Конец хода" Margin="0,0,0,0" MinWidth="130" Height="42" FontSize="13" FontWeight="Bold" Background="#6B2C2C" Command="{Binding EndTurnCommand}" Cursor="Hand"/>
+                        <Button Content="⚔️ Удар" ToolTip="Атака оружием (2 AP)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#3E2E28" Command="{Binding AttackCommand}" Cursor="Hand"/>
+                        <Button Content="🛡️ Защита" ToolTip="Снижение получаемого урона (2 AP)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#263A48" Command="{Binding DefendCommand}" Cursor="Hand"/>
+                        <Button Content="🧪 Зелье HP" ToolTip="Выпить зелье здоровья: +40 HP (Расход: 1 AP)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#223E26" Command="{Binding UsePotionHpCommand}" Cursor="Hand"/>
+                        <Button Content="💧 Зелье MP" ToolTip="Выпить зелье маны: +25 MP (Расход: 1 AP)" Margin="0,0,8,0" MinWidth="110" Height="42" FontSize="13" FontWeight="Bold" Background="#212C48" Command="{Binding UsePotionMpCommand}" Cursor="Hand"/>
+                        <Button Content="⌛ Конец хода" ToolTip="Передать ход врагам (сброс неиспользованных AP)" Margin="0,0,0,0" MinWidth="130" Height="42" FontSize="13" FontWeight="Bold" Background="#6B2C2C" Command="{Binding EndTurnCommand}" Cursor="Hand"/>
                     </WrapPanel>
                 </StackPanel>
 

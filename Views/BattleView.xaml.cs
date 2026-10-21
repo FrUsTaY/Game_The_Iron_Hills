@@ -95,6 +95,7 @@ namespace EpicBattle.Views
 
             _fxCleanupTimer.Tick += (s, e) => CleanupFxLayer();
             _fxCleanupTimer.Start();
+            this.Loaded += (s, e) => this.Focus();
             this.Unloaded += (s, e) => _fxCleanupTimer.Stop();
 
             DataContext = vm;
@@ -109,7 +110,7 @@ namespace EpicBattle.Views
 
         private void SpawnFloatingText(FloatingText ft)
         {
-            Point anchor = GetFloatAnchor(ft.TargetKey);
+            Point anchor = GetFloatAnchor(ft.TargetKey, ft);
             double x = anchor.X + ft.OffsetX;
             double y = anchor.Y;
 
@@ -204,10 +205,11 @@ namespace EpicBattle.Views
         }
 
         /// <summary>Якорь над колонкой игрока или нужного врага (координаты внутри MainGrid).</summary>
-        private Point GetFloatAnchor(string targetKey)
+        private Point GetFloatAnchor(string targetKey, FloatingText ft = null)
         {
             FrameworkElement host = null;
-            if (targetKey == "Player")
+            string heroName = (DataContext as BattleViewModel)?.Player?.Name;
+            if (targetKey == "Player" || (!string.IsNullOrEmpty(heroName) && targetKey.Equals(heroName, StringComparison.OrdinalIgnoreCase)))
             {
                 host = PlayerColumnHost ?? (FrameworkElement)MainGrid;
             }
@@ -218,7 +220,11 @@ namespace EpicBattle.Views
             }
 
             if (host == null || host.ActualWidth <= 0)
+            {
+                if (ft != null && ft.Kind == FloatingTextKind.Heal)
+                    return new Point(MainGrid.ActualWidth * 0.25, 40);
                 return new Point(MainGrid.ActualWidth * 0.75, 40);
+            }
 
             try
             {
@@ -277,6 +283,12 @@ namespace EpicBattle.Views
             EpicBattle.Services.AudioEngine.Play("click");
             FullLogOverlay.Visibility = Visibility.Collapsed;
             this.Focus();
+        }
+
+        private void PauseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            PauseOverlay.Visibility = PauseOverlay.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
         }
 
         // Пауза и управление клавишами

@@ -70,7 +70,7 @@ namespace EpicBattle.ViewModels
             try
             {
                 if (FloatingTextParser.IsCritMarker(msg)) { _lastWasCrit = true; return; }
-                var ft = FloatingTextParser.Parse(msg, PlayerFloatKey);
+                var ft = FloatingTextParser.Parse(msg, PlayerFloatKey, Player?.Name);
                 if (ft == null) { _lastWasCrit = false; return; }
 
                 if (_lastWasCrit)
@@ -639,6 +639,27 @@ namespace EpicBattle.ViewModels
         {
             if (param is Skill skill)
             {
+                if (_engine != null && _engine.TryGetPlayerCooldown(skill.Id, out int remainingCd) && remainingCd > 0)
+                {
+                    AudioEngine.Play("click_alt");
+                    Log($"⏳ Навык '{skill.Name}' перезаряжается (осталось ходов: {remainingCd}).");
+                    return;
+                }
+
+                if (Player.CurrentAP < skill.APCost)
+                {
+                    AudioEngine.Play("click_alt");
+                    Log($"⚡ Недостаточно AP для '{skill.Name}'! Требуется {skill.APCost} AP (у вас {Player.CurrentAP} AP).");
+                    return;
+                }
+
+                if (Player.Mp < skill.ManaCost)
+                {
+                    AudioEngine.Play("click_alt");
+                    Log($"💧 Недостаточно маны для '{skill.Name}'! Требуется {skill.ManaCost} MP (у вас {Player.Mp} MP).");
+                    return;
+                }
+
                 var target = TargetedEnemy ?? Enemies.FirstOrDefault(e => e.Hp > 0);
                 if (skill.TargetType == TargetType.SingleTarget && target == null)
                 {
@@ -661,15 +682,7 @@ namespace EpicBattle.ViewModels
         private bool CanUseSkill(object param)
         {
             if (!IsPlayerTurn || Player == null) return false;
-            if (param is Skill skill)
-            {
-                // P0-фикс (В4): блокировка кнопки навыка на время кулдауна (движок тоже проверяет,
-                // но UI обязан показывать неактивное состояние до попытки применения).
-                if (_engine != null && _engine.TryGetPlayerCooldown(skill.Id, out int remainingCd) && remainingCd > 0)
-                    return false;
-                return Player.CurrentAP >= skill.APCost && Player.Mp >= skill.ManaCost;
-            }
-            return false;
+            return true;
         }
 
         private void EndTurn()

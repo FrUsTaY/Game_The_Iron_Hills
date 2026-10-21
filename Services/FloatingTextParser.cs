@@ -42,7 +42,7 @@ namespace EpicBattle.Services
         // Mana shield absorb: "🛡️ Щит маны поглощает {n} урона..."
         private static readonly Regex ShieldAbsorb = new Regex(@"Щит маны поглощает (?<d>\d+) урона", RegexOptions.Compiled);
 
-        public static FloatingText Parse(string msg, string playerKey)
+        public static FloatingText Parse(string msg, string playerKey, string playerName = null)
         {
             if (string.IsNullOrEmpty(msg)) return null;
 
@@ -54,7 +54,7 @@ namespace EpicBattle.Services
             if (msg.Contains("КРИТИЧЕСКИЙ УДАР")) return null;
 
             if ((m = AttackPlayerTarget.Match(msg)).Success)
-                return Make(m.Groups["d"].Value, FloatingTextKind.Damage, m.Groups["t"].Value, playerKey);
+                return Make(m.Groups["d"].Value, FloatingTextKind.Damage, m.Groups["t"].Value, playerKey, playerName: playerName);
 
             if ((m = AttackEnemySource.Match(msg)).Success)
             {
@@ -63,19 +63,19 @@ namespace EpicBattle.Services
             }
 
             if ((m = HealAllyRegex.Match(msg)).Success)
-                return Make(m.Groups["d"].Value, FloatingTextKind.Heal, m.Groups["t"].Value, playerKey, prefix: "+");
+                return Make(m.Groups["d"].Value, FloatingTextKind.Heal, m.Groups["t"].Value, playerKey, prefix: "+", playerName: playerName);
 
             if ((m = SelfHealRegex.Match(msg)).Success)
-                return Make(m.Groups["d"].Value, FloatingTextKind.Heal, m.Groups["t"].Value, playerKey, prefix: "+");
+                return Make(m.Groups["d"].Value, FloatingTextKind.Heal, m.Groups["t"].Value, playerKey, prefix: "+", playerName: playerName);
 
             if ((m = HealRegex.Match(msg)).Success && !msg.Contains("MP"))
-                return Make(m.Groups["d"].Value, FloatingTextKind.Heal, m.Groups["t"].Value, playerKey, prefix: "+");
+                return Make(m.Groups["d"].Value, FloatingTextKind.Heal, m.Groups["t"].Value, playerKey, prefix: "+", playerName: playerName);
 
             if ((m = SkillOnTarget.Match(msg)).Success)
-                return Make(m.Groups["d"].Value, FloatingTextKind.Damage, m.Groups["t"].Value, playerKey);
+                return Make(m.Groups["d"].Value, FloatingTextKind.Damage, m.Groups["t"].Value, playerKey, playerName: playerName);
 
             if ((m = SkillMainTarget.Match(msg)).Success)
-                return Make(m.Groups["d"].Value, FloatingTextKind.Damage, m.Groups["t"].Value, playerKey);
+                return Make(m.Groups["d"].Value, FloatingTextKind.Damage, m.Groups["t"].Value, playerKey, playerName: playerName);
 
             if (BlindMiss.IsMatch(msg))
             {
@@ -94,12 +94,12 @@ namespace EpicBattle.Services
             {
                 bool magic = msg.Contains("магического") || msg.Contains("маг.");
                 return Make(m.Groups["d"].Value, magic ? FloatingTextKind.Magic : FloatingTextKind.Damage,
-                            m.Groups["t"].Value, playerKey, negative: true);
+                            m.Groups["t"].Value, playerKey, negative: true, playerName: playerName);
             }
 
             if ((m = GenericGetsDamage.Match(msg)).Success)
                 return Make(m.Groups["d"].Value, msg.Contains("маг.") ? FloatingTextKind.Magic : FloatingTextKind.Damage,
-                            m.Groups["t"].Value, playerKey, negative: true);
+                            m.Groups["t"].Value, playerKey, negative: true, playerName: playerName);
 
             if (msg.StartsWith("💀") && msg.Contains("погиб"))
             {
@@ -114,21 +114,26 @@ namespace EpicBattle.Services
         public static bool IsCritMarker(string msg) => msg != null && msg.Contains("КРИТИЧЕСКИЙ УДАР");
 
         private static FloatingText Make(string dmgStr, FloatingTextKind kind, string rawName, string playerKey,
-                                         string prefix = null, bool negative = false)
+                                         string prefix = null, bool negative = false, string playerName = null)
         {
-            string name = NormalizeKey(rawName, playerKey);
+            string name = NormalizeKey(rawName, playerKey, playerName);
             string text = prefix != null ? prefix + dmgStr : (negative ? "-" + dmgStr : dmgStr);
             bool shake = kind != FloatingTextKind.Heal && name == playerKey && int.TryParse(dmgStr, out int d) && d >= 25;
             var ft = new FloatingText(text, kind == FloatingTextKind.Damage && shake ? FloatingTextKind.Damage : kind, name, triggersShake: shake);
             return ft;
         }
 
-        private static string NormalizeKey(string rawName, string playerKey)
+        private static string NormalizeKey(string rawName, string playerKey, string playerName = null)
         {
             if (string.IsNullOrWhiteSpace(rawName)) return playerKey;
             string n = rawName.Trim().TrimEnd('.');
-            if (n.Equals("вы", StringComparison.OrdinalIgnoreCase) || n.Equals("вас", StringComparison.OrdinalIgnoreCase) || n == "Вы")
+            if (n.Equals("вы", StringComparison.OrdinalIgnoreCase) || 
+                n.Equals("вас", StringComparison.OrdinalIgnoreCase) || 
+                n == "Вы" ||
+                (!string.IsNullOrEmpty(playerName) && n.Equals(playerName, StringComparison.OrdinalIgnoreCase)))
+            {
                 return playerKey;
+            }
             return n;
         }
     }
