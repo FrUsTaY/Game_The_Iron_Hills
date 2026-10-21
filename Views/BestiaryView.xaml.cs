@@ -60,15 +60,15 @@ namespace EpicBattle.Views
         {
             if (isSelected)
             {
-                btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8A5A20"));
-                btn.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFAA00"));
-                btn.Foreground = Brushes.White;
+                btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3A2E1A"));
+                btn.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C99738"));
+                btn.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD97D"));
             }
             else
             {
-                btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#251F2E"));
-                btn.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A3F55"));
-                btn.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCCCCC"));
+                btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#221E1B"));
+                btn.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3D352B"));
+                btn.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B0A698"));
             }
         }
 
