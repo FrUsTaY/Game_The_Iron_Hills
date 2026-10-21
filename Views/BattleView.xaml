@@ -282,55 +282,93 @@
                                         Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}, Path=DataContext.UseSkillCommand}"
                                         CommandParameter="{Binding}"
                                         Cursor="Hand">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Background" Value="#2D3F5E"/>
-                                            <Setter Property="BorderBrush" Value="#4A6A9D"/>
-                                            <Setter Property="BorderThickness" Value="1.5"/>
-                                            <Setter Property="ToolTip">
-                                                <Setter.Value>
-                                                    <TextBlock>
-                                                        <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
-                                                        <LineBreak/>
-                                                        <Run Text="{Binding Description, Mode=OneWay}"/>
-                                                        <LineBreak/>
-                                                        <Run Text="Расход: " Foreground="#AAAAAA"/>
-                                                        <Run Text="{Binding APCost, Mode=OneWay, StringFormat='{}{0} AP'}" Foreground="#FFFF77" FontWeight="Bold"/>
-                                                        <Run Text=", " Foreground="#AAAAAA"/>
-                                                        <Run Text="{Binding ManaCost, Mode=OneWay, StringFormat='{}{0} MP'}" Foreground="#66B2FF" FontWeight="Bold"/>
-                                                    </TextBlock>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="BtnBorder" Background="#26364D" BorderBrush="#4A6E9E" BorderThickness="1.5" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="BtnBorder" Property="Background" Value="#354B6B"/>
+                                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#6A92D4"/>
+                                                </Trigger>
                                                 <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
-                                                    <Setter Property="Background" Value="#1B1E26"/>
-                                                    <Setter Property="BorderBrush" Value="#3D4252"/>
-                                                    <Setter Property="Opacity" Value="0.82"/>
-                                                    <Setter Property="ToolTip">
-                                                        <Setter.Value>
-                                                            <TextBlock>
-                                                                <Run Text="{Binding Name, Mode=OneWay}" FontWeight="Bold"/>
-                                                                <LineBreak/>
-                                                                <Run Text="⏳ Навык на перезарядке. Осталось ходов: " Foreground="#FFCC66"/>
-                                                                <Run Text="{Binding CooldownRemaining, Mode=OneWay}" Foreground="#FFCC66" FontWeight="Bold"/>
-                                                                <LineBreak/>
-                                                                <Run Text="Требуется: " Foreground="#AAAAAA"/>
-                                                                <Run Text="{Binding APCost, Mode=OneWay, StringFormat='{}{0} AP'}" Foreground="#FFFF77" FontWeight="Bold"/>
-                                                                <Run Text=", " Foreground="#AAAAAA"/>
-                                                                <Run Text="{Binding ManaCost, Mode=OneWay, StringFormat='{}{0} MP'}" Foreground="#66B2FF" FontWeight="Bold"/>
-                                                            </TextBlock>
-                                                        </Setter.Value>
-                                                    </Setter>
+                                                    <Setter TargetName="BtnBorder" Property="Background" Value="#171A22"/>
+                                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#3A404F"/>
+                                                    <Setter TargetName="BtnBorder" Property="Opacity" Value="0.88"/>
                                                 </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsOnCooldown}" Value="True"/>
+                                                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="BtnBorder" Property="Background" Value="#222631"/>
+                                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#525B6F"/>
+                                                    <Setter TargetName="BtnBorder" Property="Opacity" Value="1.0"/>
+                                                </MultiDataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Button.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel Margin="2">
+                                                <TextBlock Text="{Binding Name}" Foreground="#FFAA00" FontWeight="Bold" FontSize="13" Margin="0,0,0,3"/>
+                                                <TextBlock Text="{Binding Description}" Foreground="#CCCCCC" FontSize="11" Margin="0,0,0,4" TextWrapping="Wrap" MaxWidth="280"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <StackPanel.Style>
+                                                        <Style TargetType="StackPanel">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </StackPanel.Style>
+                                                    <TextBlock Text="Расход: " Foreground="#888888" FontSize="11"/>
+                                                    <TextBlock Text="{Binding APCost, StringFormat='⚡ {0} AP'}" Foreground="#FFFF77" FontWeight="Bold" FontSize="11" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="{Binding ManaCost, StringFormat='💧 {0} MP'}" Foreground="#66B2FF" FontWeight="Bold" FontSize="11"/>
+                                                </StackPanel>
+                                                <Border Background="#332412" BorderBrush="#8A6020" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="0,3,0,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding CooldownRemaining, StringFormat='⏳ Навык на перезарядке. Осталось ходов: {0}'}" Foreground="#FFCC44" FontWeight="Bold" FontSize="11"/>
+                                                        <TextBlock Margin="0,2,0,0" Foreground="#AAAAAA" FontSize="11">
+                                                            <Run Text="Требуется: "/>
+                                                            <Run Text="{Binding APCost, Mode=OneWay, StringFormat='⚡ {0} AP'}" Foreground="#FFFF77" FontWeight="Bold"/>
+                                                            <Run Text=", "/>
+                                                            <Run Text="{Binding ManaCost, Mode=OneWay, StringFormat='💧 {0} MP'}" Foreground="#66B2FF" FontWeight="Bold"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </Button.ToolTip>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding IconPath}" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOnCooldown}" Value="True">
+                                                            <Setter Property="Foreground" Value="#C2C6D4"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                         
                                         <!-- Когда навык ГОТОВ: показываем затраты AP и Маны -->
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Style.Triggers>
@@ -340,12 +378,12 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </StackPanel.Style>
-                                            <TextBlock Text="{Binding APCost, StringFormat='⚡{0}'}" Foreground="#FFFF77" FontWeight="Bold" FontSize="12" Margin="0,0,4,0"/>
+                                            <TextBlock Text="{Binding APCost, StringFormat='⚡{0}'}" Foreground="#FFFF77" FontWeight="Bold" FontSize="12" Margin="0,0,5,0"/>
                                             <TextBlock Text="{Binding ManaCost, StringFormat='💧{0}'}" Foreground="#66B2FF" FontWeight="Bold" FontSize="12"/>
                                         </StackPanel>
 
                                         <!-- Когда навык НА ПЕРЕЗАРЯДКЕ: янтарный бейдж (Вариант 1) -->
-                                        <Border Background="#3D2B14" BorderBrush="#8A6020" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                        <Border Background="#3D2610" BorderBrush="#9E6820" BorderThickness="1" CornerRadius="4" Padding="7,2" Margin="8,0,0,0" VerticalAlignment="Center">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -356,7 +394,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="{Binding CooldownRemaining, StringFormat='⏳ {0} ход.'}" Foreground="#FFCC66" FontWeight="Bold" FontSize="11"/>
+                                            <TextBlock Text="{Binding CooldownRemaining, StringFormat='⏳ {0} ход.'}" Foreground="#FFD055" FontWeight="Bold" FontSize="11"/>
                                         </Border>
                                     </StackPanel>
                                 </Button>
