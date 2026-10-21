@@ -9,7 +9,7 @@
     <Grid>
         <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
         <Border Background="#35161616"/>
-        <Grid Margin="20">
+        <Grid Margin="15" MaxWidth="1200" HorizontalAlignment="Stretch">
 
         <Grid.RowDefinitions>
 
@@ -41,7 +41,7 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Аватар странствующего торговца -->
-                    <Border Width="46" Height="46" CornerRadius="6" BorderBrush="#FFAA00" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,12,0" VerticalAlignment="Center">
+                    <Border Width="56" Height="56" CornerRadius="8" BorderBrush="#FFAA00" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,12,0" VerticalAlignment="Center">
                         <Image Name="NpcAvatar" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel>

@@ -11,7 +11,7 @@
         <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.95"/>
         <Border Background="#20150F0A"/>
 
-        <Grid Margin="15">
+        <Grid Margin="15" MaxWidth="1160" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -27,7 +27,7 @@
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Аватар трактирщика Гуннара -->
-                        <Border Width="46" Height="46" CornerRadius="6" BorderBrush="#C08040" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Border Width="56" Height="56" CornerRadius="8" BorderBrush="#C08040" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,10,0" VerticalAlignment="Center">
                             <Image Name="NpcAvatar" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -57,7 +57,7 @@
             <!-- ЦЕНТР: СТОЙКА ТРАКТИРЩИКА СЛЕВА + ОТКРЫТЫЙ ЗАЛ ТАВЕРНЫ СПРАВА -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="460"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 

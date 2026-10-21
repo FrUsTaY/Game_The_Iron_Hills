@@ -9,7 +9,7 @@
     <Grid>
         <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
         <Border Background="#35100E14"/>
-        <Grid Margin="20">
+        <Grid Margin="20" MaxWidth="1200" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -24,7 +24,7 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <WrapPanel HorizontalAlignment="Center">
                 <!-- Путь Меча -->
-                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="300" VerticalAlignment="Top">
+                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="360" VerticalAlignment="Top">
                     <StackPanel>
                         <TextBlock Text="Путь Меча" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                         <ItemsControl ItemsSource="{Binding SwordPathSkills}">
@@ -46,7 +46,7 @@
                 </Border>
 
                 <!-- Тайные Искусства -->
-                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="300" VerticalAlignment="Top">
+                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="360" VerticalAlignment="Top">
                     <StackPanel>
                         <TextBlock Text="Тайные Искусства" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                         <ItemsControl ItemsSource="{Binding ArcaneArtsSkills}">
@@ -68,7 +68,7 @@
                 </Border>
 
                 <!-- Выживание -->
-                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="300" VerticalAlignment="Top">
+                <Border BorderBrush="#555" BorderThickness="1" Margin="10" Padding="10" Width="360" VerticalAlignment="Top">
                     <StackPanel>
                         <TextBlock Text="Выживание" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
                         <ItemsControl ItemsSource="{Binding SurvivalSkills}">

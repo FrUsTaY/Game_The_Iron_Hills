@@ -17,7 +17,7 @@
                 </Border.Background>
             </Border>
 
-            <Grid Margin="40">
+            <Grid Margin="30,20,30,25" MaxWidth="1140" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <!-- Верхняя панель: Подсказки/Кнопки -->
                     <RowDefinition Height="Auto"/>
@@ -26,7 +26,7 @@
                     <!-- Кнопки выбора -->
                     <RowDefinition Height="Auto"/>
                     <!-- Блок текста -->
-                    <RowDefinition Height="200"/>
+                    <RowDefinition Height="220"/>
                 </Grid.RowDefinitions>
 
                 <!-- Кнопка меню паузы/сохранения -->
@@ -38,7 +38,7 @@
                 <ItemsControl Name="ChoicesControl" Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,20">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Tag="{Binding}" Margin="0,5" Padding="20,10" Background="#E624242A" Foreground="White" BorderBrush="#777788" BorderThickness="1.5" Click="ChoiceBtn_Click" MaxWidth="700" Cursor="Hand">
+                            <Button Tag="{Binding}" Margin="0,5" Padding="24,12" Background="#E624242A" Foreground="White" BorderBrush="#777788" BorderThickness="1.5" Click="ChoiceBtn_Click" MaxWidth="900" Cursor="Hand">
                                 <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="16" TextAlignment="Left" FontWeight="Medium"/>
                             </Button>
                         </DataTemplate>
@@ -54,7 +54,7 @@
                         </Grid.RowDefinitions>
                         <TextBlock Name="SpeakerText" Grid.Row="0" Text="Имя" Foreground="#FFAA00" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                            <TextBlock Name="DialogueText" Text="Текст диалога..." Foreground="White" FontSize="18" TextWrapping="Wrap" LineHeight="26"/>
+                            <TextBlock Name="DialogueText" Text="Текст диалога..." Foreground="White" FontSize="19" TextWrapping="Wrap" LineHeight="28"/>
                         </ScrollViewer>
                     </Grid>
                 </Border>

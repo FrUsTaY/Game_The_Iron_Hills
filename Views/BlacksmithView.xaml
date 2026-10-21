@@ -12,7 +12,7 @@
         <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.93"/>
         <Border Background="#20140D08"/>
 
-        <Grid Margin="15">
+        <Grid Margin="15" MaxWidth="1200" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -29,7 +29,7 @@
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Аватар кузнеца Бородана -->
-                        <Border Width="46" Height="46" CornerRadius="6" BorderBrush="#B8860B" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Border Width="56" Height="56" CornerRadius="8" BorderBrush="#B8860B" BorderThickness="1.5" ClipToBounds="True" Margin="0,0,10,0" VerticalAlignment="Center">
                             <Image Name="NpcAvatar" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">

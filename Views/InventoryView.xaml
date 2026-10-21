@@ -8,7 +8,7 @@
     <Grid>
         <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.85"/>
         <Border Background="#35181818"/>
-        <Grid Margin="15">
+        <Grid Margin="15" MaxWidth="1200" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -36,12 +36,12 @@
             </Grid>
         </Border>
 
-        <!-- 3 Колонки: Снаряжение и статы (220) | Рюкзак (*) | Карточка предмета (220) -->
+        <!-- 3 Колонки: Снаряжение и статы (320) | Рюкзак (*) | Карточка предмета (330) -->
         <Grid Grid.Row="1" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="320"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="330"/>
             </Grid.ColumnDefinitions>
 
             <!-- Левая колонка: Слоты и параметры -->
@@ -50,45 +50,45 @@
                     <StackPanel>
                         <TextBlock Text="СНАРЯЖЕНИЕ" FontSize="13" FontWeight="Bold" Foreground="#FFAA00" Margin="0,0,0,6" HorizontalAlignment="Center"/>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Weapon" Background="#282828">
+                        <Button Margin="0,1" Height="36" HorizontalContentAlignment="Left" Padding="8,0" Click="SlotBtn_Click" Tag="Weapon" Background="#282828">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding EquippedWeaponIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedWeaponName}" Foreground="{Binding EquippedWeaponBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+                                <TextBlock Text="{Binding EquippedWeaponName}" Foreground="{Binding EquippedWeaponBrush}" TextTrimming="CharacterEllipsis" MaxWidth="240" FontSize="13"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Helmet" Background="#282828">
+                        <Button Margin="0,1" Height="36" HorizontalContentAlignment="Left" Padding="8,0" Click="SlotBtn_Click" Tag="Helmet" Background="#282828">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding EquippedHelmetIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedHelmetName}" Foreground="{Binding EquippedHelmetBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+                                <TextBlock Text="{Binding EquippedHelmetName}" Foreground="{Binding EquippedHelmetBrush}" TextTrimming="CharacterEllipsis" MaxWidth="240" FontSize="13"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Chest" Background="#282828">
+                        <Button Margin="0,1" Height="36" HorizontalContentAlignment="Left" Padding="8,0" Click="SlotBtn_Click" Tag="Chest" Background="#282828">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding EquippedChestIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedChestName}" Foreground="{Binding EquippedChestBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+                                <TextBlock Text="{Binding EquippedChestName}" Foreground="{Binding EquippedChestBrush}" TextTrimming="CharacterEllipsis" MaxWidth="240" FontSize="13"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Boots" Background="#282828">
+                        <Button Margin="0,1" Height="36" HorizontalContentAlignment="Left" Padding="8,0" Click="SlotBtn_Click" Tag="Boots" Background="#282828">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding EquippedBootsIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedBootsName}" Foreground="{Binding EquippedBootsBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+                                <TextBlock Text="{Binding EquippedBootsName}" Foreground="{Binding EquippedBootsBrush}" TextTrimming="CharacterEllipsis" MaxWidth="240" FontSize="13"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Ring" Background="#282828">
+                        <Button Margin="0,1" Height="36" HorizontalContentAlignment="Left" Padding="8,0" Click="SlotBtn_Click" Tag="Ring" Background="#282828">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding EquippedRingIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedRingName}" Foreground="{Binding EquippedRingBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+                                <TextBlock Text="{Binding EquippedRingName}" Foreground="{Binding EquippedRingBrush}" TextTrimming="CharacterEllipsis" MaxWidth="240" FontSize="13"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Margin="0,1" Height="30" HorizontalContentAlignment="Left" Padding="6,0" Click="SlotBtn_Click" Tag="Amulet" Background="#282828">
+                        <Button Margin="0,1" Height="36" HorizontalContentAlignment="Left" Padding="8,0" Click="SlotBtn_Click" Tag="Amulet" Background="#282828">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding EquippedAmuletIcon, StringFormat='{}{0} '}" FontSize="12"/>
-                                <TextBlock Text="{Binding EquippedAmuletName}" Foreground="{Binding EquippedAmuletBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" FontSize="12"/>
+                                <TextBlock Text="{Binding EquippedAmuletName}" Foreground="{Binding EquippedAmuletBrush}" TextTrimming="CharacterEllipsis" MaxWidth="240" FontSize="13"/>
                             </StackPanel>
                         </Button>
 
@@ -242,7 +242,7 @@
         </Grid>
 
         <!-- Нижняя панель закрытия -->
-        <Button Grid.Row="2" Content="⬅️ Закрыть инвентарь" Height="38" FontSize="15" FontWeight="Bold" Background="#3a3a3a" Click="CloseBtn_Click"/>
+        <Button Grid.Row="2" Content="⬅️ Закрыть инвентарь" Height="44" FontSize="15" FontWeight="Bold" Background="#3a3a3a" Click="CloseBtn_Click"/>
         </Grid>
     </Grid>
 </UserControl>

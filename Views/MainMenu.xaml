@@ -10,23 +10,23 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid>
                 <Border Background="#CC151419" BorderBrush="#554433" BorderThickness="1" CornerRadius="12"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Margin="0,20" Padding="25">
-                    <StackPanel HorizontalAlignment="Center" Width="350">
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Width="450" Margin="0,20" Padding="28">
+                    <StackPanel HorizontalAlignment="Center" Width="390">
                         <!-- Металлический логотип игры -->
                         <Border CornerRadius="8" ClipToBounds="True" Margin="0,0,0,8" HorizontalAlignment="Center">
-                            <Image Name="LogoImage" Stretch="Uniform" MaxHeight="110" HorizontalAlignment="Center"/>
+                            <Image Name="LogoImage" Stretch="Uniform" MaxHeight="130" HorizontalAlignment="Center"/>
                         </Border>
-                        <TextBlock Name="TitleText" Text="⚔️ ЖЕЛЕЗНЫЙ КРЯЖ ⚔️" Foreground="#FFAA00" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Name="TitleText" Text="⚔️ ЖЕЛЕЗНЫЙ КРЯЖ ⚔️" Foreground="#FFAA00" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         <TextBlock Text="Эпическая пошаговая RPG (v3.1)" Foreground="#AAAAAA" FontSize="13" HorizontalAlignment="Center" Margin="0,0,0,16"/>
 
-                        <Button Content="▶️ Новая игра (Сюжет)" Margin="0,4" Height="40" FontSize="15" FontWeight="Bold" Background="#2E6B30" Click="StoryBtn_Click"/>
-                        <Button Content="📜 Выбор Главы (Акта)" Margin="0,4" Height="40" FontSize="15" FontWeight="Bold" Background="#443366" Click="ChapterSelectBtn_Click"/>
-                        <Button Content="🗺️ Поход по Кряжу (Карта узлов)" Margin="0,4" Height="40" FontSize="15" FontWeight="Bold" Background="#205060" Click="MapModeBtn_Click"/>
-                        <Button Content="🏆 Аркада (Бесконечная битва)" Margin="0,4" Height="40" FontSize="15" Background="#3A3A4A" Click="ArcadeBtn_Click"/>
-                        <Button Content="🎒 Инвентарь и Персонаж" Margin="0,4" Height="40" FontSize="15" Click="InventoryBtn_Click"/>
-                        <Button Content="💾 Загрузить игру" Margin="0,4" Height="40" FontSize="15" Click="LoadBtn_Click"/>
-                        <Button Content="⚙️ Настройки" Margin="0,4" Height="40" FontSize="15" Click="SettingsBtn_Click"/>
-                        <Button Content="🚪 Выход" Margin="0,4" Height="40" FontSize="15" Background="#442222" Click="ExitBtn_Click"/>
+                        <Button Content="▶️ Новая игра (Сюжет)" Margin="0,4" Height="44" FontSize="15" FontWeight="Bold" Background="#2E6B30" Click="StoryBtn_Click"/>
+                        <Button Content="📜 Выбор Главы (Акта)" Margin="0,4" Height="44" FontSize="15" FontWeight="Bold" Background="#443366" Click="ChapterSelectBtn_Click"/>
+                        <Button Content="🗺️ Поход по Кряжу (Карта узлов)" Margin="0,4" Height="44" FontSize="15" FontWeight="Bold" Background="#205060" Click="MapModeBtn_Click"/>
+                        <Button Content="🏆 Аркада (Бесконечная битва)" Margin="0,4" Height="44" FontSize="15" Background="#3A3A4A" Click="ArcadeBtn_Click"/>
+                        <Button Content="🎒 Инвентарь и Персонаж" Margin="0,4" Height="44" FontSize="15" Click="InventoryBtn_Click"/>
+                        <Button Content="💾 Загрузить игру" Margin="0,4" Height="44" FontSize="15" Click="LoadBtn_Click"/>
+                        <Button Content="⚙️ Настройки" Margin="0,4" Height="44" FontSize="15" Click="SettingsBtn_Click"/>
+                        <Button Content="🚪 Выход" Margin="0,4" Height="44" FontSize="15" Background="#442222" Click="ExitBtn_Click"/>
                     </StackPanel>
                 </Border>
             </Grid>

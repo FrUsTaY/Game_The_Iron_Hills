@@ -7,7 +7,7 @@
         <Image Name="BgImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.88"/>
         <Border Background="#35100E14"/>
 
-        <Grid Margin="20">
+        <Grid Margin="20" MaxWidth="1100" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -35,7 +35,7 @@
             <Border Grid.Row="1" Background="#E016141D" BorderBrush="#443750" BorderThickness="1.5" CornerRadius="8" Margin="0,0,0,12" ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="130"/>
+                        <RowDefinition Height="180"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -55,7 +55,7 @@
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="20,10,20,15">
                         <StackPanel>
-                            <TextBlock Name="DescriptionText" Text="Описание события..." FontSize="16" Foreground="#EEEEEE" TextWrapping="Wrap" LineHeight="24" Margin="0,0,0,15"/>
+                            <TextBlock Name="DescriptionText" Text="Описание события..." FontSize="17" Foreground="#EEEEEE" TextWrapping="Wrap" LineHeight="26" Margin="0,0,0,15"/>
 
                             <Separator Background="#3A3245" Margin="0,0,0,15"/>
 
@@ -68,9 +68,9 @@
                             <ItemsControl Name="ChoicesControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Margin="0,5" Padding="14,10" Background="#CC262230" BorderBrush="#604D70" BorderThickness="1.5"
+                                        <Button Margin="0,5" Padding="16,12" Background="#CC262230" BorderBrush="#604D70" BorderThickness="1.5"
                                                 HorizontalContentAlignment="Left" Click="ChoiceBtn_Click" Tag="{Binding}" Cursor="Hand">
-                                            <TextBlock Text="{Binding Text}" FontSize="14" Foreground="White" TextWrapping="Wrap" FontWeight="Medium"/>
+                                            <TextBlock Text="{Binding Text}" FontSize="15" Foreground="White" TextWrapping="Wrap" FontWeight="Medium"/>
                                         </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
