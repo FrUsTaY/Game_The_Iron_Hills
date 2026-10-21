@@ -32,6 +32,13 @@ namespace EpicBattle.Views
             HpText.Text = $"{state.PlayerHp}/{state.PlayerMaxHp}";
             GoldText.Text = state.Gold.ToString();
 
+            var img = _encounter.Image;
+            if (img != null)
+            {
+                BgImage.Source = img;
+                BannerImage.Source = img;
+            }
+
             ChoicesControl.ItemsSource = _encounter.Choices;
         }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.ViewModels;
@@ -16,6 +16,7 @@ namespace EpicBattle.Views
         {
             InitializeComponent();
             BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/tavern");
+            NpcAvatar.Source = EpicBattle.Services.ImageService.GetCharacterImage("npc_innkeeper");
             _vm = new TavernViewModel(onLeave);
             DataContext = _vm;
         }

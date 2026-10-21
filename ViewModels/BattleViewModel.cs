@@ -177,6 +177,7 @@ namespace EpicBattle.ViewModels
         public double CritChance => _gameState.CritChance;
 
         public System.Windows.Media.Imaging.BitmapImage? BattleBackground { get; private set; }
+        public System.Windows.Media.Imaging.BitmapImage? PlayerAvatar => EpicBattle.Services.ImageService.GetCharacterImage(_gameState?.PlayerClass == "Изгой-маг" ? "hero_mage" : _gameState?.PlayerClass == "Наемник" ? "hero_mercenary" : "hero_veteran");
 
         public BattleViewModel(bool isArcade, string returnNodeId = null, string battleModifier = null, int arcadeLevel = 1, Action onCompletedFromMap = null)
         {

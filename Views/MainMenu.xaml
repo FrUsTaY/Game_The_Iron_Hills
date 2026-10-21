@@ -10,10 +10,14 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid>
                 <Border Background="#CC151419" BorderBrush="#554433" BorderThickness="1" CornerRadius="12"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" Width="380" Margin="0,25" Padding="25">
-                    <StackPanel HorizontalAlignment="Center" Width="330">
-                        <TextBlock Text="⚔️ ЖЕЛЕЗНЫЙ КРЯЖ ⚔️" Foreground="#FFAA00" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Эпическая пошаговая RPG (v3.1)" Foreground="#AAAAAA" FontSize="13" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Margin="0,20" Padding="25">
+                    <StackPanel HorizontalAlignment="Center" Width="350">
+                        <!-- Металлический логотип игры -->
+                        <Border CornerRadius="8" ClipToBounds="True" Margin="0,0,0,8" HorizontalAlignment="Center">
+                            <Image Name="LogoImage" Stretch="Uniform" MaxHeight="110" HorizontalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Name="TitleText" Text="⚔️ ЖЕЛЕЗНЫЙ КРЯЖ ⚔️" Foreground="#FFAA00" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="Эпическая пошаговая RPG (v3.1)" Foreground="#AAAAAA" FontSize="13" HorizontalAlignment="Center" Margin="0,0,0,16"/>
 
                         <Button Content="▶️ Новая игра (Сюжет)" Margin="0,4" Height="40" FontSize="15" FontWeight="Bold" Background="#2E6B30" Click="StoryBtn_Click"/>
                         <Button Content="📜 Выбор Главы (Акта)" Margin="0,4" Height="40" FontSize="15" FontWeight="Bold" Background="#443366" Click="ChapterSelectBtn_Click"/>

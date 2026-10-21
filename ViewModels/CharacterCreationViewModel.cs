@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -127,6 +127,14 @@ namespace EpicBattle.ViewModels
         public ICommand DecreaseStatCommand => new Command(DecreaseStat, CanDecreaseStat);
 
         private Command _startGameCommand;
+        public System.Windows.Media.Imaging.BitmapImage? HeroPortrait => SelectedClass switch
+        {
+            "Ветеран" => EpicBattle.Services.ImageService.GetCharacterImage("hero_veteran"),
+            "Изгой-маг" => EpicBattle.Services.ImageService.GetCharacterImage("hero_mage"),
+            "Наемник" => EpicBattle.Services.ImageService.GetCharacterImage("hero_mercenary"),
+            _ => EpicBattle.Services.ImageService.GetCharacterImage("hero_veteran")
+        };
+
         public Command StartGameCommand => _startGameCommand ??= new Command(StartGame, _ => AvailablePoints == 0);
         public ICommand BackCommand => new Command(_ => { EpicBattle.Services.AudioEngine.Play("click"); NavigationManager.NavigateTo(new MainMenu()); });
 
@@ -137,6 +145,7 @@ namespace EpicBattle.ViewModels
             if (string.Equals(SelectedClass, className, StringComparison.Ordinal)) return;
 
             SelectedClass = className;
+            OnPropertyChanged(nameof(HeroPortrait));
             if (playSound)
             {
                 if (className == "Ветеран") EpicBattle.Services.AudioEngine.Play("sword_unsheath");

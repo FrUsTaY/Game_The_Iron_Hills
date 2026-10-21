@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.Managers;
 using EpicBattle.Services;
@@ -11,6 +11,12 @@ namespace EpicBattle.Views
         {
             InitializeComponent();
             BgImage.Source = ImageService.GetImage("Backgrounds/main_menu");
+            var logo = ImageService.GetUiImage("game_logo");
+            if (logo != null)
+            {
+                LogoImage.Source = logo;
+                TitleText.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void StoryBtn_Click(object sender, RoutedEventArgs e)
@@ -48,10 +54,7 @@ namespace EpicBattle.Views
         private void InventoryBtn_Click(object sender, RoutedEventArgs e)
         {
             EpicBattle.Services.AudioEngine.Play("chest_open");
-            NavigationManager.NavigateTo(new InventoryView(() =>
-            {
-                NavigationManager.NavigateTo(new MainMenu());
-            }));
+            NavigationManager.NavigateTo(new InventoryView());
         }
 
         private void LoadBtn_Click(object sender, RoutedEventArgs e)
@@ -68,6 +71,7 @@ namespace EpicBattle.Views
 
         private void ExitBtn_Click(object sender, RoutedEventArgs e)
         {
+            EpicBattle.Services.AudioEngine.Play("click_alt");
             Application.Current.Shutdown();
         }
     }

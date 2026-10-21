@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.ViewModels;
@@ -13,6 +13,7 @@ namespace EpicBattle.Views
         {
             InitializeComponent();
             BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/merchant");
+            NpcAvatar.Source = EpicBattle.Services.ImageService.GetCharacterImage("npc_merchant");
             _vm = new MerchantViewModel(onLeave);
             DataContext = _vm;
         }

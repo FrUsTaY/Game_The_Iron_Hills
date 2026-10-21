@@ -25,84 +25,129 @@
                 <StackPanel Grid.Row="1" Width="680" HorizontalAlignment="Center">
 
                     <!-- Акт 1 -->
-                    <Border Background="#DD1E1C22" BorderBrush="#554433" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,16">
+                    <Border Background="#DD1E1C22" BorderBrush="#554433" BorderThickness="1" CornerRadius="8" Margin="0,0,0,18" ClipToBounds="True">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="100"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                <TextBlock Text="🔥" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="АКТ 1: ОСАДА ПЕПЕЛЬНОГО РУЧЬЯ" FontSize="18" FontWeight="Bold" Foreground="#FFAA00" VerticalAlignment="Center"/>
-                                <Border Background="#334433" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Уровень 1-3" FontSize="12" Foreground="#55FF55" FontWeight="Bold"/>
+                            <!-- Баннер Акта 1 -->
+                            <Grid Grid.Row="0">
+                                <Image Name="BannerAct1" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border>
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#20000000" Offset="0.0"/>
+                                            <GradientStop Color="#601E1C22" Offset="0.5"/>
+                                            <GradientStop Color="#DD1E1C22" Offset="1.0"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
                                 </Border>
+                                <StackPanel Orientation="Horizontal" Margin="20,0,0,10" VerticalAlignment="Bottom">
+                                    <TextBlock Text="🔥" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="АКТ 1: ОСАДА ПЕПЕЛЬНОГО РУЧЬЯ" FontSize="18" FontWeight="Bold" Foreground="#FFAA00" VerticalAlignment="Center"/>
+                                    <Border Background="#334433" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="Уровень 1-3" FontSize="12" Foreground="#55FF55" FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Описание и кнопки -->
+                            <StackPanel Grid.Row="1" Margin="20,10,20,18">
+                                <TextBlock Text="Вторжение Орды Громгара на предгорные земли. Освобождение сгоревшей деревни, возвращение Рунического Фолианта, битва с Шаманом Варгом и дуэль за судьбу Рунного Камня."
+                                           FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
+
+                                <Button Content="▶️ Начать Акт 1 (Создание персонажа)" Height="40" FontSize="15" FontWeight="Bold"
+                                        Background="#2E6B30" HorizontalAlignment="Left" Padding="20,0" Click="StartAct1Btn_Click"/>
                             </StackPanel>
-
-                            <TextBlock Grid.Row="1" Text="Вторжение Орды Громгара на предгорные земли. Освобождение сгоревшей деревни, возвращение Рунического Фолианта, битва с Шаманом Варгом и дуэль за судьбу Рунного Камня."
-                                       FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
-
-                            <Button Grid.Row="2" Content="▶️ Начать Акт 1 (Создание персонажа)" Height="40" FontSize="15" FontWeight="Bold"
-                                    Background="#2E6B30" HorizontalAlignment="Left" Padding="20,0" Click="StartAct1Btn_Click"/>
                         </Grid>
                     </Border>
 
                     <!-- Акт 2 -->
-                    <Border Background="#DD1E1C22" BorderBrush="#7744AA" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,16">
+                    <Border Background="#DD1E1C22" BorderBrush="#7744AA" BorderThickness="1" CornerRadius="8" Margin="0,0,0,18" ClipToBounds="True">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="100"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                <TextBlock Text="🏰" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="АКТ 2: ТЕНИ ЦИТАДЕЛИ" FontSize="18" FontWeight="Bold" Foreground="#CC88FF" VerticalAlignment="Center"/>
-                                <Border Background="#443355" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Уровень 3-6 | Масштабный сюжет" FontSize="12" Foreground="#CC88FF" FontWeight="Bold"/>
+                            <!-- Баннер Акта 2 -->
+                            <Grid Grid.Row="0">
+                                <Image Name="BannerAct2" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border>
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#20000000" Offset="0.0"/>
+                                            <GradientStop Color="#601E1C22" Offset="0.5"/>
+                                            <GradientStop Color="#DD1E1C22" Offset="1.0"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
                                 </Border>
-                            </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20,0,0,10" VerticalAlignment="Bottom">
+                                    <TextBlock Text="🏰" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="АКТ 2: ТЕНИ ЦИТАДЕЛИ" FontSize="18" FontWeight="Bold" Foreground="#CC88FF" VerticalAlignment="Center"/>
+                                    <Border Background="#443355" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="Уровень 3-6 | Масштабный сюжет" FontSize="12" Foreground="#CC88FF" FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
 
-                            <TextBlock Grid.Row="1" Text="Штурм Черных Врат Древней Цитадели. Развилка трех путей: тайны Тюремных Казематов и узника Каэля, запретные архивы Библиотеки, пробуждение древнего Рунного Голема в Кузнице и схватка с Архимагом Малкором за первородное Сердце Кряжа."
-                                       FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
+                            <!-- Описание и кнопки -->
+                            <StackPanel Grid.Row="1" Margin="20,10,20,18">
+                                <TextBlock Text="Штурм Черных Врат Древней Цитадели. Развилка трех путей: тайны Тюремных Казематов и узника Каэля, запретные архивы Библиотеки, пробуждение древнего Рунного Голема в Кузнице и схватка с Архимагом Малкором за первородное Сердце Кряжа."
+                                           FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
 
-                            <StackPanel Grid.Row="2" Orientation="Horizontal">
-                                <Button Content="▶️ Начать Акт 2 (Новый герой 3 уровня)" Height="40" FontSize="15" FontWeight="Bold"
-                                        Background="#663399" Margin="0,0,15,0" Padding="15,0" Click="StartAct2NewBtn_Click"/>
-                                <Button Name="ContinueCurrentToAct2Btn" Content="⚔️ Начать Акт 2 текущим героем" Height="40" FontSize="15"
-                                        Background="#443366" Padding="15,0" Click="ContinueToAct2CurrentBtn_Click"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="▶️ Начать Акт 2 (Новый герой 3 уровня)" Height="40" FontSize="15" FontWeight="Bold"
+                                            Background="#663399" Margin="0,0,15,0" Padding="15,0" Click="StartAct2NewBtn_Click"/>
+                                    <Button Name="ContinueCurrentToAct2Btn" Content="⚔️ Начать Акт 2 текущим героем" Height="40" FontSize="15"
+                                            Background="#443366" Padding="15,0" Click="ContinueToAct2CurrentBtn_Click"/>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>
 
                     <!-- Акт 3 -->
-                    <Border Background="#DD1E1C22" BorderBrush="#AA4422" BorderThickness="1" CornerRadius="8" Padding="20" Margin="0,0,0,16">
+                    <Border Background="#DD1E1C22" BorderBrush="#AA4422" BorderThickness="1" CornerRadius="8" Margin="0,0,0,18" ClipToBounds="True">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="100"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-                                <TextBlock Text="🌋" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="АКТ 3: СЕРДЦЕ ТИТАНА" FontSize="18" FontWeight="Bold" Foreground="#FF6633" VerticalAlignment="Center"/>
-                                <Border Background="#553322" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Уровень 6+ | Финал трилогии" FontSize="12" Foreground="#FFAA66" FontWeight="Bold"/>
+                            <!-- Баннер Акта 3 -->
+                            <Grid Grid.Row="0">
+                                <Image Name="BannerAct3" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border>
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#20000000" Offset="0.0"/>
+                                            <GradientStop Color="#601E1C22" Offset="0.5"/>
+                                            <GradientStop Color="#DD1E1C22" Offset="1.0"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
                                 </Border>
-                            </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="20,0,0,10" VerticalAlignment="Bottom">
+                                    <TextBlock Text="🌋" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="АКТ 3: СЕРДЦЕ ТИТАНА" FontSize="18" FontWeight="Bold" Foreground="#FF6633" VerticalAlignment="Center"/>
+                                    <Border Background="#553322" CornerRadius="4" Padding="6,2" Margin="15,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="Уровень 6+ | Финал трилогии" FontSize="12" Foreground="#FFAA66" FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
 
-                            <TextBlock Grid.Row="1" Text="Спуск в пылающие недра Железного Кряжа через Зал Древних Королей. Пробуждение Первородного Титана, схватка за обнажённое Сердце горы и решающий финал трилогии, определяющий судьбу всего Севера."
-                                       FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
+                            <!-- Описание и кнопки -->
+                            <StackPanel Grid.Row="1" Margin="20,10,20,18">
+                                <TextBlock Text="Спуск в пылающие недра Железного Кряжа через Зал Древних Королей. Пробуждение Первородного Титана, схватка за обнажённое Сердце горы и решающий финал трилогии, определяющий судьбу всего Севера."
+                                           FontSize="13" Foreground="LightGray" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,15"/>
 
-                            <StackPanel Grid.Row="2" Orientation="Horizontal">
-                                <Button Content="▶️ Начать Акт 3 (Новый герой 6 уровня)" Height="40" FontSize="15" FontWeight="Bold"
-                                        Background="#883311" Margin="0,0,15,0" Padding="15,0" Click="StartAct3NewBtn_Click"/>
-                                <Button Name="ContinueCurrentToAct3Btn" Content="⚔️ Начать Акт 3 текущим героем" Height="40" FontSize="15"
-                                        Background="#552211" Padding="15,0" Click="ContinueToAct3CurrentBtn_Click"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="▶️ Начать Акт 3 (Новый герой 6 уровня)" Height="40" FontSize="15" FontWeight="Bold"
+                                            Background="#883311" Margin="0,0,15,0" Padding="15,0" Click="StartAct3NewBtn_Click"/>
+                                    <Button Name="ContinueCurrentToAct3Btn" Content="⚔️ Начать Акт 3 текущим героем" Height="40" FontSize="15"
+                                            Background="#552211" Padding="15,0" Click="ContinueToAct3CurrentBtn_Click"/>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>

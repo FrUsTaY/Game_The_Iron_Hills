@@ -1,7 +1,8 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using EpicBattle.Managers;
 using EpicBattle.Models;
+using EpicBattle.Services;
 
 namespace EpicBattle.Views
 {
@@ -10,7 +11,11 @@ namespace EpicBattle.Views
         public ChapterSelectView()
         {
             InitializeComponent();
-            BgImage.Source = EpicBattle.Services.ImageService.GetImage("Backgrounds/chapter_select");
+            BgImage.Source = ImageService.GetImage("Backgrounds/chapter_select");
+            BannerAct1.Source = ImageService.GetUiImage("banner_act1");
+            BannerAct2.Source = ImageService.GetUiImage("banner_act2");
+            BannerAct3.Source = ImageService.GetUiImage("banner_act3");
+
             var state = SaveManager.CurrentState;
             if (state == null || state.PlayerLevel < 2)
             {
@@ -70,7 +75,12 @@ namespace EpicBattle.Views
             var state = SaveManager.CurrentState;
             if (state != null)
             {
-                state.SetupForAct3(state.PlayerClass);
+                state.CurrentAct = 3;
+                state.CurrentNodeId = "Act3_Start";
+                state.IsStoryMode = true;
+                state.RecalculateDerivedStats();
+                state.PlayerHp = state.PlayerMaxHp;
+                state.PlayerMp = state.PlayerMaxMp;
                 NavigationManager.NavigateTo(new DialogueView());
             }
         }

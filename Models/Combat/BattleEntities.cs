@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using EpicBattle.Models.RPG;
@@ -36,6 +36,7 @@ namespace EpicBattle.Models.Combat
     {
         private static readonly RngProxy rand = new RngProxy();
 
+        public System.Windows.Media.Imaging.BitmapImage? Avatar => EpicBattle.Services.ImageService.GetEnemyAvatar(Name, Id);
         public EnemyRole Role { get; set; }
         public EnemyIntent CurrentIntent { get; set; } = new EnemyIntent();
         public List<Skill> AvailableSkills { get; set; } = new List<Skill>();
