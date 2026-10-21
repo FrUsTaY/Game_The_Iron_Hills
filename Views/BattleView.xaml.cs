@@ -285,6 +285,60 @@ namespace EpicBattle.Views
             this.Focus();
         }
 
+        private void OpenPlayerBestiary_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            EpicBattle.Services.AudioEngine.Play("click");
+            if (DataContext is ViewModels.BattleViewModel vm && vm.Player != null)
+            {
+                var entry = EpicBattle.Models.RPG.BestiaryDatabase.GetEntryForCombatant(vm.Player.Name, null, isPlayer: true, playerClass: vm.Player.PlayerClass);
+                ShowBestiary(entry);
+            }
+        }
+
+        private void OpenEnemyBestiary_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            EpicBattle.Services.AudioEngine.Play("click");
+            if (sender is FrameworkElement elem && elem.DataContext is EpicBattle.Models.Combat.BattleEnemy enemy)
+            {
+                var entry = EpicBattle.Models.RPG.BestiaryDatabase.GetEntryForCombatant(enemy.Name, enemy.Id);
+                ShowBestiary(entry);
+            }
+        }
+
+        private void ShowBestiary(EpicBattle.Models.RPG.BestiaryEntry entry)
+        {
+            if (entry == null) return;
+            BestiaryArtImage.Source = entry.Image;
+            BestiaryTitleText.Text = entry.Name;
+            BestiarySubtitleText.Text = entry.Subtitle;
+            BestiaryCategoryBadge.Text = entry.Category;
+            BestiaryDangerBadge.Text = $"Угроза: {entry.DangerLevel}";
+            BestiaryEpigraphText.Text = entry.Epigraph;
+            BestiaryDescriptionText.Text = entry.Description;
+            BestiaryTacticsText.Text = entry.Tactics;
+
+            BestiaryOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void CloseBestiary_Click(object sender, RoutedEventArgs e)
+        {
+            EpicBattle.Services.AudioEngine.Play("click");
+            BestiaryOverlay.Visibility = Visibility.Collapsed;
+            this.Focus();
+        }
+
+        private void BestiaryOverlay_BackgroundMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            CloseBestiary_Click(sender, e);
+        }
+
+        private void BestiaryCard_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+
         private void PauseBtn_Click(object sender, RoutedEventArgs e)
         {
             EpicBattle.Services.AudioEngine.Play("click");
@@ -296,6 +350,12 @@ namespace EpicBattle.Views
         {
             if (e.Key == Key.Escape)
             {
+                if (BestiaryOverlay.Visibility == Visibility.Visible)
+                {
+                    BestiaryOverlay.Visibility = Visibility.Collapsed;
+                    e.Handled = true;
+                    return;
+                }
                 if (FullLogOverlay.Visibility == Visibility.Visible)
                 {
                     FullLogOverlay.Visibility = Visibility.Collapsed;

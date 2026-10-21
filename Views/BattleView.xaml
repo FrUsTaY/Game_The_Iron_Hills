@@ -59,9 +59,30 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Парадный аватар героя (увеличенный формат 120x150) -->
-                    <Border Grid.Column="0" Width="120" Height="150" CornerRadius="8" BorderBrush="#C89B3C" BorderThickness="2" ClipToBounds="True" Margin="0,0,16,0" VerticalAlignment="Center" Background="#1B1722">
-                        <Image Source="{Binding PlayerAvatar}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                    <Grid Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Center">
+                        <Border Width="120" Height="150" CornerRadius="8" BorderBrush="#C89B3C" BorderThickness="2" ClipToBounds="True" Background="#1B1722">
+                            <Image Source="{Binding PlayerAvatar}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- Значок справки/бестиария героя -->
+                        <Button Click="OpenPlayerBestiary_Click" Cursor="Hand" ToolTip="Осмотреть героя (Бестиарий)"
+                                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5"
+                                Width="28" Height="28">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="btnBorder" Background="#D514121A" BorderBrush="#C89B3C" BorderThickness="1.5" CornerRadius="14" Opacity="0.88">
+                                        <TextBlock Text="📜" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="btnBorder" Property="Opacity" Value="1.0"/>
+                                            <Setter TargetName="btnBorder" Property="Background" Value="#F0382416"/>
+                                            <Setter TargetName="btnBorder" Property="BorderBrush" Value="#FFAA00"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
 
                     <StackPanel Grid.Column="1" Name="PlayerColumnHost" VerticalAlignment="Center">
                     <!-- Вспышка при получении удара -->
@@ -176,9 +197,30 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Аватар врага (крупный формат 82x104) -->
-                                <Border Grid.Column="0" Width="82" Height="104" CornerRadius="8" BorderBrush="#6B4F6E" BorderThickness="2" ClipToBounds="True" Margin="0,0,14,0" VerticalAlignment="Center" Background="#1D1722">
-                                    <Image Source="{Binding Avatar}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Grid Grid.Column="0" Margin="0,0,14,0" VerticalAlignment="Center">
+                                    <Border Width="82" Height="104" CornerRadius="8" BorderBrush="#6B4F6E" BorderThickness="2" ClipToBounds="True" Background="#1D1722">
+                                        <Image Source="{Binding Avatar}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <!-- Значок справки/бестиария врага -->
+                                    <Button Click="OpenEnemyBestiary_Click" Cursor="Hand" ToolTip="Осмотреть врага (Бестиарий)"
+                                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,4,4"
+                                            Width="26" Height="26">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="btnBorder" Background="#D5161420" BorderBrush="#9E75A8" BorderThickness="1.5" CornerRadius="13" Opacity="0.88">
+                                                    <TextBlock Text="📜" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="btnBorder" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="btnBorder" Property="Background" Value="#F03F2248"/>
+                                                        <Setter TargetName="btnBorder" Property="BorderBrush" Value="#FFAA00"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
 
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                     <Grid Margin="0,0,0,6">
@@ -437,6 +479,108 @@
                     </Border>
                 </Grid>
             </Grid>
+        </Border>
+
+        <!-- Оверлей Бестиария / Досье персонажа в стиле Ведьмака -->
+        <Border Name="BestiaryOverlay" Grid.Row="0" Grid.RowSpan="5" Background="#D808060C" Visibility="Collapsed" Panel.ZIndex="130"
+                MouseDown="BestiaryOverlay_BackgroundMouseDown">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="#F013111A" BorderBrush="#8A6B48" BorderThickness="2" CornerRadius="12"
+                    MaxWidth="980" MaxHeight="660" Padding="20"
+                    MouseDown="BestiaryCard_MouseDown">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="0" Opacity="0.85"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Шапка окна бестиария -->
+                    <Grid Grid.Row="0" Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📖 " FontSize="18" Foreground="#FFAA00"/>
+                            <TextBlock Text="БЕСТИАРИЙ ЖЕЛЕЗНЫХ ХОЛМОВ" Foreground="#FFAA00" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Text=" • Хроники и Досье" Foreground="#888888" FontSize="14" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        </StackPanel>
+
+                        <Button Click="CloseBestiary_Click" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Width="32" Height="32" Cursor="Hand" Background="Transparent" BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="#33FFFFFF" CornerRadius="6" Width="30" Height="30">
+                                        <TextBlock Text="✕" Foreground="#CCCCCC" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+
+                    <!-- Две колонки: Арт слева, Лор и тактика справа -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="340"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Рама с крупным артом высокого качества -->
+                        <Border Grid.Column="0" CornerRadius="10" BorderBrush="#C89B3C" BorderThickness="2" ClipToBounds="True" Background="#0C0A10" VerticalAlignment="Stretch">
+                            <Grid>
+                                <Image Name="BestiaryArtImage" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border VerticalAlignment="Bottom" Height="80">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#00000000" Offset="0"/>
+                                            <GradientStop Color="#CC0A0810" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Текстовое досье (скроллируемое при необходимости) -->
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Name="BestiaryTitleText" Foreground="White" FontSize="26" FontWeight="Bold" Margin="0,0,0,3"/>
+                                <TextBlock Name="BestiarySubtitleText" Foreground="#E0B669" FontSize="13" FontStyle="Italic" Margin="0,0,0,10"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border Background="#2B1D38" BorderBrush="#6B4B8A" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                        <TextBlock Name="BestiaryCategoryBadge" Foreground="#CE93D8" FontSize="11" FontWeight="Bold"/>
+                                    </Border>
+                                    <Border Background="#3E1A1A" BorderBrush="#8A3333" BorderThickness="1" CornerRadius="4" Padding="8,4">
+                                        <TextBlock Name="BestiaryDangerBadge" Foreground="#FF8A80" FontSize="11" FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <Border Background="#1C1720" BorderBrush="#3D3246" BorderThickness="1" CornerRadius="6" Padding="12,10" Margin="0,0,0,14">
+                                    <Grid>
+                                        <Border BorderBrush="#C89B3C" BorderThickness="3,0,0,0" Margin="-12,-10,0,-10"/>
+                                        <TextBlock Name="BestiaryEpigraphText" Foreground="#D0C4B0" FontSize="12.5" FontStyle="Italic" TextWrapping="Wrap" LineHeight="18" Margin="8,0,0,0"/>
+                                    </Grid>
+                                </Border>
+
+                                <TextBlock Text="ЛОР И ПРОИСХОЖДЕНИЕ" Foreground="#FFAA00" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
+                                <TextBlock Name="BestiaryDescriptionText" Foreground="#E0E0E0" FontSize="13" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="ТАКТИЧЕСКИЕ ЗАМЕТКИ" Foreground="#4DD0E1" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
+                                <Border Background="#122329" BorderBrush="#1E4753" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                                    <TextBlock Name="BestiaryTacticsText" Foreground="#B2EBF2" FontSize="12.5" TextWrapping="Wrap" LineHeight="19"/>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- Подвал окна -->
+                    <Grid Grid.Row="2" Margin="0,16,0,0">
+                        <TextBlock Text="Нажмите ESC или кликните в любое место вне окна для возврата" Foreground="#777777" FontSize="11" VerticalAlignment="Center"/>
+                        <Button Content="Вернуться в бой" Click="CloseBestiary_Click" HorizontalAlignment="Right" Padding="20,7" Height="36"/>
+                    </Grid>
+                </Grid>
+            </Border>
         </Border>
 
         <!-- Оверлей полной истории боя -->
